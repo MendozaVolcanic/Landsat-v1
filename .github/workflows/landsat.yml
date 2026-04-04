@@ -1,0 +1,62 @@
+name: Landsat Downloader
+
+on:
+  schedule:
+    # 2 veces al dia: 10:00 y 20:00 UTC (mismos horarios que Copernicus)
+    - cron: "0 10 * * *"
+    - cron: "0 20 * * *"
+  workflow_dispatch:
+    inputs:
+      dias:
+        description: "Dias atras a buscar (default: 2)"
+        required: false
+        default: "2"
+      volcan:
+        description: "Nombre exacto de un volcan especifico (opcional)"
+        required: false
+        default: ""
+
+jobs:
+  descargar:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repositorio
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Instalar dependencias
+        run: pip install -r requirements.txt
+
+      - name: Descargar imagenes Landsat
+        run: |
+          DIAS="${{ github.event.inputs.dias || '2' }}"
+          VOLCAN="${{ github.event.inputs.volcan }}"
+
+          if [ -n "$VOLCAN" ]; then
+            python landsat_downloader.py --dias "$DIAS" --volcan "$VOLCAN"
+          else
+            python landsat_downloader.py --dias "$DIAS"
+          fi
+
+      - name: Commit y push de nuevas imagenes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git add docs/
+          git diff --cached --quiet && echo "Sin cambios nuevos" && exit 0
+
+          FECHA=$(date -u +"%Y-%m-%d %H:%M UTC")
+          COUNT=$(git diff --cached --name-only | grep "\.png$" | wc -l)
+          git commit -m "landsat: $COUNT imagenes nuevas ($FECHA)"
+          git push
