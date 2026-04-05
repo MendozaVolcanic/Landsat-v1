@@ -165,8 +165,9 @@ def generar_swir(item, lat, lon, buffer_km):
 
 def generar_thermal(item, lat, lon, buffer_km):
     """
-    Genera imagen termal (B10 TIRS) como PNG falso color.
+    Genera imagen termal (B10 TIRS) como PNG falso color en Celsius.
     Paleta: azul (frio) → amarillo → rojo (caliente).
+    Rango: -20°C (nieve/glaciares) → 80°C (fumarolas activas).
     """
     cfg = COMPOSITES["THERMAL"]
     banda = cfg["bandas"][0]   # "lwir11"
@@ -180,14 +181,14 @@ def generar_thermal(item, lat, lon, buffer_km):
     if data is None:
         return None
 
-    # Convertir a Kelvin
-    kelvin = data * cfg["factor_escala"] + cfg["offset"]
+    # Convertir a Celsius directamente (offset ya incluye -273.15)
+    celsius = data * cfg["factor_escala"] + cfg["offset"]
 
-    # Normalizar al rango de visualizacion
-    k_min, k_max = cfg["kelvin_min"], cfg["kelvin_max"]
-    normalizado = np.clip((kelvin - k_min) / (k_max - k_min), 0, 1)
+    # Normalizar al rango de visualizacion (-20°C a 80°C)
+    c_min, c_max = cfg["celsius_min"], cfg["celsius_max"]
+    normalizado = np.clip((celsius - c_min) / (c_max - c_min), 0, 1)
 
-    # Aplicar colormap termico (azul→cian→verde→amarillo→rojo)
+    # Aplicar colormap termico (azul→amarillo→rojo)
     img_rgb = _colormap_thermal(normalizado)
     return img_rgb
 

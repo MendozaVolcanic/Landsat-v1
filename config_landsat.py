@@ -49,11 +49,11 @@ COMPOSITES = {
     },
     "THERMAL": {
         "bandas": ["lwir11"],
-        "descripcion": "Temperatura superficial (Banda 10 TIRS)",
-        "factor_escala": 0.00341802,   # Convierte a Kelvin
-        "offset": 149.0,
-        "kelvin_min": 250,  # Rango de visualizacion (fondo frio)
-        "kelvin_max": 350,  # Volcanes activos pueden superar esto
+        "descripcion": "Temperatura superficial en Celsius (Banda 10 TIRS)",
+        "factor_escala": 0.00341802,   # Factor escala Landsat C2 L2
+        "offset": -124.15,             # 149.0 - 273.15 → resultado en °C directamente
+        "celsius_min": -20,            # Fondo frio (nieve/glaciares)
+        "celsius_max": 80,             # Volcanes activos con fumarolas intensas
     },
 }
 
