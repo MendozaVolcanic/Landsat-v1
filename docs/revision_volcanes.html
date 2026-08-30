@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Revisión de Coordenadas — Landsat-v1</title>
+<style>
+  :root {
+    --bg: #0d1117; --surface: #161b22; --border: #30363d;
+    --text: #e6edf3; --muted: #8b949e; --accent: #e67e22;
+    --accent-dark: #b45309;
+    --green: #7ee787; --orange: #f97316; --red: #f85149;
+    --purple: #a371f7;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; font-family: -apple-system, 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg); color: var(--text); line-height: 1.5;
+    padding-bottom: 100px;
+  }
+  header {
+    background: linear-gradient(90deg, #7c3a0a 0%, #e67e22 100%);
+    padding: 22px 30px; border-bottom: 1px solid var(--border);
+  }
+  header h1 { margin: 0; font-size: 1.5em; }
+  header p { margin: 4px 0 0; color: rgba(255,255,255,0.85); font-size: 0.9em; }
+  .toolbar {
+    background: var(--surface); padding: 14px 30px;
+    border-bottom: 1px solid var(--border);
+    display: flex; gap: 12px; align-items: center; flex-wrap: wrap;
+    position: sticky; top: 0; z-index: 50;
+  }
+  .toolbar label { color: var(--muted); font-size: 0.9em; }
+  .toolbar select, .toolbar input {
+    background: #1c2128; color: var(--text);
+    border: 1px solid var(--border); padding: 6px 10px; border-radius: 6px;
+    font-size: 0.9em;
+  }
+  .toolbar input[type="text"] { min-width: 220px; }
+  .toolbar input[type="email"] { min-width: 240px; }
+  main { max-width: 1200px; margin: 0 auto; padding: 24px; }
+  .intro {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 16px 20px; margin-bottom: 18px;
+    font-size: 0.9em; color: var(--muted);
+  }
+  .intro strong { color: var(--text); }
+  .intro a { color: var(--accent); }
+  .card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; margin-bottom: 10px; overflow: hidden;
+    transition: border-color 0.15s;
+  }
+  .card.has-changes { border-color: var(--green); }
+  .card-header {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 12px 18px; cursor: pointer; user-select: none;
+    background: var(--surface);
+  }
+  .card-header:hover { background: #1c2128; }
+  .card-title { display: flex; align-items: center; gap: 12px; }
+  .card-title h3 { margin: 0; color: var(--accent); font-size: 1.05em; }
+  .zona-pill {
+    display: inline-block; padding: 2px 10px; border-radius: 12px;
+    font-size: 0.72em; font-weight: 600;
+  }
+  .zona-Norte { background: #f97316; color: #1a1a1a; }
+  .zona-Centro { background: #e67e22; color: #fff; }
+  .zona-Sur { background: #7ee787; color: #1a1a1a; }
+  .zona-Austral { background: #a371f7; color: #fff; }
+  .change-badge {
+    background: var(--green); color: #0d1117;
+    padding: 2px 10px; border-radius: 12px;
+    font-size: 0.72em; font-weight: 700;
+  }
+  .chevron { color: var(--muted); transition: transform 0.2s; }
+  .card.open .chevron { transform: rotate(90deg); }
+  .card-body {
+    display: none; padding: 16px 20px;
+    border-top: 1px solid var(--border);
+    background: #0d1117;
+  }
+  .card.open .card-body { display: block; }
+  .row-2 {
+    display: grid; gap: 16px;
+    grid-template-columns: 1fr 1fr;
+    margin-bottom: 14px;
+  }
+  @media (max-width: 700px) { .row-2 { grid-template-columns: 1fr; } }
+  .field-block h4 {
+    margin: 0 0 8px; font-size: 0.8em; color: var(--muted);
+    text-transform: uppercase; letter-spacing: 0.05em;
+  }
+  .field-line {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 6px 10px; border-radius: 6px; margin-bottom: 4px;
+    font-size: 0.88em;
+  }
+  .field-line.current { background: #1c2128; }
+  .field-line label { color: var(--muted); }
+  .field-line .val { font-family: 'Consolas', monospace; color: var(--text); }
+  .input-line {
+    display: flex; align-items: center; gap: 8px;
+    margin-bottom: 6px;
+  }
+  .input-line label {
+    width: 90px; color: var(--muted); font-size: 0.85em;
+  }
+  .input-line input {
+    flex: 1; background: #0d1117; color: var(--text);
+    border: 1px solid var(--border); padding: 6px 10px;
+    border-radius: 6px; font-family: 'Consolas', monospace;
+    font-size: 0.9em;
+  }
+  .input-line input.invalid { border-color: var(--red); }
+  .input-line input:focus { outline: none; border-color: var(--accent); }
+  .zoom-section {
+    margin-top: 14px; padding-top: 14px;
+    border-top: 1px dashed var(--border);
+  }
+  .zoom-section h4 {
+    margin: 0 0 10px; color: var(--purple); font-size: 0.9em;
+  }
+  .zoom-view {
+    background: #1c2128; border: 1px solid #2d333b;
+    border-radius: 8px; padding: 12px;
+    margin-bottom: 8px;
+  }
+  .zoom-view .zv-grid {
+    display: grid; gap: 8px;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+  }
+  @media (max-width: 800px) { .zoom-view .zv-grid { grid-template-columns: 1fr 1fr; } }
+  .zoom-view input, .zoom-view textarea {
+    width: 100%; background: #0d1117; color: var(--text);
+    border: 1px solid var(--border); padding: 5px 8px;
+    border-radius: 5px; font-size: 0.85em;
+    font-family: 'Consolas', monospace;
+  }
+  .zoom-view textarea {
+    font-family: inherit; resize: vertical; min-height: 36px;
+    margin-top: 6px; width: 100%;
+  }
+  .zoom-view .zv-label {
+    font-size: 0.72em; color: var(--muted);
+    display: block; margin-bottom: 2px;
+  }
+  .zoom-remove {
+    background: transparent; color: var(--red);
+    border: 1px solid var(--red); border-radius: 5px;
+    padding: 3px 8px; font-size: 0.75em; cursor: pointer;
+    margin-top: 6px;
+  }
+  .zoom-remove:hover { background: rgba(248,81,73,0.1); }
+  .btn-add-zoom {
+    background: transparent; color: var(--purple);
+    border: 1px dashed var(--purple); border-radius: 6px;
+    padding: 6px 12px; font-size: 0.85em; cursor: pointer;
+    margin-top: 4px;
+  }
+  .btn-add-zoom:hover { background: rgba(163,113,247,0.1); }
+  .footer-bar {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: var(--surface); border-top: 2px solid var(--accent);
+    padding: 14px 24px; display: flex; align-items: center;
+    gap: 14px; flex-wrap: wrap; z-index: 100;
+    box-shadow: 0 -4px 12px rgba(0,0,0,0.4);
+  }
+  .footer-counter {
+    color: var(--text); font-size: 0.95em; flex: 1;
+  }
+  .footer-counter strong { color: var(--green); }
+  .btn-action {
+    background: var(--accent); color: #fff;
+    border: none; border-radius: 6px;
+    padding: 9px 16px; font-size: 0.9em;
+    cursor: pointer; font-weight: 600;
+  }
+  .btn-action:hover { filter: brightness(1.15); }
+  .btn-action.green { background: var(--green); color: #0d1117; }
+  .btn-action.purple { background: var(--purple); color: #fff; }
+  .btn-action.gray { background: #30363d; }
+  .back {
+    display: inline-block; color: var(--accent);
+    text-decoration: none; padding: 6px 12px;
+    border: 1px solid var(--accent); border-radius: 6px;
+    font-size: 0.85em;
+  }
+  .back:hover { background: rgba(230,126,34,0.1); }
+  .hint { font-size: 0.75em; color: var(--muted); margin-top: 2px; }
+  .toast {
+    position: fixed; top: 80px; right: 24px;
+    background: var(--green); color: #0d1117;
+    padding: 10px 18px; border-radius: 8px;
+    font-weight: 600; z-index: 200;
+    opacity: 0; transition: opacity 0.3s;
+    pointer-events: none;
+  }
+  .toast.show { opacity: 1; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>📝 Revisión de Coordenadas — Landsat-v1</h1>
+  <p>Formulario interactivo para proponer cambios de coordenadas, radio y vistas zoom de los 43 volcanes monitoreados con Landsat 8/9</p>
+</header>
+
+<div class="toolbar">
+  <a href="index.html" class="back">← Volver al dashboard</a>
+  <label>Buscar:</label>
+  <input type="text" id="search" placeholder="Nombre del volcán...">
+  <label>Zona:</label>
+  <select id="zona-filter">
+    <option value="">Todas</option>
+    <option value="Norte">Norte</option>
+    <option value="Centro">Centro</option>
+    <option value="Sur">Sur</option>
+    <option value="Austral">Austral</option>
+  </select>
+  <label>Tu email (opcional):</label>
+  <input type="email" id="revisor-email" placeholder="nombre@sernageomin.cl">
+  <button class="btn-action gray" onclick="expandirTodos()">Expandir todos</button>
+  <button class="btn-action gray" onclick="colapsarTodos()">Colapsar</button>
+</div>
+
+<main>
+  <div class="intro">
+    <strong>Cómo usar:</strong> hacé click en cada volcán para expandir su tarjeta. Los valores actuales (sincronizados con <code>config_landsat.py</code>) aparecen en gris (read-only). Si querés proponer un cambio, escribilo en el input correspondiente. Si querés agregar una vista zoom (sub-área del volcán para monitorear con más detalle, ej. cráter), tocá "+ Agregar vista zoom". Al terminar, descargá el JSON o generá el email. <strong>Solo los volcanes con cambios se incluyen en la salida.</strong>
+    <br><br>
+    🔗 ¿Querés revisar en paralelo con Sentinel-2? Abrí <a href="https://mendozavolcanic.github.io/Copernicus-v1/revision_volcanes.html" target="_blank" rel="noopener">el formulario equivalente de Copernicus-v1</a>.
+  </div>
+  <div id="lista-volcanes"></div>
+</main>
+
+<div class="footer-bar">
+  <div class="footer-counter" id="counter">0 volcanes con cambios · 0 vistas zoom nuevas</div>
+  <button class="btn-action green" onclick="descargarJSON()">📥 Descargar JSON</button>
+  <button class="btn-action" onclick="generarEmail()">✉️ Generar Email</button>
+  <button class="btn-action purple" onclick="copiarMarkdown()">📋 Copiar Markdown</button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ============================================================
+// DATOS: 43 volcanes monitoreados con Landsat 8/9
+// Sincronizado con config_landsat.py (VOLCANES dict)
+// ============================================================
+const VOLCANES = [
+  // ZONA NORTE (8)
+  { nombre: "Taapaca",              zona: "Norte",   lat: -18.10922, lon: -69.50584, buffer_km: 5.0 },
+  { nombre: "Parinacota",           zona: "Norte",   lat: -18.17126, lon: -69.14534, buffer_km: 2.5 },
+  { nombre: "Guallatiri",           zona: "Norte",   lat: -18.42781, lon: -69.08500, buffer_km: 2.5 },
+  { nombre: "Isluga",               zona: "Norte",   lat: -19.16737, lon: -68.82225, buffer_km: 3.5 },
+  { nombre: "Irruputuncu",          zona: "Norte",   lat: -20.73329, lon: -68.56041, buffer_km: 1.4 },
+  { nombre: "Ollague",              zona: "Norte",   lat: -21.30685, lon: -68.17941, buffer_km: 3.5 },
+  { nombre: "San Pedro",            zona: "Norte",   lat: -21.88485, lon: -68.40706, buffer_km: 4.5 },
+  { nombre: "Lascar",               zona: "Norte",   lat: -23.36726, lon: -67.73611, buffer_km: 2.8 },
+  // ZONA CENTRO (9)
+  { nombre: "Tupungatito",          zona: "Centro",  lat: -33.40849, lon: -69.82181, buffer_km: 3.5 },
+  { nombre: "San Jose",             zona: "Centro",  lat: -33.78682, lon: -69.89732, buffer_km: 2.5 },
+  { nombre: "Tinguiririca",         zona: "Centro",  lat: -34.80794, lon: -70.34917, buffer_km: 2.8 },
+  { nombre: "Planchon-Peteroa",     zona: "Centro",  lat: -35.24212, lon: -70.57189, buffer_km: 1.3 },
+  { nombre: "Descabezado Grande",   zona: "Centro",  lat: -35.60431, lon: -70.74830, buffer_km: 7.0 },
+  { nombre: "Tatara-San Pedro",     zona: "Centro",  lat: -35.99755, lon: -70.84533, buffer_km: 3.5 },
+  { nombre: "Laguna del Maule",     zona: "Centro",  lat: -36.07100, lon: -70.49828, buffer_km: 9.0 },
+  { nombre: "Nevado de Longavi",    zona: "Centro",  lat: -36.20001, lon: -71.17010, buffer_km: 5.0 },
+  { nombre: "Nevados de Chillan",   zona: "Centro",  lat: -37.41096, lon: -71.35231, buffer_km: 3.3 },
+  // ZONA SUR (13)
+  { nombre: "Antuco",               zona: "Sur",     lat: -37.41859, lon: -71.34097, buffer_km: 3.0 },
+  { nombre: "Copahue",              zona: "Sur",     lat: -37.85715, lon: -71.16836, buffer_km: 2.0 },
+  { nombre: "Callaqui",             zona: "Sur",     lat: -37.92554, lon: -71.46113, buffer_km: 5.0 },
+  { nombre: "Lonquimay",            zona: "Sur",     lat: -38.38216, lon: -71.58530, buffer_km: 3.0 },
+  { nombre: "Llaima",               zona: "Sur",     lat: -38.71238, lon: -71.73447, buffer_km: 4.0 },
+  { nombre: "Sollipulli",           zona: "Sur",     lat: -38.98103, lon: -71.51557, buffer_km: 5.0 },
+  { nombre: "Villarrica",           zona: "Sur",     lat: -39.42052, lon: -71.93939, buffer_km: 1.5 },
+  { nombre: "Quetrupillan",         zona: "Sur",     lat: -39.53150, lon: -71.70337, buffer_km: 5.5 },
+  { nombre: "Lanin",                zona: "Sur",     lat: -39.62762, lon: -71.47923, buffer_km: 4.5 },
+  { nombre: "Mocho-Choshuenco",     zona: "Sur",     lat: -39.93439, lon: -72.00281, buffer_km: 5.0 },
+  { nombre: "Carran - Los Venados", zona: "Sur",     lat: -40.37922, lon: -72.10509, buffer_km: 6.5 },
+  { nombre: "Puyehue - Cordon Caulle", zona: "Sur",  lat: -40.54783, lon: -72.14826, buffer_km: 10.0 },
+  { nombre: "Antillanca - Casablanca", zona: "Sur",  lat: -40.76716, lon: -72.15114, buffer_km: 5.5 },
+  // ZONA AUSTRAL (13)
+  { nombre: "Osorno",               zona: "Austral", lat: -41.10453, lon: -72.49271, buffer_km: 4.0 },
+  { nombre: "Calbuco",              zona: "Austral", lat: -41.33035, lon: -72.60399, buffer_km: 2.5 },
+  { nombre: "Yate",                 zona: "Austral", lat: -41.77750, lon: -72.38678, buffer_km: 4.5 },
+  { nombre: "Hornopiren",           zona: "Austral", lat: -41.88132, lon: -72.43178, buffer_km: 2.5 },
+  { nombre: "Huequi",               zona: "Austral", lat: -42.38094, lon: -72.58103, buffer_km: 1.5 },
+  { nombre: "Michinmahuida",        zona: "Austral", lat: -42.83733, lon: -72.43927, buffer_km: 9.5 },
+  { nombre: "Chaiten",              zona: "Austral", lat: -42.83276, lon: -72.65155, buffer_km: 2.7 },
+  { nombre: "Corcovado",            zona: "Austral", lat: -43.19300, lon: -72.78979, buffer_km: 2.5 },
+  { nombre: "Melimoyu",             zona: "Austral", lat: -44.07612, lon: -72.85073, buffer_km: 7.0 },
+  { nombre: "Mentolat",             zona: "Austral", lat: -44.69272, lon: -73.07507, buffer_km: 3.0 },
+  { nombre: "Cay",                  zona: "Austral", lat: -45.07068, lon: -72.96318, buffer_km: 3.5 },
+  { nombre: "Maca",                 zona: "Austral", lat: -45.11210, lon: -73.16908, buffer_km: 3.5 },
+  { nombre: "Hudson",               zona: "Austral", lat: -45.90915, lon: -72.96508, buffer_km: 8.0 }
+];
+
+// Estado: cambios propuestos por volcán
+// estructura: { [nombre]: { modificaciones: {lat, lon, buffer_km}, zoom_views: [...] } }
+const estado = {};
+
+// ============================================================
+// VALIDACIÓN
+// ============================================================
+function validarLat(v) { return v >= -46 && v <= -18; }
+function validarLon(v) { return v >= -74 && v <= -67; }
+function validarBuffer(v) { return v >= 0.3 && v <= 15; }
+
+function parseNumero(str) {
+  if (str === null || str === undefined) return null;
+  const s = String(str).trim();
+  if (s === "") return null;
+  const n = Number(s);
+  return isNaN(n) ? null : n;
+}
+
+// ============================================================
+// RENDER (sin innerHTML con contenido dinámico)
+// ============================================================
+function createEl(tag, opts = {}) {
+  const el = document.createElement(tag);
+  if (opts.className) el.className = opts.className;
+  if (opts.text !== undefined) el.textContent = opts.text;
+  if (opts.attrs) {
+    for (const k in opts.attrs) el.setAttribute(k, opts.attrs[k]);
+  }
+  if (opts.style) {
+    for (const k in opts.style) el.style[k] = opts.style[k];
+  }
+  if (opts.on) {
+    for (const k in opts.on) el.addEventListener(k, opts.on[k]);
+  }
+  return el;
+}
+
+function renderLista() {
+  const cont = document.getElementById('lista-volcanes');
+  cont.textContent = ''; // clear
+  VOLCANES.forEach(v => cont.appendChild(renderCard(v)));
+}
+
+function renderCard(v) {
+  const card = createEl('div', { className: 'card', attrs: { 'data-nombre': v.nombre, 'data-zona': v.zona } });
+
+  // Header
+  const header = createEl('div', { className: 'card-header', on: { click: () => card.classList.toggle('open') } });
+  const titleWrap = createEl('div', { className: 'card-title' });
+  const chevron = createEl('span', { className: 'chevron', text: '▶' });
+  const h3 = createEl('h3', { text: v.nombre });
+  const zonaPill = createEl('span', { className: 'zona-pill zona-' + v.zona, text: v.zona });
+  titleWrap.appendChild(chevron);
+  titleWrap.appendChild(h3);
+  titleWrap.appendChild(zonaPill);
+  header.appendChild(titleWrap);
+  const badgeWrap = createEl('div', { className: 'badge-wrap' });
+  header.appendChild(badgeWrap);
+  card.appendChild(header);
+
+  // Body
+  const body = createEl('div', { className: 'card-body' });
+
+  const row2 = createEl('div', { className: 'row-2' });
+
+  // -- Bloque valores actuales
+  const actBlock = createEl('div', { className: 'field-block' });
+  actBlock.appendChild(createEl('h4', { text: 'Valores actuales (config_landsat.py)' }));
+  ['Latitud', 'Longitud', 'Radio (km)'].forEach((lab, idx) => {
+    const line = createEl('div', { className: 'field-line current' });
+    line.appendChild(createEl('label', { text: lab }));
+    const valTxt = idx === 0 ? v.lat.toFixed(5)
+                : idx === 1 ? v.lon.toFixed(5)
+                : v.buffer_km.toFixed(1);
+    line.appendChild(createEl('span', { className: 'val', text: valTxt }));
+    actBlock.appendChild(line);
+  });
+  row2.appendChild(actBlock);
+
+  // -- Bloque inputs nuevos
+  const inBlock = createEl('div', { className: 'field-block' });
+  inBlock.appendChild(createEl('h4', { text: 'Cambios propuestos (opcionales)' }));
+
+  function makeInput(labelTxt, key, placeholder, validator) {
+    const wrap = createEl('div', { className: 'input-line' });
+    wrap.appendChild(createEl('label', { text: labelTxt }));
+    const inp = createEl('input', {
+      attrs: { type: 'text', placeholder: placeholder, 'data-key': key }
+    });
+    inp.addEventListener('input', () => {
+      const num = parseNumero(inp.value);
+      if (inp.value.trim() === '') {
+        inp.classList.remove('invalid');
+        setMod(v.nombre, key, null);
+      } else if (num === null || !validator(num)) {
+        inp.classList.add('invalid');
+        setMod(v.nombre, key, null);
+      } else {
+        inp.classList.remove('invalid');
+        setMod(v.nombre, key, num);
+      }
+      actualizarUI();
+    });
+    wrap.appendChild(inp);
+    return wrap;
+  }
+
+  inBlock.appendChild(makeInput('Nueva lat', 'lat', String(v.lat), validarLat));
+  inBlock.appendChild(makeInput('Nueva lon', 'lon', String(v.lon), validarLon));
+  inBlock.appendChild(makeInput('Nuevo radio', 'buffer_km', String(v.buffer_km), validarBuffer));
+  const hint = createEl('div', { className: 'hint', text: 'Rangos: lat ∈ [-46,-18], lon ∈ [-74,-67], radio ∈ [0.3,15] km' });
+  inBlock.appendChild(hint);
+  row2.appendChild(inBlock);
+
+  body.appendChild(row2);
+
+  // -- Zoom views
+  const zoomSec = createEl('div', { className: 'zoom-section' });
+  zoomSec.appendChild(createEl('h4', { text: '🔍 Vistas zoom propuestas (sub-áreas)' }));
+  const zoomList = createEl('div', { className: 'zoom-list' });
+  zoomSec.appendChild(zoomList);
+  const btnAdd = createEl('button', {
+    className: 'btn-add-zoom',
+    text: '+ Agregar vista zoom',
+    on: { click: () => agregarZoom(v.nombre, zoomList) }
+  });
+  zoomSec.appendChild(btnAdd);
+  body.appendChild(zoomSec);
+
+  card.appendChild(body);
+  return card;
+}
+
+// ============================================================
+// MUTACIÓN DE ESTADO
+// ============================================================
+function ensureEntry(nombre) {
+  if (!estado[nombre]) {
+    estado[nombre] = { modificaciones: { lat: null, lon: null, buffer_km: null }, zoom_views: [] };
+  }
+  return estado[nombre];
+}
+
+function setMod(nombre, key, val) {
+  const e = ensureEntry(nombre);
+  e.modificaciones[key] = val;
+}
+
+function tieneCambios(nombre) {
+  const e = estado[nombre];
+  if (!e) return false;
+  const m = e.modificaciones;
+  return m.lat !== null || m.lon !== null || m.buffer_km !== null || e.zoom_views.length > 0;
+}
+
+// ============================================================
+// ZOOM VIEWS
+// ============================================================
+function agregarZoom(nombre, contenedor) {
+  const e = ensureEntry(nombre);
+  const zoom = { nombre_corto: '', lat: null, lon: null, buffer_km: null, motivo: '' };
+  e.zoom_views.push(zoom);
+  contenedor.appendChild(renderZoomView(nombre, zoom, contenedor));
+  actualizarUI();
+}
+
+function renderZoomView(volNombre, zoom, contenedor) {
+  const wrap = createEl('div', { className: 'zoom-view' });
+  const grid = createEl('div', { className: 'zv-grid' });
+
+  function field(labelTxt, key, ph, validator) {
+    const cell = createEl('div');
+    cell.appendChild(createEl('span', { className: 'zv-label', text: labelTxt }));
+    const inp = createEl('input', { attrs: { type: 'text', placeholder: ph } });
+    inp.addEventListener('input', () => {
+      if (key === 'nombre_corto') {
+        zoom[key] = inp.value.trim();
+      } else {
+        const num = parseNumero(inp.value);
+        if (inp.value.trim() === '') {
+          zoom[key] = null;
+          inp.classList.remove('invalid');
+        } else if (num === null || !validator(num)) {
+          zoom[key] = null;
+          inp.classList.add('invalid');
+        } else {
+          zoom[key] = num;
+          inp.classList.remove('invalid');
+        }
+      }
+      actualizarUI();
+    });
+    cell.appendChild(inp);
+    return cell;
+  }
+
+  grid.appendChild(field('Nombre corto', 'nombre_corto', 'ej. crater', () => true));
+  grid.appendChild(field('Lat', 'lat', '-39.42052', validarLat));
+  grid.appendChild(field('Lon', 'lon', '-71.93939', validarLon));
+  grid.appendChild(field('Radio (km)', 'buffer_km', '0.5', validarBuffer));
+  wrap.appendChild(grid);
+
+  // Motivo
+  const motivoLabel = createEl('span', { className: 'zv-label', text: 'Motivo' });
+  motivoLabel.style.marginTop = '8px';
+  wrap.appendChild(motivoLabel);
+  const motivo = createEl('textarea', { attrs: { placeholder: 'ej. Seguimiento lago de lava activo' } });
+  motivo.addEventListener('input', () => {
+    zoom.motivo = motivo.value.trim();
+    actualizarUI();
+  });
+  wrap.appendChild(motivo);
+
+  const btnRm = createEl('button', {
+    className: 'zoom-remove',
+    text: 'Eliminar vista zoom',
+    on: { click: () => {
+      const e = estado[volNombre];
+      if (!e) return;
+      const idx = e.zoom_views.indexOf(zoom);
+      if (idx >= 0) e.zoom_views.splice(idx, 1);
+      wrap.remove();
+      actualizarUI();
+    }}
+  });
+  wrap.appendChild(btnRm);
+  return wrap;
+}
+
+// ============================================================
+// UI: counter, badges, filtros
+// ============================================================
+function actualizarUI() {
+  let nCambios = 0, nZooms = 0;
+  document.querySelectorAll('.card').forEach(card => {
+    const nombre = card.getAttribute('data-nombre');
+    const tiene = tieneCambios(nombre);
+    card.classList.toggle('has-changes', tiene);
+    const bw = card.querySelector('.badge-wrap');
+    bw.textContent = '';
+    if (tiene) {
+      const b = createEl('span', { className: 'change-badge', text: 'modificado' });
+      bw.appendChild(b);
+      nCambios++;
+      nZooms += (estado[nombre].zoom_views || []).length;
+    }
+    bw.appendChild(createEl('span', { className: 'chevron', text: '▶' }));
+    // restore chevron rotation (we just replaced)
+    if (card.classList.contains('open')) {
+      bw.querySelector('.chevron').style.transform = 'rotate(90deg)';
+    }
+  });
+  const counter = document.getElementById('counter');
+  counter.textContent = '';
+  const strong = createEl('strong', { text: nCambios + (nCambios === 1 ? ' volcán' : ' volcanes') + ' con cambios propuestos' });
+  counter.appendChild(strong);
+  counter.appendChild(document.createTextNode(' · ' + nZooms + ' vista' + (nZooms === 1 ? '' : 's') + ' zoom nueva' + (nZooms === 1 ? '' : 's')));
+}
+
+function aplicarFiltros() {
+  const q = document.getElementById('search').value.trim().toLowerCase();
+  const zona = document.getElementById('zona-filter').value;
+  document.querySelectorAll('.card').forEach(card => {
+    const n = card.getAttribute('data-nombre').toLowerCase();
+    const z = card.getAttribute('data-zona');
+    const okQ = !q || n.includes(q);
+    const okZ = !zona || z === zona;
+    card.style.display = (okQ && okZ) ? '' : 'none';
+  });
+}
+
+function expandirTodos() {
+  document.querySelectorAll('.card').forEach(c => {
+    if (c.style.display !== 'none') c.classList.add('open');
+  });
+}
+function colapsarTodos() {
+  document.querySelectorAll('.card').forEach(c => c.classList.remove('open'));
+}
+
+// ============================================================
+// EXPORTAR
+// ============================================================
+function construirSalida() {
+  const cambios = {};
+  for (const nombre in estado) {
+    if (!tieneCambios(nombre)) continue;
+    const e = estado[nombre];
+    // Solo zoom views válidas (con nombre_corto + lat + lon + buffer)
+    const zoomsValidos = e.zoom_views.filter(z =>
+      z.nombre_corto && z.lat !== null && z.lon !== null && z.buffer_km !== null
+    );
+    if (
+      e.modificaciones.lat === null &&
+      e.modificaciones.lon === null &&
+      e.modificaciones.buffer_km === null &&
+      zoomsValidos.length === 0
+    ) continue;
+    cambios[nombre] = {
+      modificaciones: { ...e.modificaciones },
+      zoom_views: zoomsValidos
+    };
+  }
+  const revisor = document.getElementById('revisor-email').value.trim();
+  const hoy = new Date().toISOString().slice(0, 10);
+  return {
+    fecha_revision: hoy,
+    proyecto: 'Landsat-v1',
+    target_file: 'config_landsat.py',
+    revisor: revisor || null,
+    cambios: cambios
+  };
+}
+
+function descargarJSON() {
+  const data = construirSalida();
+  if (Object.keys(data.cambios).length === 0) {
+    showToast('No hay cambios para exportar', 'red');
+    return;
+  }
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'revision_volcanes_landsat_' + data.fecha_revision + '.json';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast('JSON descargado');
+}
+
+function generarMarkdown(data) {
+  const lines = [];
+  lines.push('# Revisión de coordenadas — Landsat-v1');
+  lines.push('');
+  lines.push('- **Fecha:** ' + data.fecha_revision);
+  lines.push('- **Target:** `config_landsat.py` (dict `VOLCANES`)');
+  if (data.revisor) lines.push('- **Revisor:** ' + data.revisor);
+  lines.push('- **Volcanes con cambios:** ' + Object.keys(data.cambios).length);
+  lines.push('');
+  for (const nombre in data.cambios) {
+    const c = data.cambios[nombre];
+    lines.push('## ' + nombre);
+    const m = c.modificaciones;
+    if (m.lat !== null) lines.push('- Nueva latitud: `' + m.lat + '`');
+    if (m.lon !== null) lines.push('- Nueva longitud: `' + m.lon + '`');
+    if (m.buffer_km !== null) lines.push('- Nuevo radio: `' + m.buffer_km + ' km`');
+    if (c.zoom_views.length > 0) {
+      lines.push('');
+      lines.push('### Vistas zoom propuestas');
+      c.zoom_views.forEach(z => {
+        lines.push('- **' + z.nombre_corto + '** — lat `' + z.lat + '`, lon `' + z.lon + '`, radio `' + z.buffer_km + ' km`' + (z.motivo ? ' · _' + z.motivo + '_' : ''));
+      });
+    }
+    lines.push('');
+  }
+  return lines.join('\n');
+}
+
+function generarEmail() {
+  const data = construirSalida();
+  if (Object.keys(data.cambios).length === 0) {
+    showToast('No hay cambios para exportar', 'red');
+    return;
+  }
+  const md = generarMarkdown(data);
+  const subj = 'Revisión coordenadas volcanes Landsat-v1 — ' + data.fecha_revision;
+  const body = md + '\n\n---\nGenerado desde revision_volcanes.html (Landsat-v1)';
+  const url = 'mailto:?subject=' + encodeURIComponent(subj) + '&body=' + encodeURIComponent(body);
+  window.location.href = url;
+}
+
+function copiarMarkdown() {
+  const data = construirSalida();
+  if (Object.keys(data.cambios).length === 0) {
+    showToast('No hay cambios para copiar', 'red');
+    return;
+  }
+  const md = generarMarkdown(data);
+  navigator.clipboard.writeText(md).then(() => showToast('Markdown copiado'))
+    .catch(() => showToast('Error al copiar', 'red'));
+}
+
+function showToast(msg, color) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.background = (color === 'red') ? 'var(--red)' : 'var(--green)';
+  t.style.color = (color === 'red') ? '#fff' : '#0d1117';
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+// ============================================================
+// INIT
+// ============================================================
+document.addEventListener('DOMContentLoaded', () => {
+  renderLista();
+  actualizarUI();
+  document.getElementById('search').addEventListener('input', aplicarFiltros);
+  document.getElementById('zona-filter').addEventListener('change', aplicarFiltros);
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Constructor PPT — Landsat-v1</title>
+<style>
+  :root {
+    --bg: #0d1117; --surface: #161b22; --border: #30363d;
+    --text: #e6edf3; --muted: #8b949e; --accent: #e67e22;
+    --green: #7ee787; --orange: #f97316; --red: #f85149;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; font-family: -apple-system, 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg); color: var(--text); line-height: 1.5;
+  }
+  header {
+    background: linear-gradient(90deg, #7a3e0c 0%, #e67e22 100%);
+    padding: 18px 28px; border-bottom: 1px solid var(--border);
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  header h1 { margin: 0; font-size: 1.4em; }
+  header p { margin: 4px 0 0; color: rgba(255,255,255,0.85); font-size: 0.9em; }
+
+  .layout {
+    display: grid;
+    grid-template-columns: 360px 1fr;
+    min-height: calc(100vh - 70px);
+  }
+
+  aside {
+    background: var(--surface); border-right: 1px solid var(--border);
+    padding: 18px; overflow-y: auto;
+  }
+  aside h3 {
+    color: var(--accent); font-size: 0.95em;
+    margin: 16px 0 8px; border-bottom: 1px solid var(--border); padding-bottom: 6px;
+  }
+  aside h3:first-child { margin-top: 0; }
+  aside label {
+    display: block; font-size: 0.85em; color: var(--muted);
+    margin-bottom: 4px; margin-top: 10px;
+  }
+  aside select, aside input[type="date"], aside input[type="number"],
+  aside input[type="text"] {
+    width: 100%; background: #1c2128; color: var(--text);
+    border: 1px solid var(--border); padding: 7px 10px;
+    border-radius: 6px; font-size: 0.9em;
+  }
+  aside .btn {
+    display: block; width: 100%;
+    padding: 10px 14px; border-radius: 6px; border: none;
+    cursor: pointer; font-weight: 600;
+    margin-top: 10px; font-size: 0.9em;
+  }
+  .btn-primary { background: #2ea043; color: white; }
+  .btn-primary:hover:not(:disabled) { background: #3fb950; }
+  .btn-primary:disabled { background: #555; cursor: wait; }
+  .btn-secondary { background: #7a3e0c; color: white; }
+  .btn-secondary:hover:not(:disabled) { background: #e67e22; }
+  .btn-secondary:disabled { background: #555; cursor: not-allowed; }
+  .btn-action { background: #1c2128; color: var(--text); border: 1px solid var(--border); }
+  .btn-action:hover { background: #21262d; }
+  .btn-row {
+    display: grid; grid-template-columns: 1fr 1fr 1fr;
+    gap: 6px; margin-top: 8px;
+  }
+  .btn-row .btn { margin: 0; padding: 6px; font-size: 0.78em; }
+
+  main {
+    padding: 18px 24px;
+    overflow-y: auto;
+  }
+  .summary {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; padding: 12px 16px; margin-bottom: 16px;
+    display: flex; justify-content: space-between; align-items: center;
+    flex-wrap: wrap; gap: 8px; font-size: 0.9em;
+  }
+  .summary .stats { color: var(--muted); }
+  .summary .stats strong { color: var(--text); }
+
+  .info-banner {
+    background: rgba(230, 126, 34, 0.1);
+    border-left: 3px solid var(--accent);
+    padding: 10px 14px; border-radius: 0 6px 6px 0;
+    font-size: 0.85em; margin-bottom: 16px;
+  }
+  .warn-banner {
+    background: rgba(249, 115, 22, 0.1);
+    border-left: 3px solid var(--orange);
+    padding: 10px 14px; border-radius: 0 6px 6px 0;
+    font-size: 0.85em; margin-bottom: 16px;
+  }
+  .back {
+    color: white; text-decoration: none;
+    border: 1px solid rgba(255,255,255,0.4); padding: 6px 12px;
+    border-radius: 6px; font-size: 0.85em;
+  }
+  .back:hover { background: rgba(255,255,255,0.1); }
+
+  .grid {
+    display: grid; gap: 10px;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  }
+  .vcard {
+    background: var(--surface); border: 2px solid var(--border);
+    border-radius: 8px; padding: 10px; cursor: pointer;
+    transition: all 0.15s; position: relative;
+  }
+  .vcard:hover { border-color: var(--accent); }
+  .vcard.selected {
+    border-color: var(--green);
+    box-shadow: 0 0 8px rgba(126, 231, 135, 0.4);
+  }
+  .vcard.unavailable {
+    opacity: 0.45; cursor: not-allowed;
+  }
+  .vcard .vname {
+    font-weight: 600; margin-bottom: 4px;
+  }
+  .vcard .vmeta {
+    font-size: 0.75em; color: var(--muted);
+  }
+  .vcard .vrange {
+    font-size: 0.72em; font-family: 'Consolas', monospace;
+    color: var(--text); margin-top: 6px;
+    background: #1c2128; padding: 3px 6px; border-radius: 4px;
+    display: inline-block;
+  }
+  .vcard .check {
+    position: absolute; top: 8px; right: 8px;
+    width: 22px; height: 22px;
+    background: rgba(0,0,0,0.7); border: 2px solid white;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    color: white; font-weight: 700; font-size: 14px;
+  }
+  .vcard.selected .check { background: var(--green); border-color: var(--green); color: black; }
+
+  .progress {
+    height: 8px; background: #1c2128; border-radius: 4px;
+    overflow: hidden; margin-top: 8px;
+  }
+  .progress-bar {
+    height: 100%; background: var(--green);
+    transition: width 0.2s; width: 0%;
+  }
+  .log {
+    background: #0a0e13; border: 1px solid var(--border);
+    border-radius: 6px; padding: 10px 12px; margin-top: 10px;
+    font-family: 'Consolas', monospace; font-size: 0.78em;
+    max-height: 200px; overflow-y: auto; color: var(--muted);
+  }
+  .log .ok  { color: var(--green); }
+  .log .err { color: var(--red); }
+  .log .warn { color: var(--orange); }
+
+  @media (max-width: 800px) {
+    .layout { grid-template-columns: 1fr; }
+    aside { border-right: none; border-bottom: 1px solid var(--border); }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>Constructor de PPT — Landsat-v1</h1>
+    <p>Inyección sobre la plantilla "Cambios morfológicos" con GIFs animados Landsat 8/9 embebidos</p>
+  </div>
+  <a href="index.html" class="back">← Dashboard</a>
+</header>
+
+<div class="layout">
+
+  <aside>
+    <h3>1. Período</h3>
+    <label>Desde</label>
+    <input type="date" id="fecha-desde">
+    <label>Hasta</label>
+    <input type="date" id="fecha-hasta">
+
+    <h3>2. Volcanes</h3>
+    <div class="btn-row">
+      <button class="btn btn-action" id="btn-todos">Todos</button>
+      <button class="btn btn-action" id="btn-ninguno">Ninguno</button>
+      <button class="btn btn-action" id="btn-disponibles">Solo disp.</button>
+    </div>
+    <div class="btn-row" style="margin-top:6px;">
+      <button class="btn btn-action" id="btn-norte">Norte</button>
+      <button class="btn btn-action" id="btn-centro">Centro</button>
+      <button class="btn btn-action" id="btn-sur">Sur</button>
+    </div>
+    <div class="btn-row" style="margin-top:6px;">
+      <button class="btn btn-action" id="btn-austral">Austral</button>
+      <button class="btn btn-action" id="btn-riesgosos">Riesgosos</button>
+      <button class="btn btn-action" id="btn-recargar">Recargar</button>
+    </div>
+
+    <h3>3. Generar</h3>
+    <button class="btn btn-primary" id="btn-generar">Construir .pptx</button>
+    <button class="btn btn-secondary" id="btn-descargar" disabled>Descargar</button>
+
+    <div id="progreso" style="display:none; margin-top:10px;">
+      <div style="font-size:0.85em; color: var(--muted);" id="progreso-txt">Procesando...</div>
+      <div class="progress"><div class="progress-bar" id="progreso-bar"></div></div>
+      <div class="log" id="log"></div>
+    </div>
+  </aside>
+
+  <main>
+    <div class="summary">
+      <div class="stats" id="stats">Cargando…</div>
+      <div style="color: var(--muted); font-size: 0.85em;">Click para incluir/excluir cada volcán</div>
+    </div>
+
+    <div class="info-banner">
+      <strong>Cómo funciona:</strong> Esta herramienta carga la plantilla real
+      <code>plantillas/Cambios_morfologicos.pptx</code> y clona el slide por cada volcán
+      seleccionado, reemplazando texto y embebiendo los GIFs animados Landsat 8/9
+      precompilados (carpeta <code>landsat/&lt;volcán&gt;/timelapses_ppt/</code>) en pareja
+      RGB (color verdadero) + SWIR (B7-B6-B4). Si un volcán no tiene la pareja
+      disponible aún, aparece deshabilitado.
+    </div>
+
+    <div class="warn-banner">
+      <strong>GIFs animados:</strong> PowerPoint los reproduce sólo en modo Presentación (F5).
+      En vista de edición se ven como imagen estática.
+    </div>
+
+    <div id="grid" class="grid"></div>
+  </main>
+
+</div>
+
+<script src="lib/jszip.min.js"></script>
+<script>
+// ============================================================
+// CONFIG
+// ============================================================
+const PLANTILLA_URL = 'plantillas/Cambios_morfologicos.pptx';
+
+const VOLCANES = [
+  // Norte
+  "Taapaca","Parinacota","Guallatiri","Isluga","Irruputuncu","Ollague","San Pedro","Lascar",
+  // Centro
+  "Tupungatito","San Jose","Tinguiririca","Planchon-Peteroa","Descabezado Grande",
+  "Tatara-San Pedro","Laguna del Maule","Nevado de Longavi","Nevados de Chillan",
+  // Sur
+  "Antuco","Copahue","Callaqui","Lonquimay","Llaima","Sollipulli","Villarrica",
+  "Quetrupillan","Lanin","Mocho-Choshuenco","Carran - Los Venados","Puyehue - Cordon Caulle",
+  "Antillanca - Casablanca",
+  // Austral
+  "Osorno","Calbuco","Yate","Hornopiren","Huequi","Michinmahuida","Chaiten",
+  "Corcovado","Melimoyu","Mentolat","Cay","Maca","Hudson"
+];
+
+const ZONAS = {
+  norte:  ["Taapaca","Parinacota","Guallatiri","Isluga","Irruputuncu","Ollague","San Pedro","Lascar"],
+  centro: ["Tupungatito","San Jose","Tinguiririca","Planchon-Peteroa","Descabezado Grande",
+           "Tatara-San Pedro","Laguna del Maule","Nevado de Longavi","Nevados de Chillan"],
+  sur:    ["Antuco","Copahue","Callaqui","Lonquimay","Llaima","Sollipulli","Villarrica",
+           "Quetrupillan","Lanin","Mocho-Choshuenco","Carran - Los Venados",
+           "Puyehue - Cordon Caulle","Antillanca - Casablanca"],
+  austral:["Osorno","Calbuco","Yate","Hornopiren","Huequi","Michinmahuida","Chaiten",
+           "Corcovado","Melimoyu","Mentolat","Cay","Maca","Hudson"]
+};
+
+// 14 más riesgosos (ranking SERNAGEOMIN)
+const RIESGOSOS = [
+  "Villarrica","Llaima","Calbuco","Lascar","Nevados de Chillan","Copahue",
+  "Hudson","Mocho-Choshuenco","Puyehue - Cordon Caulle","Lonquimay",
+  "Planchon-Peteroa","Nevado de Longavi","San Jose","Tupungatito"
+];
+
+const MESES_ES = ['enero','febrero','marzo','abril','mayo','junio',
+                  'julio','agosto','septiembre','octubre','noviembre','diciembre'];
+
+// ============================================================
+// ESTADO
+// ============================================================
+let templateBuffer = null;   // ArrayBuffer de la plantilla
+let disponibles = {};        // { volcan: { rgb: url, swir: url, desde: 'YYYY-MM-DD', hasta: 'YYYY-MM-DD' } }
+let seleccionados = new Set();
+let pptBlob = null;
+let pptBlobURL = null;
+let pptFileName = 'Evaluacion_Multi_Volcan.pptx';
+
+// ============================================================
+// UTILIDADES
+// ============================================================
+function formatearFechaES(fechaStr) {
+  // 'YYYY-MM-DD' -> '02 diciembre'
+  try {
+    const [y,m,d] = fechaStr.split('-').map(Number);
+    return `${String(d).padStart(2,'0')} ${MESES_ES[m-1]}`;
+  } catch { return fechaStr; }
+}
+
+function escapeXML(s) {
+  return String(s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&apos;');
+}
+
+function log(msg, cls='') {
+  const el = document.getElementById('log');
+  const line = document.createElement('div');
+  if (cls) line.className = cls;
+  line.textContent = msg;
+  el.appendChild(line);
+  el.scrollTop = el.scrollHeight;
+}
+
+function setProgreso(pct, txt) {
+  document.getElementById('progreso').style.display = 'block';
+  document.getElementById('progreso-bar').style.width = pct + '%';
+  if (txt) document.getElementById('progreso-txt').textContent = txt;
+}
+
+function limpiarPpt() {
+  if (pptBlobURL) { URL.revokeObjectURL(pptBlobURL); pptBlobURL = null; }
+  pptBlob = null;
+  document.getElementById('btn-descargar').disabled = true;
+}
+
+// ============================================================
+// CARGA: detectar GIFs disponibles (lee manifest pre-generado)
+// ============================================================
+// FIX 2026-05-17: antes adivinabamos nombres de GIF tipo
+// <Volcan>_RGB_<desde>_<hasta>.gif basados en el filtro de UI, pero el cron
+// genera GIFs con rangos arbitrarios (el rango de fechas reales del periodo
+// procesado, no el del filtro). Resultado: rara vez encontraba un match.
+//
+// Ahora leemos docs/timelapses_ppt_manifest.json, generado por
+// scripts/generar_manifest_gifs.py al final del cron landsat.yml. Ese JSON
+// tiene los nombres exactos de los GIFs en disco.
+async function detectarGifs() {
+  setProgreso(0, 'Cargando manifest de GIFs...');
+  disponibles = {};
+
+  let manifest = {};
+  try {
+    const r = await fetch('timelapses_ppt_manifest.json?t=' + Date.now());
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    manifest = await r.json();
+  } catch (e) {
+    log('Error cargando timelapses_ppt_manifest.json: ' + e + '. Si nunca corrio el cron, dispara manualmente PPT Individual o PPT Completo desde GitHub Actions para generar GIFs.', 'err');
+    setProgreso(100, 'Sin manifest');
+    setTimeout(() => document.getElementById('progreso').style.display = 'none', 700);
+    return;
+  }
+
+  // Filtro opcional por fechas del UI: solo descarta GIFs cuyo rango no
+  // intersecta con el rango pedido.
+  const desde = document.getElementById('fecha-desde').value;
+  const hasta = document.getElementById('fecha-hasta').value;
+
+  for (const v of VOLCANES) {
+    const e = manifest[v];
+    if (!e) continue;
+    if (desde && e.hasta < desde) continue;
+    if (hasta && e.desde > hasta) continue;
+    disponibles[v] = {
+      rgb: e.rgb,
+      swir: e.swir,
+      desde: e.desde,
+      hasta: e.hasta,
+    };
+  }
+
+  setProgreso(100, `Deteccion completada (${Object.keys(disponibles).length}/${VOLCANES.length})`);
+  setTimeout(() => document.getElementById('progreso').style.display = 'none', 700);
+}
+
+// ============================================================
+// RENDER
+// ============================================================
+function renderGrid() {
+  const grid = document.getElementById('grid');
+  grid.innerHTML = '';
+  for (const v of VOLCANES) {
+    const card = document.createElement('div');
+    card.className = 'vcard';
+    const disp = disponibles[v];
+    if (!disp) card.classList.add('unavailable');
+    if (seleccionados.has(v)) card.classList.add('selected');
+
+    const name = document.createElement('div');
+    name.className = 'vname';
+    name.textContent = v;
+    card.appendChild(name);
+
+    const meta = document.createElement('div');
+    meta.className = 'vmeta';
+    meta.textContent = disp ? 'GIFs listos' : 'sin GIFs en rango';
+    card.appendChild(meta);
+
+    if (disp) {
+      const range = document.createElement('div');
+      range.className = 'vrange';
+      range.textContent = `${disp.desde} → ${disp.hasta}`;
+      card.appendChild(range);
+    }
+
+    const check = document.createElement('div');
+    check.className = 'check';
+    check.textContent = seleccionados.has(v) ? '✓' : '';
+    card.appendChild(check);
+
+    if (disp) {
+      card.addEventListener('click', () => {
+        if (seleccionados.has(v)) seleccionados.delete(v);
+        else seleccionados.add(v);
+        limpiarPpt();
+        renderGrid();
+        actualizarStats();
+      });
+    }
+    grid.appendChild(card);
+  }
+}
+
+function actualizarStats() {
+  const tot = Object.keys(disponibles).length;
+  const sel = seleccionados.size;
+  const noDisp = VOLCANES.length - tot;
+  const stats = document.getElementById('stats');
+  stats.innerHTML = '';
+  const s1 = document.createElement('strong'); s1.textContent = tot;
+  const s2 = document.createElement('strong'); s2.textContent = sel;
+  stats.appendChild(s1);
+  stats.appendChild(document.createTextNode(' volcanes con GIFs disponibles · '));
+  stats.appendChild(s2);
+  stats.appendChild(document.createTextNode(` seleccionados · ${noDisp} sin GIFs en rango`));
+}
+
+// ============================================================
+// SELECCIÓN MASIVA
+// ============================================================
+function seleccionar(filtroFn) {
+  for (const v of VOLCANES) {
+    if (disponibles[v] && filtroFn(v)) seleccionados.add(v);
+  }
+  limpiarPpt();
+  renderGrid();
+  actualizarStats();
+}
+
+document.getElementById('btn-todos').addEventListener('click', () => seleccionar(() => true));
+document.getElementById('btn-ninguno').addEventListener('click', () => {
+  seleccionados.clear(); limpiarPpt(); renderGrid(); actualizarStats();
+});
+document.getElementById('btn-disponibles').addEventListener('click', () => seleccionar(() => true));
+document.getElementById('btn-norte').addEventListener('click', () => seleccionar(v => ZONAS.norte.includes(v)));
+document.getElementById('btn-centro').addEventListener('click', () => seleccionar(v => ZONAS.centro.includes(v)));
+document.getElementById('btn-sur').addEventListener('click', () => seleccionar(v => ZONAS.sur.includes(v)));
+document.getElementById('btn-austral').addEventListener('click', () => seleccionar(v => ZONAS.austral.includes(v)));
+document.getElementById('btn-riesgosos').addEventListener('click', () => seleccionar(v => RIESGOSOS.includes(v)));
+document.getElementById('btn-recargar').addEventListener('click', async () => {
+  document.getElementById('log').innerHTML = '';
+  await detectarGifs();
+  renderGrid();
+  actualizarStats();
+});
+
+// ============================================================
+// CONSTRUCCIÓN DEL SLIDE XML
+// ============================================================
+// Tomamos el slide1.xml de la plantilla como base y reemplazamos:
+//  - Subtítulo RGB: "...color verdadero, Time Lapse <D1> → <D2> <AÑO>" (Landsat 8/9)
+//  - Subtítulo SWIR: "...Falso color, Time Lapse <D1> → <D2> <AÑO>" (Landsat 8/9 B7-B6-B4)
+//  - Footer: "...volcán <NOMBRE> durante el mes de <MES> <AÑO>"
+function construirSlideXml(baseXml, volcan, desde, hasta) {
+  let xml = baseXml;
+  const d1es = formatearFechaES(desde);
+  const d2es = formatearFechaES(hasta);
+  const [yy, mm] = hasta.split('-');
+  const anho = yy;
+  const mes = MESES_ES[parseInt(mm,10) - 1];
+
+  // 1) Subtítulo RGB — match el run con "color verdadero, Time Lapse ..."
+  //    En el template: " 2 L2A color verdadero, Time Lapse 02 diciembre – 30 diciembre 2025"
+  //    Mantenemos el anchor "color verdadero, Time Lapse" para preservar compatibilidad
+  //    con la plantilla heredada de Copernicus.
+  xml = xml.replace(
+    /(<a:t>\s*2 L2A color verdadero, Time Lapse )[^<]+(<\/a:t>)/,
+    `$1${escapeXML(`${d1es} – ${d2es} ${anho}`)}$2`
+  );
+
+  // 2) Subtítulo Falso color (SWIR B7-B6-B4 en Landsat)
+  xml = xml.replace(
+    /(<a:t>\s*2 L2A Falso color, Time Lapse )[^<]+(<\/a:t>)/,
+    `$1${escapeXML(`${d1es} – ${d2es} ${anho}`)}$2`
+  );
+
+  // 3) Footer — reemplazo del nombre del volcán
+  xml = xml.replace(
+    /(actividad superficial en volc[áa]n\s*<\/a:t>[^<]*<\/a:r>\s*<a:r>[^<]*<a:rPr[^>]*err="1"[^>]*\/>\s*<a:t>)[^<]+(<\/a:t>)/,
+    `$1${escapeXML(volcan)}$2`
+  );
+
+  // 4) Footer — "durante el mes de <mes> <año>"
+  xml = xml.replace(
+    /(<a:t>\s*durante el mes de )[a-záéíóú]+(?:\s+\d{4})?(\s*<\/a:t>)/i,
+    `$1${escapeXML(`${mes} ${anho}`)}$2`
+  );
+
+  return xml;
+}
+
+// ============================================================
+// GENERACIÓN DEL PPTX
+// ============================================================
+async function generarPpt() {
+  if (!seleccionados.size) { alert('Seleccioná al menos un volcán'); return; }
+
+  document.getElementById('log').innerHTML = '';
+  document.getElementById('btn-generar').disabled = true;
+  limpiarPpt();
+  setProgreso(0, 'Cargando plantilla...');
+
+  try {
+    // 1) Cargar template (cache)
+    if (!templateBuffer) {
+      const r = await fetch(PLANTILLA_URL);
+      if (!r.ok) throw new Error(`No se pudo cargar plantilla: HTTP ${r.status}`);
+      templateBuffer = await r.arrayBuffer();
+      log('Plantilla cargada (' + Math.round(templateBuffer.byteLength/1024) + ' KB)', 'ok');
+    }
+
+    // 2) Cargar como ZIP
+    const zip = await JSZip.loadAsync(templateBuffer);
+
+    // 3) Leer slide1.xml base y rels base (lo usaremos como molde)
+    const baseSlideXml = await zip.file('ppt/slides/slide1.xml').async('string');
+    const baseRelsXml  = await zip.file('ppt/slides/_rels/slide1.xml.rels').async('string');
+
+    // 4) Borrar slide1.xml original; construiremos slides 1..N de cero
+    zip.remove('ppt/slides/slide1.xml');
+    zip.remove('ppt/slides/_rels/slide1.xml.rels');
+
+    // También limpiamos las imágenes GIF originales (image6/7.gif) para no inflar el output
+    zip.remove('ppt/media/image6.gif');
+    zip.remove('ppt/media/image7.gif');
+
+    // 5) Por cada volcán, construir un slide
+    const volcanes = Array.from(seleccionados);
+    let totalSize = 0;
+    for (let i = 0; i < volcanes.length; i++) {
+      const v = volcanes[i];
+      const disp = disponibles[v];
+      const idx = i + 1;
+      const pct = 5 + 80 * (i / volcanes.length);
+      setProgreso(pct, `Procesando ${v} (${i+1}/${volcanes.length})...`);
+
+      // Descargar GIFs (RGB + SWIR)
+      const [rgbBlob, swirBlob] = await Promise.all([
+        fetch(disp.rgb).then(r => r.blob()),
+        fetch(disp.swir).then(r => r.blob())
+      ]);
+      totalSize += rgbBlob.size + swirBlob.size;
+
+      // Nombres únicos para los media
+      const rgbName  = `gif_rgb_${idx}.gif`;
+      const swirName = `gif_swir_${idx}.gif`;
+
+      zip.file(`ppt/media/${rgbName}`, rgbBlob);
+      zip.file(`ppt/media/${swirName}`, swirBlob);
+
+      // Construir slide XML (con texto reemplazado)
+      const slideXml = construirSlideXml(baseSlideXml, v, disp.desde, disp.hasta);
+      const slideName = `slide${idx}.xml`;
+      zip.file(`ppt/slides/${slideName}`, slideXml);
+
+      // Construir rels del slide — rId2 → rgbName, rId3 → swirName, rId1 → slideLayout3
+      const relsXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/slideLayout" Target="../slideLayouts/slideLayout3.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="../media/${rgbName}"/><Relationship Id="rId3" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="../media/${swirName}"/></Relationships>`;
+      zip.file(`ppt/slides/_rels/${slideName}.rels`, relsXml);
+
+      log(`OK ${v} → slide ${idx} (RGB ${(rgbBlob.size/1024).toFixed(0)} KB, SWIR ${(swirBlob.size/1024).toFixed(0)} KB)`, 'ok');
+    }
+
+    // 6) Re-escribir presentation.xml con N slides
+    setProgreso(88, 'Re-empaquetando estructura...');
+    await reescribirPresentation(zip, volcanes.length);
+
+    // 7) Re-escribir [Content_Types].xml para listar slide1..N
+    await reescribirContentTypes(zip, volcanes.length);
+
+    // 8) Generar el .pptx
+    setProgreso(95, 'Comprimiendo .pptx...');
+    pptBlob = await zip.generateAsync({
+      type: 'blob',
+      mimeType: 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+      compression: 'DEFLATE'
+    });
+    pptBlobURL = URL.createObjectURL(pptBlob);
+
+    // Nombre archivo
+    const ahora = new Date().toISOString().slice(0,10);
+    if (volcanes.length === 1) {
+      pptFileName = `${volcanes[0]}_Evaluacion_Landsat_${ahora}.pptx`;
+    } else {
+      pptFileName = `Evaluacion_Landsat_${volcanes.length}volcanes_${ahora}.pptx`;
+    }
+
+    setProgreso(100, `Listo · ${(pptBlob.size/(1024*1024)).toFixed(2)} MB`);
+    log(`PPTX generado: ${(pptBlob.size/(1024*1024)).toFixed(2)} MB`, 'ok');
+    document.getElementById('btn-descargar').disabled = false;
+
+  } catch (e) {
+    log('Error: ' + e.message, 'err');
+    setProgreso(100, 'Error');
+    console.error(e);
+  } finally {
+    document.getElementById('btn-generar').disabled = false;
+  }
+}
+
+// ============================================================
+// Re-escribir presentation.xml + presentation.xml.rels
+// ============================================================
+async function reescribirPresentation(zip, nSlides) {
+  // ----- presentation.xml -----
+  let presXml = await zip.file('ppt/presentation.xml').async('string');
+
+  // Generar nuevo sldIdLst
+  let sldIdLst = '<p:sldIdLst>';
+  const baseId   = 256;
+  const baseRId  = 100;  // Empezamos desde rId100 para no colisionar con rId1..rId11 del template
+  for (let i = 0; i < nSlides; i++) {
+    sldIdLst += `<p:sldId id="${baseId + i}" r:id="rId${baseRId + i}"/>`;
+  }
+  sldIdLst += '</p:sldIdLst>';
+
+  presXml = presXml.replace(/<p:sldIdLst>[\s\S]*?<\/p:sldIdLst>/, sldIdLst);
+  zip.file('ppt/presentation.xml', presXml);
+
+  // ----- presentation.xml.rels -----
+  let relsXml = await zip.file('ppt/_rels/presentation.xml.rels').async('string');
+
+  // Remover Relationship con Type slide existente
+  relsXml = relsXml.replace(
+    /<Relationship\s+[^>]*Type="http:\/\/schemas\.openxmlformats\.org\/officeDocument\/2006\/relationships\/slide"[^/]*\/>/g,
+    ''
+  );
+
+  // Insertar nuevos antes de </Relationships>
+  let inserts = '';
+  for (let i = 0; i < nSlides; i++) {
+    inserts += `<Relationship Id="rId${baseRId + i}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/slide" Target="slides/slide${i+1}.xml"/>`;
+  }
+  relsXml = relsXml.replace('</Relationships>', inserts + '</Relationships>');
+  zip.file('ppt/_rels/presentation.xml.rels', relsXml);
+}
+
+async function reescribirContentTypes(zip, nSlides) {
+  let ctXml = await zip.file('[Content_Types].xml').async('string');
+
+  // Remover Override de slides existentes
+  ctXml = ctXml.replace(
+    /<Override\s+PartName="\/ppt\/slides\/slide\d+\.xml"\s+ContentType="application\/vnd\.openxmlformats-officedocument\.presentationml\.slide\+xml"\s*\/>/g,
+    ''
+  );
+
+  // Insertar overrides nuevos
+  let inserts = '';
+  for (let i = 0; i < nSlides; i++) {
+    inserts += `<Override PartName="/ppt/slides/slide${i+1}.xml" ContentType="application/vnd.openxmlformats-officedocument.presentationml.slide+xml"/>`;
+  }
+  ctXml = ctXml.replace('</Types>', inserts + '</Types>');
+  zip.file('[Content_Types].xml', ctXml);
+}
+
+// ============================================================
+// DESCARGA
+// ============================================================
+function descargarPpt() {
+  if (!pptBlob) return;
+  const a = document.createElement('a');
+  a.href = pptBlobURL;
+  a.download = pptFileName;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+}
+
+document.getElementById('btn-generar').addEventListener('click', generarPpt);
+document.getElementById('btn-descargar').addEventListener('click', descargarPpt);
+document.getElementById('fecha-desde').addEventListener('change', async () => {
+  document.getElementById('log').innerHTML = '';
+  await detectarGifs();
+  renderGrid(); actualizarStats();
+});
+document.getElementById('fecha-hasta').addEventListener('change', async () => {
+  document.getElementById('log').innerHTML = '';
+  await detectarGifs();
+  renderGrid(); actualizarStats();
+});
+
+// ============================================================
+// INIT
+// ============================================================
+async function init() {
+  // Por defecto: último mes
+  const hoy = new Date();
+  const hace30 = new Date(hoy.getTime() - 30*24*3600*1000);
+  document.getElementById('fecha-desde').value = hace30.toISOString().slice(0,10);
+  document.getElementById('fecha-hasta').value = hoy.toISOString().slice(0,10);
+
+  await detectarGifs();
+  renderGrid();
+  actualizarStats();
+}
+
+init();
+</script>
+</body>
+</html>

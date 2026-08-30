@@ -1,0 +1,150 @@
+name: Purgar historico (orphan reset)
+
+# ⚠️ NUCLEAR: reescribe la historia de master. ⚠️
+#
+# POR QUE HACE FALTA
+# ==================
+# La retencion de 60 dias de este repo funciona -- limpiar_imagenes_antiguas()
+# corre en cada ciclo y el arbol de trabajo esta limpio (566 MB, PNGs desde
+# 2026-07-03). Pero solo borra del ARBOL: cada PNG borrado sigue vivo para
+# siempre en la historia de git. Medido el 2026-08-30:
+#
+#     arbol de trabajo   566 MB
+#     .git             4 900 MB      <- el 90% del repo es historia
+#     repo en GitHub  4 314 MB
+#
+# Es la misma forma del problema que Copernicus-v1 tuvo y resolvio (3.01 GB ->
+# 0.84 GB): una politica de retencion que se aplica en un solo plano. Este
+# workflow es el port de su purgar_historico_completo.yml, con tres cambios que
+# importan y que NO se pueden copiar tal cual desde alla.
+#
+# DIFERENCIAS CON LA VERSION DE COPERNICUS -- leer antes de tocar
+# ==============================================================
+#  1. La rama es master, no main.
+#  2. Copernicus borra TODOS los .pptx. Aca eso seria un desastre: los unicos
+#     dos .pptx del repo son la PLANTILLA docs/plantillas/Cambios_morfologicos.pptx
+#     que ppt_generator.py necesita para existir. Ya paso una vez que una purga
+#     se llevo una plantilla por delante. Este workflow la preserva y ADEMAS
+#     falla si no sobrevive.
+#  3. El grupo de concurrency es 'landsat-download', el mismo que usa el cron
+#     horario. Sin eso, un force-push puede caer encima de una descarga en curso.
+#
+# TRADE-OFF ACEPTADO: se pierde toda la historia anterior de git. Las imagenes
+# viejas son re-descargables desde USGS M2M sin costo. Y ojo: despues de esto,
+# `git log -S` y `git log -- <archivo>` no pueden datar nada anterior al reset.
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirmar:
+        description: 'Escribir PURGAR-TODO para confirmar (case-sensitive)'
+        required: true
+        default: 'NO'
+
+concurrency:
+  group: landsat-download
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  purgar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Verificar confirmacion
+        run: |
+          if [ "${{ github.event.inputs.confirmar }}" != "PURGAR-TODO" ]; then
+            echo "Debes escribir PURGAR-TODO exacto."
+            exit 1
+          fi
+          echo "Confirmacion recibida."
+
+      - name: Checkout shallow (no necesitamos el historial que vamos a tirar)
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 1
+          persist-credentials: true
+
+      - name: Estado antes
+        run: |
+          echo "Arbol de trabajo: $(du -sh --exclude=.git . | cut -f1)"
+          echo "PNGs:  $(find . -name '*.png' -not -path './.git/*' | wc -l)"
+          echo "GIFs:  $(find . -name '*.gif' -not -path './.git/*' | wc -l)"
+          echo "PPTX:  $(find . -name '*.pptx' -not -path './.git/*' | wc -l)"
+
+      # Red de seguridad, no cosmetica: si el orphan commit saliera con el arbol
+      # vacio o mutilado, el force-push lo dejaria publicado sin vuelta atras.
+      # Estas dos comprobaciones son lo unico que separa "purga" de "borrado".
+      - name: Comprobar que el arbol esta sano ANTES de tocar nada
+        run: |
+          set -euo pipefail
+          N_PNG=$(find docs/landsat -name '*.png' | wc -l)
+          echo "PNGs bajo docs/landsat: $N_PNG"
+          if [ "$N_PNG" -lt 500 ]; then
+            echo "Solo $N_PNG PNGs: demasiado pocos, algo esta mal. Abortando."
+            exit 1
+          fi
+          if [ ! -f docs/plantillas/Cambios_morfologicos.pptx ]; then
+            echo "Falta la plantilla PPT. Abortando."
+            exit 1
+          fi
+          for f in docs/index.html config_landsat.py landsat_downloader.py \
+                   docs/fechas_disponibles_landsat.json; do
+            if [ ! -f "$f" ]; then echo "Falta $f. Abortando."; exit 1; fi
+          done
+          echo "Arbol sano."
+
+      - name: Crear orphan branch con el estado actual
+        run: |
+          set -euo pipefail
+          git config user.name "PurgaBot"
+          git config user.email "purga@landsat.local"
+          git checkout --orphan master-fresh
+          git add -A
+          echo "Archivos staged: $(git diff --cached --name-only | wc -l)"
+          git commit -q -m "chore: orphan reset del historico
+
+          La retencion de 60 dias limpiaba el arbol pero no la historia: el arbol
+          pesaba 566 MB y .git 4.9 GB. Se conserva el estado actual completo y se
+          descarta la historia anterior.
+
+          Las imagenes viejas son re-descargables desde USGS M2M sin costo.
+          Ojo: 'git log -S' y 'git log -- <archivo>' ya no pueden datar nada
+          anterior a este commit."
+          echo "Orphan commit: $(git rev-parse HEAD)"
+
+      - name: Comprobar el orphan commit ANTES de publicarlo
+        run: |
+          set -euo pipefail
+          N=$(git ls-tree -r --name-only HEAD | wc -l)
+          echo "Archivos en el commit: $N"
+          if [ "$N" -lt 600 ]; then
+            echo "Solo $N archivos en el arbol del commit. Abortando antes del push."
+            exit 1
+          fi
+          git cat-file -e HEAD:docs/plantillas/Cambios_morfologicos.pptx
+          git cat-file -e HEAD:docs/index.html
+          git cat-file -e HEAD:config_landsat.py
+          echo "El commit contiene lo esencial."
+
+      - name: Force push a master
+        run: |
+          set -euo pipefail
+          git remote set-url origin \
+            https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
+          git push origin master-fresh:master --force
+          echo "Push completado."
+
+      - name: Resumen
+        run: |
+          git gc --prune=now 2>&1 | tail -2 || true
+          echo "----------------------------------------------------------"
+          echo ".git local post-orphan: $(du -sh .git | cut -f1)"
+          echo "El tamano remoto baja cuando GitHub corre su propio gc (5-10 min)."
+          echo ""
+          echo "Tu clone local quedo obsoleto. Para sincronizar:"
+          echo "  cd Landsat-v1 && git fetch origin && git reset --hard origin/master"
+          echo "----------------------------------------------------------"

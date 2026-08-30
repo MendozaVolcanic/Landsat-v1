@@ -1,0 +1,70 @@
+name: Alerta de cron caido
+
+# Observa el cron DESATENDIDO de este repo y abre (o comenta) un Issue cuando
+# termina en 'failure'. Antes ningun workflow tenia rama de fallo, asi que una
+# caida (credenciales M2M vencidas, USGS caido, timeout, push divergente) pasaba
+# SILENCIOSA. Gemelo del alerta_cron_caido.yml de Copernicus-v1.
+#
+# Solo 'Landsat Download + Timelapse Auto' (el unico con schedule). Los demas
+# (deploy, ppt_*) son manuales: el fallo lo ve quien los dispara.
+#
+# OJO al leer los runs: la mayoria dura 35-45 s porque solo corre el gate
+# 'detectar' (watcher M2M, 1 query). Los de 8-17 min son los que descargaron.
+# Un run corto y verde NO significa que no haya trabajo pendiente.
+on:
+  workflow_run:
+    workflows:
+      - "Landsat Download + Timelapse Auto"
+    types: [completed]
+
+permissions:
+  issues: write
+
+jobs:
+  alertar:
+    if: ${{ github.event.workflow_run.conclusion == 'failure' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Abrir o comentar Issue de fallo
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Sin checkout: gh necesita el repo por env (no hay remote git).
+          GH_REPO: ${{ github.repository }}
+          WF_NAME: ${{ github.event.workflow_run.name }}
+          RUN_URL: ${{ github.event.workflow_run.html_url }}
+          RUN_STARTED: ${{ github.event.workflow_run.run_started_at }}
+        run: |
+          set -euo pipefail
+          TITULO="🔴 Cron caido: ${WF_NAME}"
+
+          gh label create cron-failure --color B60205 \
+            --description "Cron desatendido que fallo" 2>/dev/null || true
+
+          # De-dup: si ya hay un issue ABIERTO con este titulo, comentar en vez
+          # de crear otro (el cron es HORARIO: sin esto, 24 issues por dia).
+          NUM=$(gh issue list --state open --label cron-failure --json number,title \
+                --jq "[.[] | select(.title == \"${TITULO}\")][0].number // empty")
+
+          {
+            echo "El cron **${WF_NAME}** termino en \`failure\`."
+            echo ""
+            echo "- Run: ${RUN_URL}"
+            echo "- Inicio: ${RUN_STARTED}"
+            echo ""
+            echo "Causas tipicas: token M2M de USGS vencido o revocado, API de USGS"
+            echo "caida, timeout en la descarga de los 43 volcanes, o push divergente"
+            echo "a master (el bot reintenta 5 veces con rebase)."
+            echo "Revisar los logs del run enlazado."
+            echo ""
+            echo "_Alerta automatica (workflow alerta_cron_caido). Cerrar el issue cuando se resuelva._"
+          } > cuerpo.md
+
+          if [ -n "${NUM}" ]; then
+            gh issue comment "${NUM}" --body-file cuerpo.md
+            echo "Comentado en issue #${NUM} (ya abierto)"
+          else
+            gh issue create --title "${TITULO}" --label cron-failure --body-file cuerpo.md
+            echo "Issue nuevo creado"
+          fi

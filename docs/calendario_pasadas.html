@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calendario de pasadas — Landsat 8/9</title>
+<style>
+  :root{--bg:#0d1117;--surface:#161b22;--border:#30363d;--text:#e6edf3;
+        --muted:#8b949e;--accent:#e67e22;--green:#7ee787;--orange:#f97316;
+        --pasada:#c2610c;}
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);color:var(--text);line-height:1.5;
+       font-family:-apple-system,'Segoe UI',Roboto,sans-serif;}
+  header{background:linear-gradient(90deg,#7c2d12 0%,#e67e22 100%);
+         padding:16px 24px;display:flex;justify-content:space-between;
+         align-items:center;flex-wrap:wrap;gap:10px;}
+  header h1{margin:0;font-size:1.3em;}
+  header p{margin:3px 0 0;color:rgba(255,255,255,.85);font-size:.85em;}
+  .back{color:#fff;text-decoration:none;border:1px solid rgba(255,255,255,.4);
+        padding:6px 12px;border-radius:6px;font-size:.85em;}
+  .back:hover{background:rgba(255,255,255,.1);}
+  main{padding:16px 22px;max-width:1500px;margin:0 auto;}
+
+  .toolbar{background:var(--surface);border:1px solid var(--border);
+           border-radius:10px;padding:12px 16px;margin-bottom:14px;
+           display:flex;gap:16px;align-items:center;flex-wrap:wrap;font-size:.88em;}
+  .toolbar label{color:var(--muted);}
+  .toolbar select,.toolbar input{background:#1c2128;color:var(--text);
+      border:1px solid var(--border);padding:6px 10px;border-radius:6px;font-size:.95em;}
+  .btn{background:#1c2128;color:var(--text);border:1px solid var(--border);
+       padding:6px 12px;border-radius:6px;font-size:.9em;cursor:pointer;}
+  .btn:hover{background:#21262d;}
+
+  .resumen{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px;}
+  .kpi{background:var(--surface);border:1px solid var(--border);border-radius:9px;
+       padding:10px 16px;min-width:130px;}
+  .kpi .n{font-size:1.5em;font-weight:800;color:var(--green);line-height:1.1;}
+  .kpi .l{font-size:.72em;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;}
+
+  /* ---- matriz volcan x dia ---- */
+  .scroll{overflow-x:auto;background:var(--surface);border:1px solid var(--border);
+          border-radius:10px;padding:10px 12px;}
+  table{border-collapse:collapse;width:100%;font-size:.82em;}
+  th,td{padding:3px 5px;border-bottom:1px solid var(--border);}
+  thead th{color:var(--accent);text-align:center;position:sticky;top:0;
+           background:var(--bg);font-weight:600;}
+  thead th.izq{text-align:left;}
+  thead th.hoy{color:var(--orange);font-weight:800;}
+  thead th.finde{color:#6e7681;}
+  td.vol{white-space:nowrap;color:var(--text);}
+  td.rev{color:var(--muted);font-family:Consolas,monospace;text-align:right;white-space:nowrap;}
+  td.dia{text-align:center;}
+  tbody tr:hover{background:#1c2128;}
+  /* Una pasada es una pasada: sin distinguir satelite (el detalle va en el tooltip). */
+  .celda{width:15px;height:15px;border-radius:3px;background:#1c2128;display:inline-block;}
+  .celda.p{background:var(--pasada);}
+  /* Baja confianza: la fase orbital aparecio pocas veces en el historico
+     (solape marginal del swath). Backtest: ~27% de estas se cumplen en S2,
+     contra 100% de las de alta. Se muestran huecas para no prometer de mas. */
+  .celda.p.baja{background:transparent;border:2px solid var(--pasada);}
+  .celda.hoy{outline:1.5px solid var(--orange);}
+  .col-hoy{background:rgba(249,115,22,.07);}
+  .col-finde{background:rgba(255,255,255,.02);}
+
+  .nota{background:rgba(88,166,255,.1);border-left:3px solid var(--accent);
+        padding:10px 14px;border-radius:0 6px 6px 0;font-size:.85em;margin:14px 0;}
+  .leyenda{display:flex;gap:16px;align-items:center;flex-wrap:wrap;
+           font-size:.82em;color:var(--muted);margin:10px 2px 0;}
+  .leyenda .it{display:flex;align-items:center;gap:6px;}
+  .meta{color:var(--muted);font-size:.8em;margin-top:14px;}
+  @media print{
+    header,.toolbar,.back{display:none;}
+    body{background:#fff;color:#000;}
+    .scroll{border:none;padding:0;} .celda{border:1px solid #666;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>📅 Calendario de pasadas Landsat 8/9</h1>
+    <p>Cuándo pasa Landsat 8/9 sobre cada volcán — próximos 35 días (paso orbital, no estimación)</p>
+  </div>
+  <div style="display:flex;gap:8px;">
+    <a href="index.html" class="back">🛰️ Dashboard Landsat</a>
+    
+  </div>
+</header>
+
+<main>
+
+<div class="nota">
+  <strong>Por qué se puede calendarizar:</strong> Landsat 8 y 9 van en órbita <em>heliosincrónica</em>
+  con ciclo de <strong>16 días exactos</strong> por satélite, desfasados 8 días entre sí. El paso es
+  determinista (verificado: el ciclo se cumple en el 98,4% del histórico).
+  <br><strong>Ojo con el patrón:</strong> la revisita es <em>bimodal</em> — cada volcán se ve
+  <strong>dos días seguidos</strong> (por el solape de órbitas vecinas) y después pasan
+  <strong>7-8 días</strong>. En la matriz se ven como pares de celdas juntas. Si esos dos días
+  están nublados, se pierde la semana completa.
+  <br><strong>Lo que NO es determinista:</strong> las nubes y, sobre todo, <strong>la publicación</strong>:
+  el producto L2 de USGS puede tardar <strong>hasta ~12 días</strong>, por eso el pipeline usa
+  L1-RT (~1 día) como relleno provisional.
+</div>
+
+<div class="toolbar">
+  <label>Zona:
+    <select id="f-zona"><option value="">Todas</option>
+      <option>Norte</option><option>Centro</option><option>Sur</option><option>Austral</option></select>
+  </label>
+  <label>Buscar: <input id="f-nombre" type="text" placeholder="ej: villarrica"></label>
+  <label>Ordenar:
+    <select id="f-orden">
+      <option value="nombre">Nombre</option>
+      <option value="revisita">Revisita (más frecuente primero)</option>
+      <option value="zona">Zona</option>
+    </select>
+  </label>
+  <button class="btn" onclick="window.print()">🖨️ Imprimir</button>
+</div>
+
+<div class="resumen" id="resumen"></div>
+
+<div class="scroll"><table id="tabla"></table></div>
+
+<div class="leyenda">
+  <div class="it"><span class="celda p"></span> pasada de L8 o L9</div>
+  <div class="it"><span class="celda p baja"></span> pasada probable (borde del swath: no siempre cubre)</div>
+  <div class="it"><span class="celda"></span> sin pasada</div>
+  <div class="it"><span style="color:var(--orange)">▮</span> hoy</div>
+  <div class="it">Pasá el mouse sobre una celda para ver el satélite y la hora</div>
+</div>
+
+<div class="meta" id="meta">Cargando…</div>
+
+</main>
+
+<script>
+const HORIZONTE = 35;
+const ZONAS_ORDEN = {'Norte':1,'Centro':2,'Sur':3,'Austral':4};
+let datos = null;
+
+// ISO en hora LOCAL (toISOString() usa UTC y corre la fecha un día en Chile).
+function iso(d){
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
+
+function filtrados(){
+  const fz = document.getElementById('f-zona').value;
+  const fn = document.getElementById('f-nombre').value.toLowerCase();
+  const orden = document.getElementById('f-orden').value;
+  let e = Object.entries(datos.volcanes);
+  if (fz) e = e.filter(x => x[1].zona === fz);
+  if (fn) e = e.filter(x => x[0].toLowerCase().indexOf(fn) !== -1);
+  if (orden === 'revisita') {
+    e.sort((a,b) => (a[1].revisita_mediana_d ?? 99) - (b[1].revisita_mediana_d ?? 99)
+                    || a[0].localeCompare(b[0]));
+  } else if (orden === 'zona') {
+    e.sort((a,b) => (ZONAS_ORDEN[a[1].zona]||99) - (ZONAS_ORDEN[b[1].zona]||99)
+                    || a[0].localeCompare(b[0]));
+  } else {
+    e.sort((a,b) => a[0].localeCompare(b[0]));
+  }
+  return e;
+}
+
+function renderResumen(){
+  const cont = document.getElementById('resumen');
+  while (cont.firstChild) cont.removeChild(cont.firstChild);
+  const vols = filtrados();
+  const porFecha = {};
+  vols.forEach(([n,i]) => (i.proxima_combinada||[]).forEach(p => {
+    porFecha[p.fecha] = (porFecha[p.fecha]||0)+1; }));
+  const revs = vols.map(v=>v[1].revisita_mediana_d).filter(x=>x!=null).sort((a,b)=>a-b);
+  const revMed = revs.length ? revs[Math.floor(revs.length/2)] : null;
+  const hoyIso = iso(new Date());
+  const prox = Object.keys(porFecha).filter(f=>f>=hoyIso).sort()[0];
+  const total = Object.values(porFecha).reduce((a,b)=>a+b,0);
+  const altas = vols.reduce((a,[n,i]) => a + (i.proxima_combinada||[])
+      .filter(p => p.confianza !== 'baja').length, 0);
+  [['volcanes', vols.length],
+   ['días con pasada', Object.keys(porFecha).length + ' / ' + HORIZONTE],
+   ['pasadas totales', total],
+   ['de ellas seguras', altas],
+   ['revisita mediana', revMed!=null ? revMed+' d' : '—'],
+   ['próxima', prox ? prox.slice(5) : '—']
+  ].forEach(([l,n])=>{
+    const d=document.createElement('div'); d.className='kpi';
+    const a=document.createElement('div'); a.className='n'; a.textContent=n;
+    const b=document.createElement('div'); b.className='l'; b.textContent=l;
+    d.appendChild(a); d.appendChild(b); cont.appendChild(d);
+  });
+}
+
+function renderTabla(){
+  const t = document.getElementById('tabla');
+  while (t.firstChild) t.removeChild(t.firstChild);
+  const hoy = new Date(); hoy.setHours(0,0,0,0);
+  const hoyIso = iso(hoy);
+
+  // <= HORIZONTE (inclusive): con < se perdian las pasadas del ultimo dia.
+  const dias = [];
+  for (let i=0;i<=HORIZONTE;i++) dias.push(new Date(hoy.getTime()+i*86400000));
+
+  const thead = document.createElement('thead');
+  const trh = document.createElement('tr');
+  [['Volcán','izq'],['Revisita','izq']].forEach(([txt,cls])=>{
+    const th=document.createElement('th'); th.className=cls; th.textContent=txt; trh.appendChild(th);
+  });
+  dias.forEach(d=>{
+    const di = iso(d);
+    const th = document.createElement('th');
+    const dow = d.getDay();                     // 0=dom, 6=sab
+    // primer dia y cambios de mes rotulados con el mes, el resto solo el numero
+    th.textContent = (d.getDate()===1 || di===hoyIso)
+      ? d.getDate()+' '+d.toLocaleDateString('es-CL',{month:'short'})
+      : String(d.getDate());
+    th.title = d.toLocaleDateString('es-CL',{weekday:'long',day:'numeric',month:'long'});
+    if (di===hoyIso) th.classList.add('hoy');
+    else if (dow===0||dow===6) th.classList.add('finde');
+    trh.appendChild(th);
+  });
+  thead.appendChild(trh); t.appendChild(thead);
+
+  const tb = document.createElement('tbody');
+  filtrados().forEach(([nombre, info])=>{
+    const tr = document.createElement('tr');
+    const td1 = document.createElement('td'); td1.className='vol'; td1.textContent=nombre;
+    td1.title = (info.zona||'') + (info.ultima_imagen ? ' · última imagen: '+info.ultima_imagen : '');
+    tr.appendChild(td1);
+    const td2 = document.createElement('td'); td2.className='rev';
+    td2.textContent = info.revisita_mediana_d!=null ? info.revisita_mediana_d+' d' : '—';
+    td2.title = 'Mediana de días entre imágenes. En Landsat la distribución es bimodal (pares de días seguidos cada ~8 d), así que la mediana no cuenta toda la historia: mirá el patrón en la fila.';
+    tr.appendChild(td2);
+
+    const porFecha = {};
+    (info.proxima_combinada||[]).forEach(p => { porFecha[p.fecha]=p; });
+
+    dias.forEach(d=>{
+      const di = iso(d), dow = d.getDay();
+      const td = document.createElement('td'); td.className='dia';
+      if (di===hoyIso) td.classList.add('col-hoy');
+      else if (dow===0||dow===6) td.classList.add('col-finde');
+      const sp = document.createElement('span'); sp.className='celda';
+      const p = porFecha[di];
+      if (p){
+        sp.classList.add('p');
+        if (p.confianza === 'baja') sp.classList.add('baja');
+        // El satelite no se codifica en color: va en el tooltip.
+        sp.title = nombre+' · '+d.toLocaleDateString('es-CL',{weekday:'short',day:'numeric',month:'short'})+
+                   ' · '+(p.sat||'')+(p.hora_chile ? ' · '+p.hora_chile+' h' : '')+
+                   (p.confianza === 'baja' ? ' · PROBABLE (pasada de borde: no siempre cubre el volcán)' : '');
+      }
+      if (di===hoyIso) sp.classList.add('hoy');
+      td.appendChild(sp); tr.appendChild(td);
+    });
+    tb.appendChild(tr);
+  });
+  t.appendChild(tb);
+}
+
+function refrescar(){ renderResumen(); renderTabla(); }
+
+async function cargar(){
+  try{
+    const r = await fetch('proximas_pasadas_landsat.json?t='+Date.now());
+    datos = await r.json();
+    document.getElementById('meta').textContent =
+      'Calendario calculado: ' + new Date(datos.generado_utc).toLocaleString('es-CL') +
+      ' · ' + Object.keys(datos.volcanes).length + ' entidades · ciclo ' +
+      (datos.ciclo_dias_por_satelite||16) + ' d/satélite';
+    refrescar();
+  }catch(e){
+    document.getElementById('meta').textContent = 'Error cargando el calendario de pasadas: ' + e;
+  }
+}
+
+document.getElementById('f-zona').addEventListener('change', refrescar);
+document.getElementById('f-nombre').addEventListener('input', refrescar);
+document.getElementById('f-orden').addEventListener('change', refrescar);
+
+cargar();
+</script>
+</body>
+</html>

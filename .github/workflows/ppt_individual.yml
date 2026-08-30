@@ -1,0 +1,110 @@
+name: PPT Individual Landsat
+
+on:
+  workflow_dispatch:
+    inputs:
+      volcan:
+        description: 'Volcan'
+        required: true
+        type: choice
+        options:
+          - Taapaca
+          - Parinacota
+          - Guallatiri
+          - Isluga
+          - Irruputuncu
+          - Ollague
+          - San Pedro
+          - Lascar
+          - Tupungatito
+          - San Jose
+          - Tinguiririca
+          - Planchon-Peteroa
+          - Descabezado Grande
+          - Tatara-San Pedro
+          - Laguna del Maule
+          - Nevado de Longavi
+          - Nevados de Chillan
+          - Antuco
+          - Copahue
+          - Callaqui
+          - Lonquimay
+          - Llaima
+          - Sollipulli
+          - Villarrica
+          - Quetrupillan
+          - Lanin
+          - Mocho-Choshuenco
+          - Carran - Los Venados
+          - Puyehue - Cordon Caulle
+          - Antillanca - Casablanca
+          - Osorno
+          - Calbuco
+          - Yate
+          - Hornopiren
+          - Huequi
+          - Michinmahuida
+          - Chaiten
+          - Corcovado
+          - Melimoyu
+          - Mentolat
+          - Cay
+          - Maca
+          - Hudson
+      fecha_inicio:
+        description: 'Fecha inicio (YYYY-MM-DD)'
+        required: true
+        default: '2026-03-01'
+      fecha_fin:
+        description: 'Fecha fin (YYYY-MM-DD)'
+        required: true
+        default: '2026-04-30'
+
+permissions:
+  contents: write
+
+# Por volcan, no global: dos volcanes distintos escriben rutas disjuntas bajo
+# docs/landsat/<volcan>/ y el loop de push con rebase ya resuelve esa carrera,
+# asi que serializar los 43 seria costo sin beneficio. Lo que si vale evitar es
+# el mismo volcan dos veces en paralelo (mismos GIFs, mismo PPT de salida).
+concurrency:
+  group: landsat-ppt-individual-${{ github.event.inputs.volcan }}
+  cancel-in-progress: false
+
+jobs:
+  generar-ppt:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with: {python-version: '3.11', cache: 'pip'}
+      - run: pip install Pillow numpy pandas python-pptx lxml requests pytz
+      - name: Verificar plantilla
+        run: test -f "docs/plantillas/Cambios_morfologicos.pptx" && echo "OK" || { echo "Plantilla no encontrada"; exit 1; }
+      - name: Generar GIFs
+        env:
+          VOLCAN: ${{ github.event.inputs.volcan }}
+          FECHA_INICIO: ${{ github.event.inputs.fecha_inicio }}
+          FECHA_FIN: ${{ github.event.inputs.fecha_fin }}
+        run: python timelapse_generator.py
+      - name: Generar PPT
+        env:
+          VOLCAN: ${{ github.event.inputs.volcan }}
+          FECHA_INICIO: ${{ github.event.inputs.fecha_inicio }}
+          FECHA_FIN: ${{ github.event.inputs.fecha_fin }}
+        run: python ppt_generator.py
+      - name: Regenerar manifest GIFs PPT
+        run: python scripts/generar_manifest_gifs.py
+      - name: Commit
+        run: |
+          git config user.name "PPTLandsatBot"
+          git config user.email "ppt@landsat.cl"
+          git add "docs/landsat/${{ github.event.inputs.volcan }}/" docs/timelapses_ppt_manifest.json || true
+          if git diff --quiet --staged; then echo "Sin archivos"; exit 0; fi
+          git commit -m "PPT Landsat: ${{ github.event.inputs.volcan }} (${{ github.event.inputs.fecha_inicio }} a ${{ github.event.inputs.fecha_fin }})"
+          for i in 1 2 3 4 5; do
+            git pull origin master --rebase -X ours || true
+            git push origin master && exit 0
+            sleep $((i*2))
+          done
+          exit 1

@@ -1,0 +1,42 @@
+name: Deploy GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Configurar Pages
+        uses: actions/configure-pages@v6
+
+      # v3 era composite y por dentro llamaba a actions/upload-artifact@v4
+      # (node20): una referencia a Node 20 que no aparece grepeando este archivo.
+      # v5 llama a upload-artifact@v7 (node24). Las tres acciones de Pages se
+      # suben juntas a proposito: mezclar upload@v3 con deploy@v5 seria la
+      # combinacion no probada.
+      - name: Subir artefacto
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: "docs"
+
+      - name: Deploy a GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5

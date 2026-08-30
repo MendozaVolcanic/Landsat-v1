@@ -1,0 +1,143 @@
+name: Landsat Download + Timelapse Auto
+
+on:
+  schedule:
+    # FIX 2026-06-03: arquitectura watcher M2M (mismo patron que el watcher
+    # OData de Copernicus). Corre CADA HORA, pero la mayoria de las veces solo
+    # ejecuta el job 'detectar': UNA query Chile-wide al M2M scene-search (~1s)
+    # que compara publishDate vs marcador. La descarga de los 43 volcanes solo
+    # corre cuando hay una escena Landsat nueva publicada sobre Chile.
+    #
+    # Por que cada hora (vs ventanas como S2): Landsat publica L2 C2 ~T+1 dia
+    # a horas variables (no hay ventana estrecha), asi que conviene chequear
+    # parejo. USGS M2M es gratis -> el gate de 1 query/hora no cuesta nada y
+    # baja la carga de 43 busquedas/run a 1.
+    - cron: '0 * * * *'
+  workflow_dispatch:
+    inputs:
+      dias:
+        description: 'Dias hacia atras'
+        required: false
+        default: '30'
+      volcan:
+        description: 'Volcan especifico (dejar vacio para todos)'
+        required: false
+        default: ''
+
+permissions:
+  contents: write
+
+# El cron es horario y el job de descarga tarda ~7-16 min: normalmente no se
+# solapan, pero un dispatch manual sobre un cron corriendo si los solapa, y ahi
+# dos runs descargan los mismos 43 volcanes y empujan el mismo docs/ a master.
+# cancel-in-progress: false -> el run nuevo espera en vez de matar una descarga
+# a medio commitear.
+concurrency:
+  group: landsat-download
+  cancel-in-progress: false
+
+jobs:
+  # ===============================================================
+  # GATE: deteccion barata via M2M scene-search Chile-wide (1 query)
+  # ===============================================================
+  detectar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      has_new: ${{ steps.watch.outputs.has_new }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 1
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+      - name: Detectar escenas Landsat nuevas (M2M, 1 query)
+        id: watch
+        env:
+          USGS_USERNAME: ${{ secrets.USGS_USERNAME }}
+          USGS_M2M_TOKEN: ${{ secrets.USGS_M2M_TOKEN }}
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "Dispatch manual -> forzar descarga completa"
+            echo "has_new=true" >> "$GITHUB_OUTPUT"
+          else
+            python scripts/watcher_m2m.py
+          fi
+      - name: Commitear marcador si avanzo
+        if: steps.watch.outputs.has_new == 'true' && github.event_name != 'workflow_dispatch'
+        run: |
+          git config user.name "LandsatWatcher"
+          git config user.email "watcher@volcano.cl"
+          git add docs/.landsat_last_pub.json || true
+          if ! git diff --quiet --staged; then
+            git commit -m "watcher: marcador M2M $(date -u +'%Y-%m-%dT%H:%MZ')"
+            for i in 1 2 3; do
+              git pull origin master --rebase -X ours || true
+              git push origin master && break
+              sleep $((i*2))
+            done
+          fi
+
+  download-and-timelapse:
+    needs: [detectar]
+    if: needs.detectar.outputs.has_new == 'true'
+    runs-on: ubuntu-latest
+    # Obligatorio ahora que hay grupo de concurrency. Sin timeout el default de
+    # GitHub son 6 h: un job colgado retendria el grupo, los runs horarios se
+    # encolarian y GitHub iria cancelando el pendiente anterior. Cancelado NO es
+    # failure, asi que alerta_cron_caido.yml (que filtra por conclusion ==
+    # 'failure') no dispararia -> pipeline zombie silencioso, justo el modo de
+    # falla que ese workflow existe para detectar.
+    # 60 min = ~4x el peor run observado (15,6 min el 2026-08-08) y ademas ata el
+    # job a su propia cadencia: nunca puede sobrevivir mas de un ciclo del cron.
+    # Un backfill grande por dispatch (dias >> 30) puede necesitar mas.
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 1
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+      - name: Instalar dependencias
+        run: pip install -r requirements.txt
+      - name: Descargar imagenes Landsat
+        env:
+          USGS_USERNAME: ${{ secrets.USGS_USERNAME }}
+          USGS_M2M_TOKEN: ${{ secrets.USGS_M2M_TOKEN }}
+        run: |
+          DIAS="${{ github.event.inputs.dias || '30' }}"
+          VOLCAN="${{ github.event.inputs.volcan || '' }}"
+          if [ -n "$VOLCAN" ]; then
+            python landsat_downloader.py --dias "$DIAS" --volcan "$VOLCAN"
+          else
+            python landsat_downloader.py --dias "$DIAS"
+          fi
+      - name: Generar timelapses automaticos
+        run: python timelapse_auto.py
+      - name: Regenerar manifest GIFs PPT
+        run: python scripts/generar_manifest_gifs.py
+      - name: Regenerar prediccion de proximas pasadas
+        run: python generar_proximas_pasadas_landsat.py
+      # Cuantas huellas WRS-2 cubren cada volcan. Se recalcula en cada corrida
+      # para que no se convierta en otra copia con vida propia: un volcan que
+      # empieza a recibir escenas de un path nuevo cambia su revisita real.
+      - name: Regenerar cobertura WRS-2 por volcan
+        run: python scripts/generar_cobertura_wrs2.py
+      - name: Commit y push
+        run: |
+          git config user.name "LandsatBot"
+          git config user.email "landsat@volcano.cl"
+          git add docs/
+          if git diff --quiet --staged; then echo "Sin cambios"; exit 0; fi
+          NUEVAS=$(git diff --staged --name-only docs/landsat | grep '_RGB.png' | wc -l)
+          git commit -m "landsat: ${NUEVAS} imagenes nuevas ($(date -u +'%Y-%m-%d %H:%M UTC'))"
+          for i in 1 2 3 4 5; do
+            git pull origin master --rebase -X ours || true
+            git add docs/ || true
+            git push origin master && exit 0
+            sleep $((i*2))
+          done
+          exit 1

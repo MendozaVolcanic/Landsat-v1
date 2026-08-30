@@ -1,0 +1,11 @@
+# Landsat-v1 — deps para downloader v3 (USGS M2M + rasterio window-reads).
+# 2026-05-22: USGS M2M devuelve URLs COG firmadas, rasterio hace window-read
+# en HTTPS sin descargar la escena completa (~50-200 KB por banda).
+requests>=2.31.0
+rasterio>=1.3.0
+numpy>=1.24.0
+Pillow>=10.0.0
+pytz>=2024.1
+pandas>=2.0.0
+python-pptx>=0.6.21
+lxml>=4.9.0

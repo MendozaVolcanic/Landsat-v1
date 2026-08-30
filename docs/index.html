@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Landsat 8/9 Volcanic Monitor</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:linear-gradient(135deg,#0b0e14,#1a1f2e);color:#e0e0e0;font-family:'Segoe UI',sans-serif;overflow-x:hidden}
+body.timelapse-mode #main-content,body.personal-mode #main-content,body.riesgosos-mode #main-content{display:none}
+body.timelapse-mode #timelapse-fs{display:flex!important}
+body.personal-mode #personal-fs{display:flex!important}
+body.riesgosos-mode #riesgosos-fs{display:flex!important}
+header{background:linear-gradient(90deg,#161b22,#1f2937);padding:14px 20px;text-align:center;border-bottom:2px solid #e67e22}
+header h1{color:#e67e22;font-size:1.8em}
+header p{color:#8b949e;font-size:.9em}
+#status-bar{background:#161b22;padding:10px 20px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #30363d;flex-wrap:wrap;gap:6px}
+.btn{background:#30363d;color:#fff;border:1px solid #444;padding:6px 12px;border-radius:4px;cursor:pointer;font-size:.82em}
+.btn:hover{background:#444c56}
+#volcano-selector{background:#161b22;padding:12px 20px;display:flex;align-items:center;gap:8px;border-bottom:1px solid #30363d;flex-wrap:wrap}
+#volcano-selector label{font-weight:bold;color:#e67e22}
+#volcano-selector select,#volcano-selector button{background:#0d1117;color:#e0e0e0;border:1px solid #30363d;padding:7px 12px;border-radius:6px;cursor:pointer}
+.comp-tabs{display:flex;gap:6px;padding:10px 20px;background:#161b22;border-bottom:1px solid #30363d;flex-wrap:wrap}
+.comp-tab{padding:5px 16px;border-radius:4px;border:1px solid #444;background:#30363d;color:#e0e0e0;cursor:pointer;font-size:.85em}
+.comp-tab.active{background:#e67e22;border-color:#e67e22;color:#fff;font-weight:bold}
+#cal-modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.8);z-index:3000;justify-content:center;align-items:center}
+.cal-box{background:#161b22;border:2px solid #e67e22;border-radius:10px;padding:20px;max-width:420px;width:90%}
+.cal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px}
+.cal-header h3{color:#e67e22}
+.close-btn{background:#ff4500;color:#fff;border:none;border-radius:50%;width:28px;height:28px;cursor:pointer;font-weight:bold}
+.cal-selectors{display:flex;gap:8px;margin-bottom:12px}
+.cal-selectors select{flex:1;background:#0d1117;color:#e0e0e0;border:1px solid #30363d;padding:4px;border-radius:6px}
+#cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-top:8px}
+.cal-dh{text-align:center;color:#8b949e;font-size:.8em;padding:3px}
+.cal-d{padding:4px;text-align:center;border-radius:4px}
+.cal-d.ok{background:#e67e22;color:#fff;font-weight:bold;cursor:pointer}
+.cal-d.ok:hover{background:#d35400;transform:scale(1.1)}
+.cal-d.na{background:#30363d;color:#555}
+.cal-legend{margin-top:12px;font-size:.8em;display:flex;gap:12px;color:#8b949e}
+.tl-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;padding:16px}
+@media(max-width:900px){.tl-grid{grid-template-columns:1fr}}
+.tl-card{background:#0d1117;border:1px solid #30363d;border-radius:8px;padding:10px}
+.tl-card h3{color:#e67e22;margin-bottom:6px;font-size:1em}
+.tl-card img{width:100%;border-radius:6px;cursor:pointer}
+.tl-info{font-size:.8em;color:#8b949e;margin-top:4px}
+#timeline{background:#161b22;padding:12px 20px;border-bottom:1px solid #30363d}
+#timeline h3{color:#e67e22;font-size:.95em;margin-bottom:8px}
+#tl-dates{display:flex;gap:4px;overflow-x:auto;padding-bottom:4px}
+.date-btn{background:#30363d;color:#e0e0e0;border:1px solid #444;padding:5px 10px;border-radius:4px;cursor:pointer;white-space:nowrap;font-size:.82em}
+.date-btn:hover{background:#444c56}
+.date-btn.active{background:#e67e22;color:#fff;border-color:#e67e22}
+.img-panel{background:#161b22;border:1px solid #30363d;border-radius:8px;padding:12px;margin:12px 20px}
+.img-panel h4{color:#e67e22;margin-bottom:8px}
+.img-panel img{width:100%;max-height:70vh;object-fit:contain;border-radius:6px}
+#meta-panel{background:#161b22;margin:0 20px 15px;border-radius:8px;border:1px solid #30363d;padding:12px}
+#meta-panel h4{color:#e67e22;margin-bottom:8px;font-size:.95em}
+.meta-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px}
+.meta-item{background:#0d1117;padding:8px;border-radius:6px;border:1px solid #30363d}
+.meta-lbl{color:#8b949e;font-size:.75em}
+.meta-val{color:#e0e0e0;font-weight:bold;font-size:.9em;word-break:break-all}
+#timelapse-fs,#personal-fs,#riesgosos-fs{display:none;position:fixed;top:0;left:0;width:100%;height:100vh;background:#0b0e14;z-index:2000;flex-direction:column;overflow-y:auto}
+.fs-hdr{background:#161b22;padding:12px 20px;display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #e67e22;position:sticky;top:0;z-index:2001;flex-wrap:wrap;gap:8px}
+.fs-hdr h2{color:#e67e22;margin:0;font-size:1.2em}
+.v-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;padding:12px}
+@media(max-width:900px){.v-grid{grid-template-columns:1fr}}
+.v-card{background:#161b22;border:1px solid #30363d;border-radius:8px;overflow:hidden;cursor:pointer;padding:8px}
+.v-card:hover{border-color:#e67e22}
+.v-hdr{padding:4px 6px 8px;font-weight:bold;color:#e67e22;font-size:1em;display:flex;justify-content:space-between;align-items:baseline}
+.v-hdr .v-date{color:#8b949e;font-size:.78em;font-weight:normal}
+/* L1: imagen provisional (TOA, sin correccion atmosferica); se reemplaza por L2 */
+.v-hdr .v-l1{background:#b45309;color:#ffedd5;font-size:.62em;font-weight:700;padding:0 5px;border-radius:7px;margin-left:5px;cursor:help}
+/* Imagen nueva (<24h desde que aparecio): borde rojo pulsante, igual que Copernicus-v1 */
+.v-card.nueva{border-color:#dc2626;animation:pulseNueva 1.5s ease-in-out infinite}
+@keyframes pulseNueva{0%,100%{box-shadow:0 0 4px rgba(220,38,38,.4)}50%{box-shadow:0 0 14px rgba(220,38,38,.9)}}
+.v-hdr .v-date.nueva-txt{color:#dc2626;font-weight:700}
+.cmp-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+@media(max-width:700px){.cmp-grid{grid-template-columns:1fr}}
+.cmp-pane{background:#0d1117;border-radius:6px;padding:4px}
+.cmp-pane h5{color:#e67e22;font-size:.78em;margin:0 0 4px 4px;font-weight:bold}
+.cmp-pane img{width:100%;display:block;border-radius:4px;min-height:140px;background:#161b22}
+.cmp-pane .no-img{display:flex;align-items:center;justify-content:center;color:#555;font-size:.78em;min-height:140px}
+#personal-checks{background:#161b22;padding:8px 20px;border-bottom:1px solid #30363d;display:none;flex-wrap:wrap;gap:6px}
+.p-chk{display:flex;align-items:center;gap:4px;font-size:.82em;cursor:pointer}
+.p-chk input{accent-color:#e67e22}
+.spinner{border:3px solid #30363d;border-top:3px solid #e67e22;border-radius:50%;width:36px;height:36px;animation:spin 1s linear infinite;margin:40px auto}
+@keyframes spin{to{transform:rotate(360deg)}}
+select.fs-sel{background:#0d1117;color:#fff;border:1px solid #30363d;padding:6px 10px;border-radius:6px}
+</style>
+</head>
+<body>
+<header>
+  <h1>Landsat 8/9 Volcanic Monitor</h1>
+  <p>43 Volcanes de Chile &mdash; USGS EROS M2M &mdash; Actualizacion automatica (T+1 dia)</p>
+</header>
+<div id="status-bar">
+  <div style="display:flex;align-items:center;gap:6px;font-size:.85em">
+    <strong>Sistema:</strong>
+    <span style="background:#2ea043;color:#fff;padding:3px 10px;border-radius:12px;font-weight:bold">Operativo</span>
+  </div>
+  <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+    <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
+      <span style="color:#8b949e;font-size:.78em;align-self:center;margin-right:4px">Vistas:</span>
+      <button class="btn" style="background:#da3633" onclick="toggleTiempalse()">&#127755; Multi-Volcan</button>
+      <button class="btn" style="background:#6e40c9" onclick="togglePersonal()">&#11088; Personal</button>
+      <button class="btn" style="background:#b45309" onclick="toggleRiesgosos()">&#9888;&#65039; 14 Riesgosos</button>
+    </div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;border-left:1px solid #30363d;padding-left:10px">
+      <span style="color:#8b949e;font-size:.78em;align-self:center;margin-right:4px">PPT/GIF:</span>
+      <a class="btn" style="background:#2ea043;font-size:.78em;text-decoration:none;display:inline-block" href="gif_builder.html" target="_blank">&#127916; Constructor GIF</a>
+      <a class="btn" style="background:#16a34a;font-size:.78em;text-decoration:none;display:inline-block" href="ppt_builder.html" target="_blank">&#127912; Constructor PPT</a>
+    </div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;border-left:1px solid #30363d;padding-left:10px">
+      <span style="color:#8b949e;font-size:.78em;align-self:center;margin-right:4px">Analisis:</span>
+      <a class="btn" style="background:#0e7490;font-size:.78em;text-decoration:none;display:inline-block" href="calendario_pasadas.html" target="_blank" title="Calendario de pasadas de los proximos 35 dias por volcan">&#128197; Calendario</a>
+      <a class="btn" style="background:#7c3aed;font-size:.78em;text-decoration:none;display:inline-block" href="change_detection.html" target="_blank">&#128270; Cambios</a>
+      <a class="btn" style="background:#0e7490;font-size:.78em;text-decoration:none;display:inline-block" href="revision_volcanes.html" target="_blank">&#128205; Revisi&oacute;n coords</a>
+      <a class="btn" style="background:#475569;font-size:.78em;text-decoration:none;display:inline-block" href="ayuda.html">&#128214; Ayuda</a>
+    </div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;border-left:1px solid #30363d;padding-left:10px">
+      <span style="color:#8b949e;font-size:.78em;align-self:center;margin-right:4px">Visores:</span>
+      <a id="link-copernicus" class="btn" style="background:#0969da;font-size:.78em;text-decoration:none;display:inline-block" href="https://mendozavolcanic.github.io/Copernicus-v1/" target="_blank" rel="noopener">&#128752;&#65039; Dashboard Copernicus</a>
+      <button class="btn" style="background:#1f2937;border:1px solid #e67e22" onclick="toggleFullscreen()">&#9166; Pantalla Completa</button>
+    </div>
+  </div>
+  <div style="font-size:.82em;color:#8b949e">Ultima act.: <span id="last-update">Cargando...</span></div>
+</div>
+<div id="volcano-selector">
+  <label>ZONA:</label>
+  <select id="zona-sel" onchange="cambiarZona()">
+    <option value="Norte">Zona Norte</option>
+    <option value="Centro">Zona Centro</option>
+    <option value="Sur" selected>Zona Sur</option>
+    <option value="Austral">Zona Austral</option>
+  </select>
+  <label style="margin-left:12px">VOLCAN:</label>
+  <select id="volcan-sel" onchange="loadVolcano()"></select>
+  <button onclick="toggleCalendar()">Ver Imagenes</button>
+</div>
+<div class="comp-tabs">
+  <span style="color:#8b949e;font-size:.82em;align-self:center;margin-right:4px">Composite:</span>
+  <button class="comp-tab active" id="tab-RGB"     onclick="setTipo('RGB')">RGB (B4-B3-B2)</button>
+  <button class="comp-tab"        id="tab-SWIR"    onclick="setTipo('SWIR')">SWIR (B7-B6-B4)</button>
+  <button class="comp-tab"        id="tab-THERMAL" onclick="setTipo('THERMAL')">THERMAL (B10)</button>
+</div>
+<div id="cal-modal" onclick="calModalClick(event)">
+  <div class="cal-box" onclick="event.stopPropagation()">
+    <div class="cal-header">
+      <h3>Fechas Disponibles</h3>
+      <button class="close-btn" onclick="toggleCalendar()">X</button>
+    </div>
+    <div class="cal-selectors">
+      <select id="cal-month" onchange="updateCalendar()">
+        <option value="0">Enero</option><option value="1">Febrero</option>
+        <option value="2">Marzo</option><option value="3">Abril</option>
+        <option value="4">Mayo</option><option value="5">Junio</option>
+        <option value="6">Julio</option><option value="7">Agosto</option>
+        <option value="8">Septiembre</option><option value="9">Octubre</option>
+        <option value="10">Noviembre</option><option value="11">Diciembre</option>
+      </select>
+      <select id="cal-year" onchange="updateCalendar()">
+        <option value="2025">2025</option><option value="2026" selected>2026</option>
+      </select>
+    </div>
+    <div id="cal-grid">
+      <div class="cal-dh">Dom</div><div class="cal-dh">Lun</div>
+      <div class="cal-dh">Mar</div><div class="cal-dh">Mie</div>
+      <div class="cal-dh">Jue</div><div class="cal-dh">Vie</div>
+      <div class="cal-dh">Sab</div>
+    </div>
+    <div class="cal-legend">
+      <div style="display:flex;align-items:center;gap:4px">
+        <div style="width:12px;height:12px;border-radius:2px;background:#e67e22"></div><span>Descargada</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:4px">
+        <div style="width:12px;height:12px;border-radius:2px;background:#30363d"></div><span>No disponible</span>
+      </div>
+    </div>
+  </div>
+</div>
+<div id="main-content">
+  <div style="margin:16px 20px;background:#161b22;border:2px solid #e67e22;border-radius:10px;overflow:hidden">
+    <div style="padding:12px 16px;background:#1f2937;display:flex;align-items:center;gap:10px">
+      <h2 style="color:#e67e22;font-size:1.1em;margin:0">Timelapses Automaticos (Ultimos 30 dias)</h2>
+      <span style="color:#8b949e;font-size:.8em">Se revisa cada hora si hay imagen nueva (USGS publica ~1 dia despues del paso)</span>
+      <!-- Cuenta regresiva al proximo paso del volcan seleccionado (countdown.js) -->
+      <span id="countdown-individual" style="margin-left:auto"></span>
+    </div>
+    <div class="tl-grid" id="tl-auto-grid"><div class="spinner"></div></div>
+  </div>
+  <div id="timeline">
+    <h3>Fechas Disponibles</h3>
+    <div id="tl-dates"><div class="spinner"></div></div>
+  </div>
+  <div style="color:#e67e22;padding:10px 20px 4px;font-size:1em;font-weight:bold;border-top:1px solid #30363d">
+    Imagen Seleccionada &mdash; <span id="img-volcan-lbl"></span>
+  </div>
+  <div class="img-panel" id="main-img-panel">
+    <h4 id="img-panel-title">Selecciona un volcan y fecha</h4>
+    <div id="img-container" style="min-height:200px;display:flex;align-items:center;justify-content:center">
+      <span style="color:#555">Sin imagen</span>
+    </div>
+  </div>
+  <div id="meta-panel">
+    <h4>Metadatos</h4>
+    <div class="meta-grid">
+      <div class="meta-item"><div class="meta-lbl">Volcan</div><div class="meta-val" id="m-v">-</div></div>
+      <div class="meta-item"><div class="meta-lbl">Fecha</div><div class="meta-val" id="m-f">-</div></div>
+      <div class="meta-item"><div class="meta-lbl">Satelite</div><div class="meta-val" id="m-s">-</div></div>
+      <div class="meta-item"><div class="meta-lbl">Nubes</div><div class="meta-val" id="m-n">-</div></div>
+      <div class="meta-item"><div class="meta-lbl">Composite</div><div class="meta-val" id="m-t">-</div></div>
+      <div class="meta-item"><div class="meta-lbl">Scene ID</div><div class="meta-val" id="m-sc">-</div></div>
+      <div class="meta-item"><div class="meta-lbl">Nivel</div><div class="meta-val" id="m-nivel" title="L2 = reflectancia de superficie (corregido atmosfericamente). L1 = TOA provisional (~T+1d), se reemplaza por L2 cuando USGS lo publica.">-</div></div>
+      <div class="meta-item"><div class="meta-lbl">Revisita</div><div class="meta-val" id="m-rev" title="Landsat 8 y 9 repiten cada huella WRS-2 cada 16 dias, desfasados 8. Un volcan en el solape de dos huellas se ve cada ~4 dias; uno en una sola huella, cada ~8. Es geometria orbital, no una falla del sistema.">-</div></div>
+    </div>
+  </div>
+</div>
+<div id="timelapse-fs">
+  <div class="fs-hdr">
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+      <h2>Mapa Multi-Volcan</h2>
+      <select id="zona-multi" class="fs-sel" onchange="loadMulti()">
+        <option value="Norte">Zona Norte</option><option value="Centro">Zona Centro</option>
+        <option value="Sur" selected>Zona Sur</option><option value="Austral">Zona Austral</option>
+      </select>
+    </div>
+    <button class="btn" onclick="toggleTiempalse()">Volver</button>
+  </div>
+  <div id="multi-grid" class="v-grid"></div>
+</div>
+<div id="personal-fs">
+  <div class="fs-hdr">
+    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+      <h2>Monitoreo Personal</h2>
+      <button class="btn" style="background:#6e40c9" onclick="loadPersonal()">Cargar</button>
+      <button class="btn" onclick="togglePersonalLista()">Lista</button>
+      <button class="btn" onclick="selectAllPersonal()">Todo</button>
+      <button class="btn" onclick="clearPersonal()">Limpiar</button>
+    </div>
+    <button class="btn" onclick="togglePersonal()">Volver</button>
+  </div>
+  <div id="personal-checks"></div>
+  <div id="personal-grid" class="v-grid"></div>
+</div>
+<div id="riesgosos-fs">
+  <div class="fs-hdr">
+    <div style="display:flex;align-items:center;gap:10px">
+      <h2>14 Volcanes Mas Riesgosos (SERNAGEOMIN)</h2>
+    </div>
+    <button class="btn" onclick="toggleRiesgosos()">Volver</button>
+  </div>
+  <div id="riesgosos-grid" class="v-grid"></div>
+</div>
+<!-- Cuenta regresiva al proximo paso: MISMO componente que la Sala de Monitoreo
+     y el dashboard de Copernicus-v1 (copia de Copernicus-v1/docs/countdown.js).
+     Si se toca alla, actualizar aca. -->
+<script src="countdown.js"></script>
+<script>
+var coberturaWRS2={};
+var VOLCANES_DATA={
+  Norte:["Taapaca","Parinacota","Guallatiri","Isluga","Irruputuncu","Ollague","San Pedro","Lascar"],
+  Centro:["Tupungatito","San Jose","Tinguiririca","Planchon-Peteroa","Descabezado Grande","Tatara-San Pedro","Laguna del Maule","Nevado de Longavi","Nevados de Chillan"],
+  Sur:["Antuco","Copahue","Callaqui","Lonquimay","Llaima","Sollipulli","Villarrica","Quetrupillan","Lanin","Mocho-Choshuenco","Carran - Los Venados","Puyehue - Cordon Caulle","Antillanca - Casablanca"],
+  Austral:["Osorno","Calbuco","Yate","Hornopiren","Huequi","Michinmahuida","Chaiten","Corcovado","Melimoyu","Mentolat","Cay","Maca","Hudson"]
+};
+var TODOS=[];
+Object.keys(VOLCANES_DATA).forEach(function(z){TODOS=TODOS.concat(VOLCANES_DATA[z]);});
+var RIESGOSOS=["Villarrica","Calbuco","Copahue","Chaiten","Hudson","Puyehue - Cordon Caulle","Nevados de Chillan","Llaima","Lanin","Osorno","Tupungatito","Lascar","San Pedro","Laguna del Maule"];
+var GH_RAW="https://raw.githubusercontent.com/MendozaVolcanic/Landsat-v1/master/docs/";
+var fechasData={},metaCache={},nivelesData={};
+var curVolcan=null,curFecha=null,curTipo="RGB";
+var personalSel=JSON.parse(localStorage.getItem('ls_personal')||'[]');
+var personalListaOn=false;
+
+// Conecta el componente de cuenta regresiva con las fechas VIGENTES. Hay que
+// llamarla tras cada carga: fechasData se reasigna y el modulo quedaria
+// apuntando al objeto viejo.
+function sincronizarCountdown(){
+  if(window.CountdownPasadas) CountdownPasadas.configurar({fechasLandsat:fechasData});
+}
+
+document.addEventListener('DOMContentLoaded',function(){
+  // Las predicciones se cargan ANTES del primer render: si no, las cards se
+  // pintan sin badge (info() da null sin predLandsat). cargarFuentes() nunca
+  // lanza -> si el JSON falla, el dashboard funciona igual, solo sin badge.
+  var predListo = window.CountdownPasadas
+    ? CountdownPasadas.cargarFuentes({predLandsat:'proximas_pasadas_landsat.json'})
+    : Promise.resolve();
+  Promise.all([fetchFechas(), predListo]).then(function(){
+    sincronizarCountdown();
+    var pedido=volcanDesdeURL();
+    if(pedido){
+      document.getElementById('zona-sel').value=zonaDe(pedido);
+    }
+    populateZona();
+    if(pedido){
+      document.getElementById('volcan-sel').value=pedido;
+      loadVolcanoByName(pedido);
+    }else{
+      var primero=(VOLCANES_DATA["Sur"]||[])[0];
+      if(primero) loadVolcanoByName(primero);
+    }
+    cargarAutoGIFs();
+    actualizarUltimaActualizacion();
+    // Tick de 1 min: el badge cuenta hacia el proximo paso.
+    if(window.CountdownPasadas) CountdownPasadas.iniciarTick(60000,'landsat');
+  });
+});
+
+function actualizarUltimaActualizacion(){
+  var el=document.getElementById('last-update');
+  if(!el) return;
+  var maxFecha=null;
+  for(var v in fechasData){
+    var arr=fechasData[v];
+    if(!arr||!arr.length) continue;
+    for(var i=0;i<arr.length;i++){
+      if(!maxFecha||arr[i]>maxFecha) maxFecha=arr[i];
+    }
+  }
+  if(!maxFecha){ el.textContent='Sin datos'; return; }
+  // delta en dias usando UTC midnight
+  var parts=maxFecha.split('-');
+  var fechaUTC=Date.UTC(parseInt(parts[0],10),parseInt(parts[1],10)-1,parseInt(parts[2],10));
+  var hoy=new Date();
+  var hoyUTC=Date.UTC(hoy.getUTCFullYear(),hoy.getUTCMonth(),hoy.getUTCDate());
+  var deltaDias=Math.floor((hoyUTC-fechaUTC)/86400000);
+  var sufijo,color;
+  if(deltaDias<=0){ sufijo='hoy'; color='#3fb950'; }
+  else if(deltaDias===1){ sufijo='ayer'; color='#3fb950'; }
+  else if(deltaDias<=3){ sufijo='hace '+deltaDias+' dias'; color='#d29922'; }
+  else { sufijo='hace '+deltaDias+' dias'; color='#8b949e'; }
+  // Construir sin innerHTML interpolado
+  el.textContent='';
+  var span=document.createElement('span');
+  span.style.color=color;
+  span.textContent=maxFecha+' · '+sufijo;
+  el.appendChild(span);
+}
+
+function fetchFechas(){
+  // Cuantas huellas WRS-2 cubren cada volcan. Sin esto, "Lascar lleva 8 dias sin
+  // imagen" y "Villarrica lleva 8 dias sin imagen" se leen igual en turno, y no
+  // significan lo mismo: en Lascar es lo normal y en Villarrica es que algo fallo.
+  fetch('cobertura_wrs2.json?t='+Date.now())
+    .then(function(r){ if(r.ok) return r.json(); })
+    .then(function(d){ if(d && d.volcanes) coberturaWRS2=d.volcanes; })
+    .catch(function(e){ console.warn('cobertura_wrs2 error',e); });
+  var p1=fetch('fechas_disponibles_landsat.json?t='+Date.now())
+    .then(function(r){if(r.ok)return r.json();})
+    .then(function(d){if(d)fechasData=d;})
+    .catch(function(e){console.warn('fechas error',e);});
+  var p2=fetch('niveles_landsat.json?t='+Date.now())
+    .then(function(r){if(r.ok)return r.json();})
+    .then(function(d){if(d)nivelesData=d;})
+    .catch(function(e){console.warn('niveles error',e);});
+  return Promise.all([p1,p2]);
+}
+
+// --- Enlace profundo ---------------------------------------------------
+// Antes de esto el dashboard no leia la URL: el boton desde Copernicus-v1 caia
+// siempre en el primer volcan de la zona Sur, perdiendo de que volcan se venia
+// hablando, y no habia forma de mandarle a alguien un link a un volcan concreto.
+function zonaDe(v){
+  for(var z in VOLCANES_DATA){
+    if((VOLCANES_DATA[z]||[]).indexOf(v)!==-1) return z;
+  }
+  return null;
+}
+
+function volcanDesdeURL(){
+  try{
+    var v=new URLSearchParams(window.location.search).get('volcan');
+    return v && zonaDe(v) ? v : null;
+  }catch(e){ return null; }
+}
+
+function sincronizarURL(){
+  if(!curVolcan) return;
+  try{
+    var u=new URL(window.location.href);
+    u.searchParams.set('volcan',curVolcan);
+    history.replaceState(null,'',u);
+  }catch(e){ /* sin history API: no es critico */ }
+  var a=document.getElementById('link-copernicus');
+  if(a){
+    a.href='https://mendozavolcanic.github.io/Copernicus-v1/?volcan='
+      +encodeURIComponent(curVolcan);
+    a.title='Ver '+curVolcan+' en Sentinel-2';
+  }
+}
+
+function cambiarZona(){
+  populateZona();
+  var f=(VOLCANES_DATA[document.getElementById('zona-sel').value]||[])[0];
+  if(f) loadVolcanoByName(f);
+}
+
+function populateZona(){
+  var zona=document.getElementById('zona-sel').value;
+  var sel=document.getElementById('volcan-sel');
+  sel.textContent='';
+  (VOLCANES_DATA[zona]||[]).forEach(function(v){
+    var o=document.createElement('option');
+    o.value=v; o.textContent=v; sel.appendChild(o);
+  });
+}
+
+function loadVolcano(){
+  var v=document.getElementById('volcan-sel').value;
+  if(v) loadVolcanoByName(v);
+}
+
+function nombreSatelite(row){
+  if(!row) return '-';
+  var s=row.satelite||'';
+  var id=row.scene_id||s;
+  if(/^LC09/.test(id)) return 'Landsat 9';
+  if(/^LC08/.test(id)) return 'Landsat 8';
+  if(/landsat-9/i.test(s)) return 'Landsat 9';
+  if(/landsat-8/i.test(s)) return 'Landsat 8';
+  return s||'-';
+}
+
+function loadVolcanoByName(v){
+  curVolcan=v;
+  document.getElementById('img-volcan-lbl').textContent=v;
+  document.getElementById('m-v').textContent=v;
+  sincronizarURL();
+  updateTimeline();
+  var fechas=(fechasData[v]||[]).slice().sort();
+  if(fechas.length) loadImage(v,fechas[fechas.length-1],curTipo);
+  cargarAutoGIFs();
+}
+
+function setTipo(t){
+  curTipo=t;
+  ['RGB','SWIR','THERMAL'].forEach(function(x){
+    document.getElementById('tab-'+x).classList.toggle('active',x===t);
+  });
+  if(curVolcan&&curFecha) loadImage(curVolcan,curFecha,t);
+}
+
+function updateTimeline(){
+  var c=document.getElementById('tl-dates'); c.textContent='';
+  // Newest primero - ordenamos asc luego reverse para que sea independiente del JSON
+  var fechas=(fechasData[curVolcan]||[]).slice().sort().reverse();
+  if(!fechas.length){
+    var s=document.createElement('span'); s.style.color='#555';
+    s.textContent='Sin imagenes'; c.appendChild(s); return;
+  }
+  fechas.forEach(function(f){
+    var btn=document.createElement('button');
+    btn.className='date-btn'+(f===curFecha?' active':'');
+    btn.textContent=f;
+    btn.onclick=(function(fd){return function(){loadImage(curVolcan,fd,curTipo);};})(f);
+    c.appendChild(btn);
+  });
+}
+
+function loadImage(v,fecha,tipo){
+  curFecha=fecha;
+  document.querySelectorAll('.date-btn').forEach(function(b){
+    b.classList.toggle('active',b.textContent===fecha);
+  });
+  document.getElementById('img-panel-title').textContent=v+' -- '+fecha+' -- '+tipo;
+  document.getElementById('m-f').textContent=fecha;
+  document.getElementById('m-t').textContent=tipo;
+  var cont=document.getElementById('img-container');
+  var sp=document.createElement('div'); sp.className='spinner';
+  cont.textContent=''; cont.appendChild(sp);
+  var img=new Image();
+  img.onload=function(){
+    cont.textContent='';
+    img.style.cssText='width:100%;max-height:70vh;object-fit:contain;border-radius:6px';
+    cont.appendChild(img);
+    loadMeta(v,fecha,tipo);
+  };
+  img.onerror=function(){
+    cont.textContent='';
+    var s=document.createElement('span');
+    s.style.cssText='color:#555;padding:40px;display:block;text-align:center';
+    s.textContent='Sin imagen: '+v+' '+fecha+' '+tipo;
+    cont.appendChild(s);
+  };
+  img.src='landsat/'+v+'/'+fecha+'_'+tipo+'.png';
+}
+
+function loadMeta(v,fecha,tipo){
+  document.getElementById('m-f').textContent=fecha;
+  document.getElementById('m-t').textContent=tipo;
+  if(!metaCache[v]){
+    fetch(GH_RAW+'landsat/'+v+'/metadata.csv?t='+Date.now())
+      .then(function(r){if(r.ok)return r.text();})
+      .then(function(txt){
+        if(!txt) return;
+        var lines=txt.trim().split('\n');
+        var hdrs=lines[0].split(',');
+        metaCache[v]=lines.slice(1).map(function(l){
+          var c=l.split(','); var o={};
+          hdrs.forEach(function(h,i){o[h.trim()]=(c[i]||'').trim();});
+          return o;
+        });
+        applyMeta(v,fecha);
+      }).catch(function(){});
+  } else {
+    applyMeta(v,fecha);
+  }
+}
+
+function applyMeta(v,fecha){
+  var row=(metaCache[v]||[]).filter(function(r){return r.fecha===fecha;})[0];
+  // La columna 'satelite' del CSV cambio de formato: las filas viejas traen
+  // 'landsat-8'/'landsat-9' y las nuevas el scene_id completo, duplicando la fila
+  // de abajo. Mostrar el scene_id crudo donde dice "Satelite" obliga al operador a
+  // decodificar LC08/LC09 de memoria, asi que lo traducimos.
+  document.getElementById('m-s').textContent=nombreSatelite(row);
+  var rev=coberturaWRS2[curVolcan];
+  document.getElementById('m-rev').textContent = rev
+    ? ('~'+rev.revisita_dias_nominal+' d  ('+rev.n_huellas
+       +(rev.n_huellas===1?' huella WRS-2 ':' huellas WRS-2 ')+rev.huellas_wrs2.join(', ')+')')
+    : '-';
+  document.getElementById('m-n').textContent=row&&row.cloud_cover!=null?row.cloud_cover+'%':'-';
+  document.getElementById('m-sc').textContent=row?(row.scene_id||'-'):'-';
+  // Nivel: de la columna 'nivel' o inferido del scene_id (filas viejas).
+  var nivel='-';
+  if(row){
+    nivel=row.nivel || ((String(row.scene_id||'').indexOf('_L1')>=0)?'L1':'L2');
+  }
+  var mn=document.getElementById('m-nivel');
+  if(nivel==='L1'){
+    mn.textContent='L1 (provisional)';
+    mn.style.color='#f0a14b';
+  }else{
+    mn.textContent=(nivel==='L2'?'L2 (superficie)':'-');
+    mn.style.color='';
+  }
+}
+
+function cargarAutoGIFs(){
+  if(!curVolcan) return;
+  // Cuenta regresiva del volcan seleccionado (modo individual).
+  var cdCont=document.getElementById('countdown-individual');
+  if(cdCont){
+    cdCont.textContent='';
+    sincronizarCountdown();
+    if(window.CountdownPasadas && CountdownPasadas.info(curVolcan,'landsat')){
+      cdCont.appendChild(CountdownPasadas.crearBadge(curVolcan,'landsat','inline'));
+    }
+  }
+  var g=document.getElementById('tl-auto-grid'); g.textContent='';
+  var tipos=[{t:'RGB',lbl:'RGB (B4-B3-B2)'},{t:'SWIR',lbl:'SWIR (B7-B6-B4)'},{t:'THERMAL',lbl:'THERMAL (B10)'}];
+  var fechas=(fechasData[curVolcan]||[]).slice().sort();
+  var ultima=fechas.length?fechas[fechas.length-1]:null;
+  tipos.forEach(function(item){
+    var t=item.t, lbl=item.lbl;
+    var card=document.createElement('div'); card.className='tl-card';
+    var h3=document.createElement('h3'); h3.textContent=lbl; card.appendChild(h3);
+    var img=document.createElement('img');
+    img.alt=t; img.title='Click para ver este composite';
+    img.src='timelapses_landsat/'+curVolcan+'_'+t+'.gif?t='+Date.now();
+    var info=document.createElement('div'); info.className='tl-info';
+    info.textContent='Ultimos 30 dias -- '+curVolcan+' -- Landsat 8/9 C2L2';
+    img.onload=function(){ /* GIF OK */ };
+    img.onerror=(function(ul,tipo,inf){return function(){
+      // GIF no existe (volcan sin imagenes recientes). Fallback: ultima PNG.
+      img.onerror=function(){img.style.display='none';};
+      if(ul){
+        img.src='landsat/'+curVolcan+'/'+ul+'_'+tipo+'.png';
+        inf.textContent='Sin timelapse reciente -- ultima imagen: '+ul;
+      } else {
+        img.style.display='none';
+        inf.textContent='Sin imagenes para '+curVolcan;
+      }
+    };})(ultima,t,info);
+    img.onclick=(function(ct){return function(){setTipo(ct);};})(t);
+    card.appendChild(img);
+    card.appendChild(info);
+    g.appendChild(card);
+  });
+}
+
+function toggleCalendar(){
+  var m=document.getElementById('cal-modal');
+  if(m.style.display==='flex'){m.style.display='none';}
+  else{
+    var n=new Date();
+    document.getElementById('cal-month').value=n.getMonth();
+    document.getElementById('cal-year').value=n.getFullYear();
+    updateCalendar(); m.style.display='flex';
+  }
+}
+function calModalClick(e){if(e.target.id==='cal-modal') toggleCalendar();}
+
+function updateCalendar(){
+  var month=parseInt(document.getElementById('cal-month').value);
+  var year=parseInt(document.getElementById('cal-year').value);
+  var g=document.getElementById('cal-grid');
+  var hdrs=Array.prototype.slice.call(g.querySelectorAll('.cal-dh'));
+  g.textContent=''; hdrs.forEach(function(h){g.appendChild(h);});
+  var fechas={}; (fechasData[curVolcan]||[]).forEach(function(d){fechas[d]=1;});
+  var firstDay=new Date(year,month,1).getDay();
+  for(var i=0;i<firstDay;i++){var d=document.createElement('div');d.className='cal-d';g.appendChild(d);}
+  var dias=new Date(year,month+1,0).getDate();
+  for(var dd=1;dd<=dias;dd++){
+    var ds=year+'-'+String(month+1).padStart(2,'0')+'-'+String(dd).padStart(2,'0');
+    var div=document.createElement('div'); div.textContent=dd;
+    if(fechas[ds]){
+      div.className='cal-d ok'; div.title=ds;
+      div.onclick=(function(fd){return function(){loadImage(curVolcan,fd,curTipo);toggleCalendar();};})(ds);
+    }else{ div.className='cal-d na'; }
+    g.appendChild(div);
+  }
+}
+
+function toggleTiempalse(){
+  document.body.classList.toggle('timelapse-mode');
+  if(document.body.classList.contains('timelapse-mode')) loadMulti();
+}
+function loadMulti(){
+  var zona=document.getElementById('zona-multi').value;
+  var g=document.getElementById('multi-grid'); g.textContent='';
+  (VOLCANES_DATA[zona]||[]).forEach(function(v){g.appendChild(makeCard(v));});
+}
+
+// "Nueva" = la imagen aparecio hace <24h en este navegador.
+// Gate hoy/ayer (hora Chile; USGS publica ~1 dia despues del paso) + marca de
+// primera vista en localStorage para que el aviso dure exactamente 24h.
+function fechaChileOffset(dias){
+  var d=new Date(Date.now()+dias*86400000);
+  return new Intl.DateTimeFormat('en-CA',{timeZone:'America/Santiago',year:'numeric',month:'2-digit',day:'2-digit'}).format(d);
+}
+function esNueva(volcan,fecha){
+  if(!fecha) return false;
+  if(fecha!==fechaChileOffset(0)&&fecha!==fechaChileOffset(-1)) return false;
+  var key='vista_landsat_'+volcan+'_'+fecha;
+  var visto;
+  try{
+    visto=localStorage.getItem(key);
+    if(!visto){
+      visto=String(Date.now());
+      var prefijo='vista_landsat_'+volcan+'_';
+      for(var i=localStorage.length-1;i>=0;i--){
+        var k=localStorage.key(i);
+        if(k&&k.indexOf(prefijo)===0&&k!==key) localStorage.removeItem(k);
+      }
+      localStorage.setItem(key,visto);
+    }
+  }catch(e){return true;} // localStorage bloqueado: caer al gate hoy/ayer
+  return (Date.now()-Number(visto))<24*3600*1000;
+}
+
+// Tarjeta comparacion: RGB + SWIR + THERMAL lado a lado - PNG ultima fecha
+function makeCard(v){
+  var fechas=fechasData[v]||[];
+  // JSON ya viene ordenado desc (newest first), pero ordenamos defensivamente
+  var ord=fechas.slice().sort();
+  var ultima=ord.length?ord[ord.length-1]:null;
+  var card=document.createElement('div'); card.className='v-card';
+  var hdr=document.createElement('div'); hdr.className='v-hdr';
+  var nm=document.createElement('span'); nm.textContent=v;
+  var dt=document.createElement('span'); dt.className='v-date';
+  dt.textContent=ultima||'sin imagen';
+  if(esNueva(v,ultima)){
+    card.classList.add('nueva');
+    dt.classList.add('nueva-txt');
+    dt.textContent='🆕 '+ultima;
+  }
+  hdr.appendChild(nm); hdr.appendChild(dt);
+  // Marcador L1: imagen provisional (TOA, sin correccion atmosferica)
+  if(ultima && nivelesData[v] && nivelesData[v][ultima]==='L1'){
+    var l1=document.createElement('span'); l1.className='v-l1'; l1.textContent='L1';
+    l1.title='Imagen provisional Level-1 (TOA, sin correccion atmosferica). Se reemplaza por L2 cuando USGS publica el producto final.';
+    hdr.appendChild(l1);
+  }
+  card.appendChild(hdr);
+
+  // Cuenta regresiva al proximo paso, DEBAJO del header y encima de las imagenes
+  // (componente compartido countdown.js). Sensor 'landsat': latencia larga
+  // (mediana 44 h) -> ventana relativa, sin franja horaria (cruzaria de dia).
+  if(window.CountdownPasadas && CountdownPasadas.info(v,'landsat')){
+    card.appendChild(CountdownPasadas.crearBadge(v,'landsat','inline'));
+  }
+
+  var grid=document.createElement('div'); grid.className='cmp-grid';
+  ['RGB','SWIR','THERMAL'].forEach(function(t){
+    var pane=document.createElement('div'); pane.className='cmp-pane';
+    var h=document.createElement('h5'); h.textContent=t;
+    pane.appendChild(h);
+    if(ultima){
+      var img=document.createElement('img');
+      img.loading='lazy'; img.alt=v+' '+t;
+      img.src='landsat/'+v+'/'+ultima+'_'+t+'.png';
+      img.onerror=(function(p){return function(){
+        p.removeChild(img);
+        var no=document.createElement('div'); no.className='no-img';
+        no.textContent='No disponible'; p.appendChild(no);
+      };})(pane);
+      pane.appendChild(img);
+    } else {
+      var no=document.createElement('div'); no.className='no-img';
+      no.textContent='Sin imagenes'; pane.appendChild(no);
+    }
+    grid.appendChild(pane);
+  });
+  card.appendChild(grid);
+  card.onclick=(function(vv){return function(){
+    document.body.classList.remove('timelapse-mode','personal-mode','riesgosos-mode');
+    loadVolcanoByName(vv);
+  };})(v);
+  return card;
+}
+
+function togglePersonal(){
+  document.body.classList.toggle('personal-mode');
+  if(document.body.classList.contains('personal-mode')){renderPersonalChecks();loadPersonal();}
+}
+function renderPersonalChecks(){
+  var p=document.getElementById('personal-checks'); p.textContent='';
+  TODOS.forEach(function(v){
+    var lbl=document.createElement('label'); lbl.className='p-chk';
+    var cb=document.createElement('input'); cb.type='checkbox'; cb.value=v;
+    cb.checked=personalSel.indexOf(v)>=0;
+    cb.onchange=(function(vv){return function(){
+      if(cb.checked){if(personalSel.indexOf(vv)<0) personalSel.push(vv);}
+      else{personalSel=personalSel.filter(function(x){return x!==vv;});}
+      localStorage.setItem('ls_personal',JSON.stringify(personalSel));
+    };})(v);
+    var t=document.createTextNode(' '+v);
+    lbl.appendChild(cb); lbl.appendChild(t); p.appendChild(lbl);
+  });
+}
+function togglePersonalLista(){
+  personalListaOn=!personalListaOn;
+  document.getElementById('personal-checks').style.display=personalListaOn?'flex':'none';
+}
+function selectAllPersonal(){
+  personalSel=TODOS.slice();
+  localStorage.setItem('ls_personal',JSON.stringify(personalSel));
+  renderPersonalChecks();
+}
+function clearPersonal(){
+  personalSel=[];
+  localStorage.setItem('ls_personal',JSON.stringify(personalSel));
+  renderPersonalChecks();
+}
+function loadPersonal(){
+  var g=document.getElementById('personal-grid'); g.textContent='';
+  var lista=personalSel.length?personalSel:RIESGOSOS.slice(0,6);
+  lista.forEach(function(v){g.appendChild(makeCard(v));});
+}
+
+function toggleRiesgosos(){
+  document.body.classList.toggle('riesgosos-mode');
+  if(document.body.classList.contains('riesgosos-mode')) loadRiesgosos();
+}
+function loadRiesgosos(){
+  var g=document.getElementById('riesgosos-grid'); g.textContent='';
+  RIESGOSOS.forEach(function(v){g.appendChild(makeCard(v));});
+}
+
+function toggleFullscreen(){
+  if(!document.fullscreenElement) document.documentElement.requestFullscreen().catch(function(){});
+  else document.exitFullscreen();
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ayuda — Sistema Landsat-v1</title>
+<style>
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --border: #30363d;
+    --text: #e6edf3;
+    --muted: #8b949e;
+    --accent: #e67e22;
+    --accent-2: #7ee787;
+    --warn: #f97316;
+    --bad: #f85149;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+  }
+  header {
+    background: linear-gradient(90deg, #7c2d12 0%, #b45309 100%);
+    padding: 24px 30px;
+    border-bottom: 1px solid var(--border);
+  }
+  header h1 { margin: 0; font-size: 1.6em; }
+  header p { margin: 4px 0 0; color: rgba(255,255,255,0.85); font-size: 0.95em; }
+  nav.toc {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 12px 30px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  nav.toc a {
+    color: var(--accent);
+    margin-right: 16px;
+    font-size: 0.9em;
+    text-decoration: none;
+  }
+  nav.toc a:hover { text-decoration: underline; }
+  main {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 30px;
+  }
+  section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 24px;
+    margin-bottom: 24px;
+  }
+  h2 {
+    color: var(--accent);
+    margin-top: 0;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 10px;
+  }
+  h3 { color: var(--accent-2); margin-top: 24px; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 14px 0;
+    font-size: 0.92em;
+  }
+  th, td {
+    padding: 10px 12px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+  th { background: #1c2128; color: var(--accent); }
+  tr:hover td { background: #1c2128; }
+  code {
+    background: #1c2128;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: Consolas, Monaco, monospace;
+    font-size: 0.9em;
+    color: var(--accent-2);
+  }
+  pre {
+    background: #1c2128;
+    padding: 12px;
+    border-radius: 6px;
+    overflow-x: auto;
+    border: 1px solid var(--border);
+  }
+  .note {
+    background: rgba(230, 126, 34, 0.1);
+    border-left: 3px solid var(--accent);
+    padding: 10px 14px;
+    margin: 12px 0;
+    border-radius: 0 6px 6px 0;
+  }
+  .warn {
+    background: rgba(249, 115, 22, 0.1);
+    border-left: 3px solid var(--warn);
+    padding: 10px 14px;
+    margin: 12px 0;
+    border-radius: 0 6px 6px 0;
+  }
+  .bad {
+    background: rgba(248, 81, 73, 0.1);
+    border-left: 3px solid var(--bad);
+    padding: 10px 14px;
+    margin: 12px 0;
+    border-radius: 0 6px 6px 0;
+  }
+  .grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin: 14px 0;
+  }
+  .card {
+    background: #1c2128;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+  }
+  .card h4 { margin: 0 0 8px; color: var(--accent); }
+  .pill {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.8em;
+    margin-right: 6px;
+  }
+  .pill-s2 { background: #1f4e79; color: white; }
+  .pill-ls { background: #b45309; color: white; }
+  .back {
+    display: inline-block;
+    color: var(--accent);
+    text-decoration: none;
+    margin-top: 20px;
+    padding: 8px 14px;
+    border: 1px solid var(--accent);
+    border-radius: 6px;
+  }
+  .back:hover { background: rgba(230, 126, 34, 0.1); }
+  .crosslink {
+    display: inline-block;
+    color: #58a6ff;
+    text-decoration: none;
+    margin-top: 20px;
+    margin-left: 10px;
+    padding: 8px 14px;
+    border: 1px solid #58a6ff;
+    border-radius: 6px;
+  }
+  .crosslink:hover { background: rgba(88,166,255,0.1); }
+  ul li { margin-bottom: 6px; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>📖 Ayuda — Sistema Landsat-v1</h1>
+  <p>Guía técnica del sistema de monitoreo satelital térmico de volcanes chilenos (Landsat 8/9)</p>
+</header>
+
+<nav class="toc">
+  <a href="#sensores">Sensores</a>
+  <a href="#resolucion">Resolución</a>
+  <a href="#bandas">Bandas y composiciones</a>
+  <a href="#anomalias">Anomalías térmicas</a>
+  <a href="#frecuencia">Frecuencia / revisita</a>
+  <a href="#workflows">Workflows automáticos</a>
+  <a href="#limitaciones">Limitaciones</a>
+  <a href="#glosario">Glosario</a>
+</nav>
+
+<main>
+
+<section id="sensores">
+  <h2>1. Los dos sensores Landsat que usa el sistema</h2>
+  <div class="grid-2">
+    <div class="card">
+      <h4><span class="pill pill-ls">Landsat 8</span> NASA/USGS (2013)</h4>
+      <p>Sensores <strong>OLI</strong> (Operational Land Imager) + <strong>TIRS</strong> (Thermal Infrared Sensor).</p>
+      <ul>
+        <li><strong>Especialidad:</strong> banda térmica TIRS — temperatura superficial real.</li>
+        <li><strong>Operador:</strong> NASA / USGS.</li>
+        <li><strong>Revisita:</strong> 16 días por satélite.</li>
+        <li><strong>Repo:</strong> <code>Landsat-v1</code> (este).</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h4><span class="pill pill-ls">Landsat 9</span> NASA/USGS (2021)</h4>
+      <p>Idéntico a Landsat 8 pero con TIRS-2 mejorado (menor stray light).</p>
+      <ul>
+        <li><strong>Desfase orbital:</strong> 8 días respecto a Landsat 8.</li>
+        <li><strong>Revisita combinada 8+9:</strong> ~8 días.</li>
+        <li><strong>Fuente de datos:</strong> Microsoft Planetary Computer (STAC API).</li>
+        <li><strong>Repo:</strong> <code>Landsat-v1</code> (este).</li>
+      </ul>
+    </div>
+  </div>
+  <div class="note">
+    <strong>Sistema complementario:</strong> existe un repositorio paralelo <code>Copernicus-v1</code> que usa <strong>Sentinel-2</strong> para alta resolución espacial (10 m) y mayor frecuencia de pasada (~1.7 días). Landsat aporta donde Sentinel-2 no llega: <strong>temperatura superficial real</strong> vía banda térmica TIRS.
+  </div>
+</section>
+
+<section id="resolucion">
+  <h2>2. Resolución espacial — qué tan detallado es cada píxel</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Banda / uso</th>
+        <th>Landsat 8/9</th>
+        <th>Sentinel-2 (referencia)</th>
+        <th>Comentario</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>RGB visible</strong> (color verdadero)</td>
+        <td>30 m (B2-B3-B4)</td>
+        <td>10 m (B02-B03-B04)</td>
+        <td>S2 gana 3× lineal en detalle morfológico</td>
+      </tr>
+      <tr>
+        <td><strong>NIR</strong> (vegetación, NDVI)</td>
+        <td>30 m (B5)</td>
+        <td>10 m (B08)</td>
+        <td>S2 gana</td>
+      </tr>
+      <tr>
+        <td><strong>SWIR</strong> (anomalías térmicas)</td>
+        <td>30 m (B6-B7)</td>
+        <td>20 m (B11-B12)</td>
+        <td>S2 gana levemente</td>
+      </tr>
+      <tr>
+        <td><strong>Térmico real (TIRS)</strong></td>
+        <td><strong>100 m nativo → remuestreado a 30 m (B10)</strong></td>
+        <td>❌ no tiene</td>
+        <td><strong>Solo Landsat</strong> mide temperatura real</td>
+      </tr>
+      <tr>
+        <td>Pancromático</td>
+        <td>15 m (B8)</td>
+        <td>❌</td>
+        <td>No usado en este sistema</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="note">
+    <strong>Ejemplo práctico — cráter de Lascar (~600 m):</strong>
+    <ul>
+      <li>En <strong>Landsat RGB</strong> ocupa ~20×20 píxeles → morfología visible pero pixelada.</li>
+      <li>En <strong>Landsat SWIR</strong> ocupa los mismos ~20×20 píxeles con detección de calor.</li>
+      <li>En <strong>Landsat THERMAL</strong>: ~6×6 píxeles nativos (100 m) → suficiente para temperatura promedio del cráter.</li>
+      <li>Una anomalía térmica de 50 m son <strong>2×2 px en RGB/SWIR</strong>, sub-píxel en THERMAL (se ve mezclada con entorno).</li>
+    </ul>
+  </div>
+</section>
+
+<section id="bandas">
+  <h2>3. Bandas y composiciones — qué muestra cada GIF</h2>
+
+  <p>Por cada volcán × fecha disponible, el sistema genera <strong>3 composites</strong>:</p>
+
+  <h3>RGB — Color verdadero (B4-B3-B2)</h3>
+  <ul>
+    <li>Es como ve el ojo humano.</li>
+    <li>Útil para morfología, flujos, lahares, cambios físicos, depósitos de ceniza.</li>
+    <li>Resolución: <strong>30 m</strong>.</li>
+  </ul>
+
+  <h3>SWIR — Falso color anomalías térmicas (B7-B6-B4)</h3>
+  <p>Combinación <code>B7 (SWIR2) - B6 (SWIR1) - B4 (Rojo)</code> en escala lineal.</p>
+  <ul>
+    <li><strong>Cómo se lee:</strong>
+      <ul>
+        <li>🟦 <strong>Azul / cian:</strong> nieve, hielo, agua (alta reflectancia visible, baja en SWIR).</li>
+        <li>🟫 <strong>Marrón / gris oscuro:</strong> roca, suelo seco.</li>
+        <li>🟨 <strong>Amarillo / naranja:</strong> zonas calientes (vegetación quemada, suelo caliente, fumarolas).</li>
+        <li>🟥 <strong>Rojo brillante:</strong> <span style="color:var(--bad)"><strong>anomalía térmica activa</strong></span> — lava, ventiladero caliente, flujos piroclásticos.</li>
+      </ul>
+    </li>
+    <li>Resolución: <strong>30 m</strong>.</li>
+    <li>Detecta calor intenso (>300 °C) por reflectancia SWIR. No mide temperatura — solo <em>presencia</em> de calor radiante.</li>
+  </ul>
+
+  <h3>THERMAL — Temperatura superficial real (B10 TIRS)</h3>
+  <p>Banda única <code>B10</code> (Thermal Infrared Sensor, ~10.9 µm) procesada como imagen pseudocolor:</p>
+  <ul>
+    <li><strong>Rango:</strong> -20 °C → 80 °C con paleta diverging (azul → blanco → rojo).</li>
+    <li><strong>Resolución:</strong> 100 m nativa, remuestreada a 30 m para alinear con RGB/SWIR.</li>
+    <li><strong>Único composite que da grados Celsius reales</strong> (calibración radiométrica USGS).</li>
+    <li><strong>Limitación:</strong> mezcla térmica sub-píxel — una anomalía de 30 m en un píxel de 100 m aparece "diluida".</li>
+  </ul>
+
+  <table>
+    <thead>
+      <tr><th>Composite</th><th>Bandas</th><th>Uso principal</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>RGB</strong></td>
+        <td>B4-B3-B2</td>
+        <td>Color natural — morfología, lahares, depósitos</td>
+      </tr>
+      <tr>
+        <td><strong>SWIR</strong></td>
+        <td>B7-B6-B4</td>
+        <td>Detección rápida de anomalías térmicas intensas (&gt;300 °C)</td>
+      </tr>
+      <tr>
+        <td><strong>THERMAL</strong></td>
+        <td>B10 (TIRS)</td>
+        <td><strong>Temperatura superficial real</strong> en grados Celsius</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="note">
+    <strong>Cuándo usar cada uno:</strong>
+    <ul>
+      <li>¿Quiero ver el cráter en detalle morfológico? → <strong>RGB</strong> (o mejor aún Sentinel-2 RGB a 10 m).</li>
+      <li>¿Hay actividad térmica activa? → <strong>SWIR</strong> (puntos rojos, detección rápida).</li>
+      <li>¿Cuál es la temperatura absoluta del cráter o flujo? → <strong>THERMAL (B10)</strong>.</li>
+      <li>¿Quiero comparar tendencia térmica multi-temporal? → GIF <strong>THERMAL</strong>.</li>
+    </ul>
+  </div>
+</section>
+
+<section id="anomalias">
+  <h2>4. Cómo identificar anomalías térmicas en SWIR + THERMAL</h2>
+
+  <p>El sistema Landsat permite <strong>doble verificación</strong> de actividad térmica: SWIR detecta presencia de calor radiante (rápido pero cualitativo), THERMAL mide temperatura absoluta (cuantitativo, baja resolución).</p>
+
+  <h3>Lectura del SWIR</h3>
+  <table>
+    <thead>
+      <tr><th>Color</th><th>Temperatura aprox.</th><th>Interpretación</th></tr>
+    </thead>
+    <tbody>
+      <tr><td style="color: #1e40af;">🟦 Azul fuerte</td><td>&lt; 0 °C</td><td>Nieve, hielo, agua (no actividad)</td></tr>
+      <tr><td style="color: #6b7280;">⬜ Gris-marrón</td><td>0–50 °C</td><td>Roca, suelo, terreno normal</td></tr>
+      <tr><td style="color: #ca8a04;">🟨 Amarillo</td><td>~100–300 °C</td><td>Zona caliente — fumarola activa, suelo precalentado</td></tr>
+      <tr><td style="color: #dc2626;">🟥 Rojo intenso</td><td>&gt;300 °C</td><td><strong>Anomalía térmica activa</strong> — lava expuesta, lago de lava, flujo piroclástico</td></tr>
+      <tr><td style="color: #ffffff; background: #1c2128;">⬜ Blanco saturado</td><td>&gt;700 °C</td><td>Píxel saturado por intensidad (lava muy expuesta)</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Lectura del THERMAL (B10)</h3>
+  <table>
+    <thead>
+      <tr><th>Color paleta</th><th>Temperatura aprox.</th><th>Interpretación</th></tr>
+    </thead>
+    <tbody>
+      <tr><td style="color: #1e3a8a;">🟦 Azul oscuro</td><td>-20 a 0 °C</td><td>Cumbres nevadas, glaciares</td></tr>
+      <tr><td style="color: #93c5fd;">🟦 Celeste</td><td>0 a 15 °C</td><td>Suelo frío, sombras</td></tr>
+      <tr><td style="color: #f3f4f6; background:#1c2128;">⬜ Blanco</td><td>15 a 30 °C</td><td>Suelo normal a la hora de paso (mañana)</td></tr>
+      <tr><td style="color: #f97316;">🟧 Naranja</td><td>30 a 50 °C</td><td>Anomalía leve — solfataras, suelo calentado</td></tr>
+      <tr><td style="color: #dc2626;">🟥 Rojo</td><td>&gt;50 °C</td><td><strong>Anomalía térmica significativa</strong></td></tr>
+    </tbody>
+  </table>
+
+  <div class="warn">
+    <strong>Atención (compresión GIF):</strong> el GIF puede comprimir colores cuando hay pocos píxeles rojos. El sistema usa cuantización <code>MAXCOVERAGE</code> en THERMAL (verificado: ADAPTIVE descarta 100 % de píxeles rojos rare de anomalía, MAXCOVERAGE preserva 44/44). Para RGB/SWIR se usa <code>ADAPTIVE</code> que da mejor calidad visual.
+  </div>
+
+  <div class="note">
+    <strong>Resolución de detección:</strong> SWIR a 30 m significa que una anomalía de 50 m de diámetro genera ~3 píxeles rojos. THERMAL a 100 m nativo: la misma anomalía es sub-píxel y se "diluye" con el entorno frío — la temperatura medida será un promedio (puede leerse como 25 °C cuando la realidad es un punto a 400 °C rodeado de roca fría).
+  </div>
+</section>
+
+<section id="frecuencia">
+  <h2>5. Frecuencia de pasada (revisita)</h2>
+  <table>
+    <thead>
+      <tr>
+        <th></th>
+        <th>Landsat 8/9</th>
+        <th>Sentinel-2 (referencia)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>Satélites activos</td><td>2 (Landsat 8 + Landsat 9)</td><td>3 (2A, 2B, 2C)</td></tr>
+      <tr><td>Revisita por satélite</td><td>16 días</td><td>~10 días</td></tr>
+      <tr><td><strong>Revisita combinada</strong></td><td><strong>~8 días</strong> (Landsat 8 y 9 desfasados 8 días)</td><td><strong>~1.7 días</strong></td></tr>
+      <tr><td>Archivo histórico</td><td>1972 – presente (serie Landsat completa)</td><td>2015 – presente</td></tr>
+      <tr><td>Banda térmica real</td><td>✅ B10 TIRS</td><td>❌</td></tr>
+    </tbody>
+  </table>
+
+  <div class="note">
+    Landsat da <strong>5× menos frecuencia</strong> que Sentinel-2, pero es el <strong>único</strong> de los dos que mide temperatura superficial absoluta. La estrategia óptima: usar Sentinel-2 para morfología y screening rápido, y Landsat para confirmar temperatura cuando hay sospecha de actividad.
+  </div>
+
+  <h3>¿Por qué a veces hay días sin imagen Landsat?</h3>
+  <p>La revisita combinada de 8 días implica que en muchos volcanes habrá <strong>una sola pasada por semana</strong> aproximadamente. Además:</p>
+  <ul>
+    <li><strong>Cobertura nubosa:</strong> días con cloud_cover &gt; 80 % se descargan pero pueden ser inutilizables.</li>
+    <li><strong>Geometría orbital:</strong> el sensor cubre una franja (swath) de 185 km — algunos volcanes caen en zona de solapamiento (revisita extra) y otros en zona única.</li>
+    <li><strong>Disponibilidad en Planetary Computer:</strong> las escenas suelen estar disponibles 1–3 días después de la captura (procesamiento Collection-2 Level-2).</li>
+  </ul>
+  <p>En el dashboard, los días disponibles se muestran en el calendario del comparador. El JSON <code>fechas_disponibles_landsat.json</code> se regenera en cada corrida del workflow.</p>
+</section>
+
+<section id="workflows">
+  <h2>6. Workflows automáticos (GitHub Actions)</h2>
+
+  <table>
+    <thead>
+      <tr><th>Workflow</th><th>Disparador</th><th>Acción</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>landsat.yml</code></td>
+        <td>Cron 10:00 y 20:00 UTC (2× día) + manual</td>
+        <td>Descarga nuevas escenas desde Planetary Computer, genera 3 PNGs (RGB, SWIR, THERMAL) por volcán/fecha, y reconstruye GIFs auto últimos 30 días.</td>
+      </tr>
+      <tr>
+        <td><code>ppt_individual.yml</code></td>
+        <td>Manual (workflow_dispatch)</td>
+        <td>Genera reporte PowerPoint de <em>un</em> volcán seleccionado, con timelapses RGB+SWIR del rango de fechas pedido.</td>
+      </tr>
+      <tr>
+        <td><code>ppt_completo.yml</code></td>
+        <td>Manual</td>
+        <td>Genera reporte PowerPoint de los <strong>43 volcanes</strong> y lo sube a GitHub Releases (tag <code>landsat-ppt-completo</code>).</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="note">
+    El cron de las 20 UTC (16:00 Chile) ya tiene disponibles las escenas Landsat del paso matinal del mismo día en la mayoría de los casos. El de las 10 UTC actualiza pasadas tardías del día anterior.
+  </div>
+</section>
+
+<section id="limitaciones">
+  <h2>7. Limitaciones del sistema</h2>
+  <ul>
+    <li><strong>Nubes:</strong> Landsat es sensor óptico/térmico pasivo — no atraviesa nubes. Días nublados → imagen inutilizable (incluso THERMAL mide la nube, no el suelo).</li>
+    <li><strong>Resolución térmica:</strong> 100 m nativos del TIRS son insuficientes para anomalías pequeñas (&lt;50 m). El píxel "promedia" el entorno frío y oculta el punto caliente.</li>
+    <li><strong>Revisita lenta:</strong> 8 días entre pasadas — un evento rápido (lahar, explosión corta) puede no quedar registrado.</li>
+    <li><strong>Iluminación solar:</strong> en invierno austral (mayo–agosto) el ángulo solar bajo en el sur de Chile (&gt;40°S) genera sombras largas que reducen el área útil en RGB/SWIR. El THERMAL no se ve afectado.</li>
+    <li><strong>SWIR no ve frío bajo cero:</strong> la composición SWIR no detecta fumarolas tibias (50–80 °C) cerca de zonas con nieve — el contraste se pierde. Usar THERMAL para esos casos.</li>
+    <li><strong>Resolución del cráter:</strong> volcanes con cráteres pequeños (&lt;200 m de diámetro) tienen poca resolución útil en Landsat. Para detalle morfológico usar Sentinel-2 (Copernicus-v1).</li>
+  </ul>
+
+  <div class="bad">
+    <strong>Importante:</strong> el sistema NO reemplaza la observación in situ ni la red sismológica. Es una herramienta complementaria de <em>screening</em> térmico y morfológico de baja frecuencia.
+  </div>
+</section>
+
+<section id="glosario">
+  <h2>8. Glosario rápido</h2>
+  <table>
+    <tbody>
+      <tr><td><code>L2 / Collection-2 Level-2</code></td><td>Producto Landsat con corrección atmosférica aplicada (surface reflectance + surface temperature). Es el nivel que consume el sistema desde Planetary Computer.</td></tr>
+      <tr><td><code>L1</code></td><td>Level 1 — producto sin corrección atmosférica (Top of Atmosphere). Solo se usa si L2 no está disponible.</td></tr>
+      <tr><td><code>OLI</code></td><td>Operational Land Imager — sensor multiespectral de Landsat 8/9 (bandas B1–B9).</td></tr>
+      <tr><td><code>TIRS</code></td><td>Thermal Infrared Sensor — sensor térmico de Landsat 8/9 (bandas B10 y B11). Mide temperatura superficial.</td></tr>
+      <tr><td><code>SWIR</code></td><td>Short-Wave Infrared — bandas B6/B7 de Landsat. Sensible al calor radiante intenso.</td></tr>
+      <tr><td><code>STAC</code></td><td>SpatioTemporal Asset Catalog — protocolo de búsqueda usado por Planetary Computer para localizar escenas Landsat.</td></tr>
+      <tr><td><code>NDVI</code></td><td>Índice de vegetación normalizado. (NIR-Red)/(NIR+Red). Detecta cambios en cobertura vegetal post-evento.</td></tr>
+      <tr><td><code>NBR</code></td><td>Normalized Burn Ratio. (NIR-SWIR)/(NIR+SWIR). Detecta zonas quemadas o ceniza fresca.</td></tr>
+      <tr><td><code>BBox</code></td><td>Bounding box — área cuadrada de descarga centrada en el volcán. Lado = 2 × buffer_km.</td></tr>
+      <tr><td><code>Buffer_km</code></td><td>Radio en km que define el bbox. Configurable por volcán en <code>config_landsat.py</code>.</td></tr>
+      <tr><td><code>cloud_cover</code></td><td>Porcentaje de cobertura nubosa de la escena. Columna clave en <code>metadata.csv</code>.</td></tr>
+      <tr><td><code>MAXCOVERAGE</code></td><td>Algoritmo de cuantización PIL que preserva los colores extremos de la paleta. Obligatorio para THERMAL (preserva píxeles rojos de anomalía).</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<a href="index.html" class="back">← Volver al dashboard</a>
+<a href="https://mendozavolcanic.github.io/Copernicus-v1/" class="crosslink" target="_blank" rel="noopener">🛰️ Ir a Copernicus-v1 (Sentinel-2)</a>
+
+</main>
+
+</body>
+</html>

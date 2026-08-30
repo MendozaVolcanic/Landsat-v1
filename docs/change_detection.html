@@ -1,0 +1,1718 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Change Detection - Landsat-v1 (Experimental)</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0a0e17;
+            color: #e0e0e0;
+            min-height: 100vh;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1a1f2e 0%, #0d1117 100%);
+            border-bottom: 1px solid #30363d;
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .header-left { display: flex; align-items: center; gap: 15px; }
+        .header h1 { font-size: 1.1em; color: #e67e22; }
+        .badge-experimental { background: #f0883e; color: #000; padding: 2px 8px; border-radius: 10px; font-size: 0.7em; font-weight: bold; }
+        .btn-back { background: #21262d; color: #c9d1d9; border: 1px solid #30363d; padding: 6px 14px; border-radius: 6px; cursor: pointer; font-size: 0.85em; text-decoration: none; }
+        .btn-back:hover { background: #30363d; }
+        .header-info { font-size: 0.8em; color: #8b949e; }
+
+        .banner-caveat {
+            background: rgba(230, 126, 34, 0.10);
+            border-bottom: 1px solid rgba(230, 126, 34, 0.35);
+            color: #f0c39c;
+            padding: 10px 20px;
+            font-size: 0.8em;
+            line-height: 1.5;
+        }
+        .banner-caveat strong { color: #e67e22; }
+
+        .resumen-bar { display: flex; gap: 15px; padding: 12px 20px; background: #161b22; border-bottom: 1px solid #21262d; flex-wrap: wrap; align-items: center; }
+        .stat-card { display: flex; align-items: center; gap: 8px; padding: 6px 14px; border-radius: 8px; font-size: 0.85em; font-weight: 600; }
+        .stat-alerta { background: rgba(248, 81, 73, 0.15); color: #f85149; border: 1px solid rgba(248, 81, 73, 0.3); }
+        .stat-atencion { background: rgba(210, 153, 34, 0.15); color: #d29922; border: 1px solid rgba(210, 153, 34, 0.3); }
+        .stat-normal { background: rgba(63, 185, 80, 0.15); color: #3fb950; border: 1px solid rgba(63, 185, 80, 0.3); }
+        .stat-nublado { background: rgba(139, 148, 158, 0.15); color: #8b949e; border: 1px solid rgba(139, 148, 158, 0.3); }
+        .stat-count { font-size: 1.3em; font-weight: 700; }
+
+        .filtros-bar { display: flex; gap: 10px; padding: 10px 20px; background: #0d1117; border-bottom: 1px solid #21262d; flex-wrap: wrap; align-items: center; }
+        .filtro-label { font-size: 0.8em; color: #8b949e; }
+        .filtro-btn { background: #21262d; color: #c9d1d9; border: 1px solid #30363d; padding: 4px 12px; border-radius: 15px; cursor: pointer; font-size: 0.8em; }
+        .filtro-btn:hover { background: #30363d; }
+        .filtro-btn.active { background: rgba(230, 126, 34, 0.15); color: #e67e22; border-color: #e67e22; }
+
+        .main-content { display: flex; gap: 0; height: calc(100vh - 160px); }
+        .tabla-panel { width: 420px; min-width: 420px; overflow-y: auto; border-right: 1px solid #21262d; background: #0d1117; }
+        .volcan-row { display: flex; align-items: center; padding: 10px 15px; border-bottom: 1px solid #161b22; cursor: pointer; gap: 10px; transition: background 0.15s; }
+        .volcan-row:hover { background: #161b22; }
+        .volcan-row.selected { background: #1c2333; border-left: 3px solid #e67e22; }
+        .semaforo { width: 14px; height: 14px; border-radius: 50%; flex-shrink: 0; }
+        .semaforo-ALERTA { background: #f85149; box-shadow: 0 0 6px rgba(248, 81, 73, 0.5); }
+        .semaforo-ATENCION { background: #d29922; box-shadow: 0 0 6px rgba(210, 153, 34, 0.5); }
+        .semaforo-NORMAL { background: #3fb950; }
+        .semaforo-NUBLADO { background: #8b949e; }
+        .semaforo-SIN_DATOS { background: #484f58; }
+        .semaforo-ERROR { background: #484f58; }
+        .volcan-info { flex: 1; min-width: 0; }
+        .volcan-nombre { font-size: 0.9em; font-weight: 600; color: #e6edf3; }
+        .volcan-detalle { font-size: 0.72em; color: #8b949e; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .volcan-badges { display: flex; gap: 4px; flex-shrink: 0; }
+        .badge-mini { font-size: 0.65em; padding: 1px 5px; border-radius: 8px; font-weight: 600; }
+        .badge-nhi-ROJO { background: rgba(248, 81, 73, 0.2); color: #f85149; }
+        .badge-nhi-AMARILLO { background: rgba(210, 153, 34, 0.2); color: #d29922; }
+        .badge-nhi-VERDE { background: rgba(63, 185, 80, 0.2); color: #3fb950; }
+        .badge-mirova { background: rgba(136, 132, 216, 0.2); color: #8884d8; }
+        .zona-header { padding: 6px 15px; background: #161b22; font-size: 0.75em; font-weight: 700; color: #e67e22; text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px solid #21262d; position: sticky; top: 0; z-index: 1; }
+
+        .detalle-panel { flex: 1; overflow-y: auto; padding: 20px; background: #0d1117; }
+        .detalle-placeholder { display: flex; align-items: center; justify-content: center; height: 100%; color: #484f58; font-size: 1.1em; }
+        .detalle-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
+        .detalle-titulo { font-size: 1.4em; font-weight: 700; color: #e6edf3; }
+        .detalle-estado { padding: 4px 16px; border-radius: 20px; font-weight: 700; font-size: 0.85em; }
+        .estado-ALERTA { background: rgba(248, 81, 73, 0.2); color: #f85149; border: 1px solid rgba(248, 81, 73, 0.4); }
+        .estado-ATENCION { background: rgba(210, 153, 34, 0.2); color: #d29922; border: 1px solid rgba(210, 153, 34, 0.4); }
+        .estado-NORMAL { background: rgba(63, 185, 80, 0.2); color: #3fb950; border: 1px solid rgba(63, 185, 80, 0.4); }
+        .estado-NUBLADO { background: rgba(139, 148, 158, 0.2); color: #8b949e; border: 1px solid rgba(139, 148, 158, 0.4); }
+
+        .metricas-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; margin-bottom: 20px; }
+        .metrica-card { background: #161b22; border: 1px solid #21262d; border-radius: 8px; padding: 12px; }
+        .metrica-label { font-size: 0.72em; color: #8b949e; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+        .metrica-valor { font-size: 1.4em; font-weight: 700; }
+        .metrica-sub { font-size: 0.72em; color: #8b949e; margin-top: 2px; }
+
+        .imagenes-section { margin-bottom: 20px; }
+        .imagenes-section h3 { font-size: 0.9em; color: #8b949e; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .imagenes-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .imagen-card { background: #161b22; border: 1px solid #21262d; border-radius: 8px; overflow: hidden; }
+        .imagen-card .img-label { padding: 6px 10px; font-size: 0.75em; font-weight: 600; color: #8b949e; background: #1c2128; border-bottom: 1px solid #21262d; }
+        .imagen-card img { width: 100%; display: block; background: #000; }
+
+        .crossref-section { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+        .crossref-card { background: #161b22; border: 1px solid #21262d; border-radius: 8px; padding: 14px; }
+        .crossref-card h4 { font-size: 0.8em; color: #e67e22; margin-bottom: 8px; }
+        .crossref-item { display: flex; justify-content: space-between; font-size: 0.8em; padding: 3px 0; border-bottom: 1px solid #21262d; }
+        .crossref-item:last-child { border-bottom: none; }
+        .crossref-item .label { color: #8b949e; }
+
+        .info-box { background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 14px; margin-bottom: 20px; }
+        .info-box summary { cursor: pointer; font-size: 0.85em; color: #e67e22; font-weight: 600; }
+        .info-box .info-content { margin-top: 10px; font-size: 0.8em; color: #8b949e; line-height: 1.6; }
+
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #0d1117; }
+        ::-webkit-scrollbar-thumb { background: #30363d; border-radius: 3px; }
+
+        .zone-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; padding: 10px 20px; background: #0d1117; border-bottom: 1px solid #21262d; }
+        .zone-stat-card { background: #161b22; border: 1px solid #21262d; border-radius: 8px; padding: 8px 12px; }
+        .zone-stat-name { font-size: 0.72em; color: #8b949e; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; font-weight: 700; }
+        .zone-stat-row { display: flex; justify-content: space-between; font-size: 0.78em; margin-top: 2px; }
+
+        .history-chart { display: flex; align-items: flex-end; gap: 2px; height: 48px; padding: 4px; background: #0d1117; border-radius: 6px; overflow: hidden; }
+        .chart-bar { min-width: 5px; flex: 1; border-radius: 2px 2px 0 0; cursor: default; }
+        .chart-bar-ALERTA { background: #f85149; }
+        .chart-bar-ATENCION { background: #d29922; }
+        .chart-bar-NORMAL { background: #3fb950; }
+        .chart-bar-NUBLADO { background: #484f58; }
+        .chart-bar-SIN_DATOS, .chart-bar-ERROR { background: #30363d; }
+        .chart-legend { display: flex; gap: 10px; font-size: 0.7em; color: #8b949e; margin-bottom: 5px; }
+        .chart-legend-item { display: flex; align-items: center; gap: 4px; }
+        .chart-legend-dot { width: 8px; height: 8px; border-radius: 2px; flex-shrink: 0; }
+
+        .consistency-badge { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px; border-radius: 12px; font-size: 0.75em; font-weight: 600; margin-bottom: 12px; }
+        .consistency-high { background: rgba(63, 185, 80, 0.15); color: #3fb950; border: 1px solid rgba(63, 185, 80, 0.3); }
+        .consistency-pending { background: rgba(210, 153, 34, 0.15); color: #d29922; border: 1px solid rgba(210, 153, 34, 0.3); }
+        .consistency-low { background: rgba(139, 148, 158, 0.15); color: #8b949e; border: 1px solid rgba(139, 148, 158, 0.3); }
+
+        .indices-analisis-card { background: #161b22; border: 1px solid #21262d; border-radius: 8px; padding: 14px; margin-bottom: 20px; }
+        .indices-analisis-card h4 { font-size: 0.8em; color: #e67e22; margin-bottom: 8px; }
+
+        @media (max-width: 900px) {
+            .main-content { flex-direction: column; height: auto; }
+            .tabla-panel { width: 100%; min-width: 100%; max-height: 40vh; }
+            .detalle-panel { min-height: 60vh; }
+            .imagenes-grid { grid-template-columns: 1fr; }
+            .crossref-section { grid-template-columns: 1fr; }
+            .zone-stats { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        /* --- Comparacion Visual RGB-multidate (Howarth 1981) --- */
+        .comparacion-visual {
+            border-top: 2px solid #21262d;
+            background: #0d1117;
+            padding: 24px 20px 40px 20px;
+        }
+        .comparacion-visual h2 {
+            font-size: 1.15em;
+            color: #e67e22;
+            margin-bottom: 6px;
+        }
+        .comparacion-visual .subtitle {
+            font-size: 0.82em;
+            color: #8b949e;
+            margin-bottom: 18px;
+            line-height: 1.5;
+        }
+        .cv-controles {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px;
+            background: #161b22;
+            border: 1px solid #21262d;
+            border-radius: 8px;
+            padding: 14px;
+            margin-bottom: 16px;
+            align-items: end;
+        }
+        .cv-field { display: flex; flex-direction: column; gap: 4px; }
+        .cv-field label {
+            font-size: 0.72em;
+            color: #8b949e;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .cv-field select, .cv-field input[type="text"] {
+            background: #0d1117;
+            color: #e6edf3;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            padding: 6px 8px;
+            font-size: 0.85em;
+            font-family: inherit;
+        }
+        .cv-field select:focus { outline: none; border-color: #e67e22; }
+        .cv-toggle-group { display: flex; gap: 6px; }
+        .cv-toggle-btn {
+            flex: 1;
+            background: #21262d;
+            color: #c9d1d9;
+            border: 1px solid #30363d;
+            padding: 6px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.78em;
+        }
+        .cv-toggle-btn.active {
+            background: rgba(230, 126, 34, 0.15);
+            color: #e67e22;
+            border-color: #e67e22;
+        }
+        .cv-btn-generar {
+            background: linear-gradient(135deg, #b8651e, #e67e22);
+            color: #fff;
+            border: none;
+            padding: 9px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.88em;
+            font-weight: 600;
+        }
+        .cv-btn-generar:hover { filter: brightness(1.1); }
+        .cv-btn-generar:disabled { opacity: 0.5; cursor: not-allowed; }
+        .cv-btn-descargar {
+            background: #21262d;
+            color: #7ee787;
+            border: 1px solid #30363d;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.8em;
+        }
+        .cv-btn-descargar:hover { background: #30363d; }
+        .cv-btn-descargar:disabled { opacity: 0.4; cursor: not-allowed; }
+
+        .cv-leyenda {
+            display: flex;
+            gap: 18px;
+            flex-wrap: wrap;
+            background: #161b22;
+            border: 1px solid #21262d;
+            border-radius: 8px;
+            padding: 10px 14px;
+            margin-bottom: 14px;
+            font-size: 0.8em;
+            color: #c9d1d9;
+        }
+        .cv-leyenda-item { display: flex; align-items: center; gap: 6px; }
+        .cv-leyenda-swatch {
+            width: 14px; height: 14px; border-radius: 3px;
+            border: 1px solid #30363d;
+        }
+        .cv-colorbar {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-left: auto;
+            font-size: 0.72em;
+            color: #8b949e;
+        }
+        .cv-colorbar-gradient {
+            width: 180px;
+            height: 14px;
+            border-radius: 3px;
+            border: 1px solid #30363d;
+            background: linear-gradient(
+                to right,
+                rgb(0,50,150) 0%,
+                rgb(0,200,200) 25%,
+                rgb(240,240,240) 50%,
+                rgb(255,165,0) 75%,
+                rgb(200,0,50) 100%
+            );
+        }
+        .cv-slider-wrap {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .cv-slider-wrap input[type="range"] {
+            flex: 1;
+            accent-color: #e67e22;
+        }
+        .cv-slider-val {
+            font-size: 0.78em;
+            color: #e67e22;
+            min-width: 36px;
+            text-align: right;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .cv-resultado {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 12px;
+        }
+        .cv-imagen-card {
+            background: #161b22;
+            border: 1px solid #21262d;
+            border-radius: 8px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        .cv-imagen-card .cv-img-label {
+            padding: 6px 10px;
+            font-size: 0.75em;
+            font-weight: 600;
+            color: #8b949e;
+            background: #1c2128;
+            border-bottom: 1px solid #21262d;
+        }
+        .cv-imagen-card.composite .cv-img-label { color: #7ee787; }
+        .cv-imagen-card img, .cv-imagen-card canvas {
+            width: 100%;
+            display: block;
+            background: #000;
+            min-height: 200px;
+        }
+        .cv-status {
+            font-size: 0.8em;
+            color: #8b949e;
+            padding: 12px;
+            text-align: center;
+        }
+        .cv-status.error { color: #f85149; }
+        .cv-spinner {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border: 2px solid #30363d;
+            border-top-color: #e67e22;
+            border-radius: 50%;
+            animation: cv-spin 0.8s linear infinite;
+            margin-right: 6px;
+            vertical-align: middle;
+        }
+        @keyframes cv-spin { to { transform: rotate(360deg); } }
+
+        @media (max-width: 900px) {
+            .cv-resultado { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <div class="header-left">
+        <a href="index.html" class="btn-back">&lt; Dashboard Principal</a>
+        <h1>Change Detection - Landsat 8/9</h1>
+        <span class="badge-experimental">EXPERIMENTAL</span>
+    </div>
+    <div class="header-info" id="header-info">Cargando datos...</div>
+</div>
+
+<div class="banner-caveat">
+    <strong>Aviso metodológico:</strong> los algoritmos de detección de cambio en esta página (RGB-multidate de Howarth 1981,
+    heatmap divergente Bovolo 2007, Highlight overlay tipo Hansen 2013) operan en el navegador sobre los
+    PNG ya renderizados (RGB B4-B3-B2, SWIR B7-B6-B4, THERMAL B10), no sobre valores radiométricos crudos.
+    El cálculo es una <strong>aproximación visual</strong> útil para inspección, no una medida cuantitativa de reflectancia.
+    Las métricas NHI (B7-B6)/(B7+B6), VRP y Mahalanobis del panel superior provienen de un análisis offline
+    sobre los rasters originales, que produce Copernicus-v1 en su cron diario de las 22:30 UTC
+    y esta página lee de su <code>change_results.json</code> publicado.
+</div>
+
+<div class="resumen-bar" id="resumen-bar"></div>
+<div class="filtros-bar" id="filtros-bar"></div>
+<div class="zone-stats" id="zone-stats"></div>
+<div class="main-content">
+    <div class="tabla-panel" id="tabla-volcanes"></div>
+    <div class="detalle-panel" id="detalle-panel">
+        <div class="detalle-placeholder">Selecciona un volcan de la lista para ver el analisis detallado</div>
+    </div>
+</div>
+
+<script>
+// --- Safe DOM helpers ---
+function el(tag, attrs, children) {
+    const e = document.createElement(tag);
+    if (attrs) {
+        for (const [k, v] of Object.entries(attrs)) {
+            if (k === 'className') e.className = v;
+            else if (k === 'onclick') e.addEventListener('click', v);
+            else if (k === 'textContent') e.textContent = v;
+            else if (k === 'href') e.href = v;
+            else if (k === 'src') e.src = v;
+            else if (k === 'alt') e.alt = v;
+            else if (k.startsWith('data-')) e.setAttribute(k, v);
+            else e.setAttribute(k, v);
+        }
+    }
+    if (children) {
+        if (typeof children === 'string') e.textContent = children;
+        else if (Array.isArray(children)) children.forEach(c => { if (c) e.appendChild(c); });
+        else e.appendChild(children);
+    }
+    return e;
+}
+
+function text(str) { return document.createTextNode(str); }
+
+function clearEl(e) { while (e.firstChild) e.removeChild(e.firstChild); }
+
+// --- State ---
+let datosGlobales = null;
+let historialGlobal = null;
+let filtroEstado = 'TODOS';
+let filtroZona = 'TODAS';
+let volcanSeleccionado = null;
+const ORDEN_ZONAS = ['Norte', 'Centro', 'Sur', 'Austral'];
+const ORDEN_ESTADO = { 'ALERTA': 0, 'ATENCION': 1, 'NUBLADO': 2, 'NORMAL': 3, 'SIN_DATOS': 4, 'ERROR': 5 };
+
+// --- Load ---
+// Este repo no corre analisis de cambios propio: lo produce Copernicus-v1, que en
+// su cron de las 22:30 UTC hace sparse-checkout de Landsat-v1/docs/landsat y
+// calcula NHI, z-score, Mahalanobis y VRP para los dos sensores. El resultado
+// vive en su change_results.json bajo por_sensor.landsat, con un estado por
+// volcan que hasta hoy nadie mostraba de este lado.
+const FUENTE_CRUZADA = 'https://mendozavolcanic.github.io/Copernicus-v1/change_detection/change_results.json';
+let origenDatos = 'local';
+
+// Aplana por_sensor.landsat al nivel superior, que es la forma que espera el
+// resto de esta pagina, y conserva lo que dice Sentinel-2 del mismo volcan.
+function adaptarDesdeCopernicus(d) {
+    const volcanes = {};
+    const resumen = { ALERTA: 0, ATENCION: 0, NUBLADO: 0, NORMAL: 0, SIN_DATOS: 0, ERROR: 0 };
+    for (const [nombre, v] of Object.entries(d.volcanes || {})) {
+        const ps = v.por_sensor || {};
+        const l = ps.landsat;
+        // Las 8 vistas zoom de Copernicus-v1 (Lascar_Crater, Copahue_Crater_Lake, ...)
+        // no existen como entidad en este repo: llegan con estado SIN_DATOS y sin
+        // fecha. Mostrarlas aca inventaria 8 volcanes que el dashboard no tiene.
+        if (!l || !l.fecha_nueva) continue;
+        const o = Object.assign({}, l);
+        o.zona = v.zona;
+        o.confirmacion_cruzada = v.confirmacion_cruzada === true;
+        o.sentinel2_estado = ps.sentinel2 ? ps.sentinel2.estado : null;
+        o.sentinel2_fecha = ps.sentinel2 ? ps.sentinel2.fecha_nueva : null;
+        volcanes[nombre] = o;
+        if (resumen[o.estado] === undefined) resumen[o.estado] = 0;
+        resumen[o.estado] += 1;
+    }
+    return {
+        fecha_analisis: d.fecha_analisis,
+        total_volcanes: Object.keys(volcanes).length,
+        volcanes: volcanes,
+        resumen: resumen,
+        // el aviso de calibracion viaja con los datos: si la tanda no sirve
+        // para priorizar, no sirve en ninguno de los dos dashboards
+        diagnostico: d.diagnostico || null
+    };
+}
+
+async function cargarDatos() {
+    // 1) analisis local, si algun dia este repo genera el suyo
+    try {
+        const r = await fetch('change_detection/change_results.json');
+        if (r.ok) {
+            datosGlobales = await r.json();
+            origenDatos = 'local';
+            try {
+                const h = await fetch('change_detection/change_history.json');
+                if (h.ok) historialGlobal = await h.json();
+            } catch (e) { /* el historial es opcional */ }
+            renderizar();
+            return;
+        }
+    } catch (e) { /* sin analisis local: seguimos al cruzado */ }
+
+    // 2) el que Copernicus-v1 ya calcula para Landsat
+    try {
+        const r = await fetch(FUENTE_CRUZADA);
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        datosGlobales = adaptarDesdeCopernicus(await r.json());
+        origenDatos = 'copernicus';
+        if (!datosGlobales.total_volcanes) throw new Error('sin volcanes con datos Landsat');
+        renderizar();
+        return;
+    } catch (e) {
+        mostrarSinDatos(e);
+    }
+}
+
+function mostrarSinDatos(e) {
+    document.getElementById('header-info').textContent = 'Sin analisis disponible';
+    const t = document.getElementById('tabla-volcanes');
+    clearEl(t);
+    const box = el('div', { style: 'padding:20px;color:#8b949e;font-size:0.85em;line-height:1.6;' });
+    box.appendChild(el('div', { style: 'color:#e67e22;font-weight:700;margin-bottom:8px;' },
+        'No se pudo cargar el analisis de cambios'));
+    box.appendChild(text('Esta pagina lee el analisis que produce Copernicus-v1 para los dos sensores: '));
+    box.appendChild(el('code', { style: 'color:#79c0ff;' }, FUENTE_CRUZADA));
+    box.appendChild(el('div', { style: 'margin-top:6px;color:#6e7681;' },
+        'Detalle: ' + (e && e.message ? e.message : 'desconocido')));
+    box.appendChild(el('div', { style: 'margin-top:10px;' },
+        'Mientras tanto puedes usar la seccion "Comparacion Visual entre Fechas" mas abajo: opera directamente sobre los PNG (RGB/SWIR/THERMAL) ya publicados.'));
+    t.appendChild(box);
+}
+
+function renderizar() {
+    renderResumen();
+    renderFiltros();
+    renderZoneStats();
+    renderTabla();
+    document.getElementById('header-info').textContent =
+        'Analisis: ' + datosGlobales.fecha_analisis + ' | ' + datosGlobales.total_volcanes + ' volcanes'
+        + (origenDatos === 'copernicus'
+           ? ' | calculado por Copernicus-v1 sobre las mismas escenas Landsat'
+           : '');
+}
+
+function renderZoneStats() {
+    const container = document.getElementById('zone-stats');
+    clearEl(container);
+    if (!datosGlobales) return;
+    const zonas = ['Norte', 'Centro', 'Sur', 'Austral'];
+    for (const zona of zonas) {
+        let alerta = 0, atencion = 0, normal = 0, otro = 0;
+        for (const [, v] of Object.entries(datosGlobales.volcanes)) {
+            if ((v.zona || '') !== zona) continue;
+            if (v.estado === 'ALERTA') alerta++;
+            else if (v.estado === 'ATENCION') atencion++;
+            else if (v.estado === 'NORMAL') normal++;
+            else otro++;
+        }
+        const card = el('div', { className: 'zone-stat-card' });
+        card.appendChild(el('div', { className: 'zone-stat-name' }, zona));
+        if (alerta > 0) {
+            const row = el('div', { className: 'zone-stat-row' });
+            row.appendChild(el('span', { style: 'color:#8b949e' }, 'Alerta'));
+            row.appendChild(el('span', { style: 'color:#f85149;font-weight:700' }, String(alerta)));
+            card.appendChild(row);
+        }
+        if (atencion > 0) {
+            const row = el('div', { className: 'zone-stat-row' });
+            row.appendChild(el('span', { style: 'color:#8b949e' }, 'Atención'));
+            row.appendChild(el('span', { style: 'color:#d29922;font-weight:700' }, String(atencion)));
+            card.appendChild(row);
+        }
+        const rowN = el('div', { className: 'zone-stat-row' });
+        rowN.appendChild(el('span', { style: 'color:#8b949e' }, 'Normal'));
+        rowN.appendChild(el('span', { style: 'color:#3fb950' }, String(normal)));
+        card.appendChild(rowN);
+        container.appendChild(card);
+    }
+}
+
+function renderHistoryChart(nombre) {
+    if (!historialGlobal || !historialGlobal[nombre]) return null;
+    const registros = historialGlobal[nombre];
+    if (registros.length === 0) return null;
+
+    const wrapper = el('div', { style: 'margin-bottom:20px;' });
+    wrapper.appendChild(el('div', { style: 'font-size:0.75em;color:#8b949e;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;' },
+        'Historial (' + registros.length + ' registros)'));
+
+    const leyenda = el('div', { className: 'chart-legend' });
+    const colores = [['ALERTA', '#f85149'], ['ATENCION', '#d29922'], ['NORMAL', '#3fb950']];
+    for (const [label, color] of colores) {
+        const item = el('div', { className: 'chart-legend-item' });
+        item.appendChild(el('div', { className: 'chart-legend-dot', style: 'background:' + color }));
+        item.appendChild(text(label));
+        leyenda.appendChild(item);
+    }
+    wrapper.appendChild(leyenda);
+
+    const chart = el('div', { className: 'history-chart' });
+    const alturas = { 'ALERTA': 100, 'ATENCION': 65, 'NORMAL': 30, 'NUBLADO': 15, 'SIN_DATOS': 10, 'ERROR': 10 };
+    for (const r of registros) {
+        const pct = alturas[r.estado] || 10;
+        const bar = el('div', { className: 'chart-bar chart-bar-' + r.estado });
+        bar.style.height = pct + '%';
+        bar.title = (r.fecha || '') + ': ' + r.estado + (r.cambio_termico_pct !== undefined ? ' (' + r.cambio_termico_pct + '%)' : '');
+        chart.appendChild(bar);
+    }
+    wrapper.appendChild(chart);
+
+    const labels = el('div', { style: 'display:flex;font-size:0.65em;color:#484f58;margin-top:2px;' });
+    for (let i = 0; i < registros.length; i++) {
+        const lbl = el('div', { style: 'flex:1;text-align:center;overflow:hidden;' });
+        if (i % 5 === 0) {
+            const fecha = registros[i].fecha || '';
+            lbl.textContent = fecha.length >= 10 ? fecha.slice(5, 10) : fecha;
+        }
+        labels.appendChild(lbl);
+    }
+    wrapper.appendChild(labels);
+
+    return wrapper;
+}
+
+function renderResumen() {
+    const r = datosGlobales.resumen;
+    const bar = document.getElementById('resumen-bar');
+    clearEl(bar);
+    if (!r) return;
+    const items = [
+        ['ALERTA', 'stat-alerta', 'Alerta'],
+        ['ATENCION', 'stat-atencion', 'Atencion'],
+        ['NORMAL', 'stat-normal', 'Normal'],
+        ['NUBLADO', 'stat-nublado', 'Nublado'],
+        ['SIN_DATOS', 'stat-nublado', 'Sin datos']
+    ];
+    for (const [key, cls, label] of items) {
+        if (r[key]) {
+            bar.appendChild(el('div', { className: 'stat-card ' + cls }, [
+                el('span', { className: 'stat-count' }, String(r[key])),
+                text(' ' + label)
+            ]));
+        }
+    }
+}
+
+function renderFiltros() {
+    const bar = document.getElementById('filtros-bar');
+    clearEl(bar);
+
+    bar.appendChild(el('span', { className: 'filtro-label' }, 'Filtrar:'));
+    const estados = [['TODOS', 'Todos'], ['ALERTA', 'Alerta'], ['ATENCION', 'Atencion'], ['NORMAL', 'Normal'], ['NUBLADO', 'Nublado']];
+    for (const [val, label] of estados) {
+        const btn = el('button', {
+            className: 'filtro-btn' + (filtroEstado === val ? ' active' : ''),
+            onclick: () => { filtroEstado = val; renderFiltros(); renderTabla(); }
+        }, label);
+        bar.appendChild(btn);
+    }
+
+    bar.appendChild(el('span', { className: 'filtro-label', style: 'margin-left:15px' }, 'Zona:'));
+    const zonas = [['TODAS', 'Todas'], ['Norte', 'Norte'], ['Centro', 'Centro'], ['Sur', 'Sur'], ['Austral', 'Austral']];
+    for (const [val, label] of zonas) {
+        const btn = el('button', {
+            className: 'filtro-btn' + (filtroZona === val ? ' active' : ''),
+            onclick: () => { filtroZona = val; renderFiltros(); renderTabla(); }
+        }, label);
+        bar.appendChild(btn);
+    }
+}
+
+function renderTabla() {
+    const container = document.getElementById('tabla-volcanes');
+    clearEl(container);
+    const volcanes = datosGlobales.volcanes;
+
+    const porZona = {};
+    for (const [nombre, datos] of Object.entries(volcanes)) {
+        const zona = datos.zona || 'Desconocida';
+        if (!porZona[zona]) porZona[zona] = [];
+        porZona[zona].push(Object.assign({ nombre }, datos));
+    }
+    for (const zona of Object.keys(porZona)) {
+        porZona[zona].sort((a, b) => (ORDEN_ESTADO[a.estado] || 9) - (ORDEN_ESTADO[b.estado] || 9));
+    }
+
+    let hayResultados = false;
+    for (const zona of ORDEN_ZONAS) {
+        const lista = porZona[zona];
+        if (!lista) continue;
+        if (filtroZona !== 'TODAS' && filtroZona !== zona) continue;
+        const filtrados = lista.filter(v => filtroEstado === 'TODOS' || v.estado === filtroEstado);
+        if (filtrados.length === 0) continue;
+        hayResultados = true;
+
+        container.appendChild(el('div', { className: 'zona-header' }, zona + ' (' + filtrados.length + ')'));
+
+        for (const v of filtrados) {
+            const row = el('div', {
+                className: 'volcan-row' + (volcanSeleccionado === v.nombre ? ' selected' : ''),
+                onclick: () => seleccionarVolcan(v.nombre)
+            });
+
+            row.appendChild(el('div', { className: 'semaforo semaforo-' + v.estado }));
+
+            const info = el('div', { className: 'volcan-info' });
+            info.appendChild(el('div', { className: 'volcan-nombre' }, v.nombre));
+            info.appendChild(el('div', { className: 'volcan-detalle' }, v.detalle || ''));
+            row.appendChild(info);
+
+            const badges = el('div', { className: 'volcan-badges' });
+            if (v.nhi) badges.appendChild(el('span', { className: 'badge-mini badge-nhi-' + v.nhi.estado }, 'NHI'));
+            if (v.mirova && v.mirova.disponible) badges.appendChild(el('span', { className: 'badge-mini badge-mirova' }, 'MIROVA'));
+            row.appendChild(badges);
+
+            container.appendChild(row);
+        }
+    }
+    if (!hayResultados) {
+        container.appendChild(el('div', { style: 'padding:20px;color:#8b949e;' }, 'Sin resultados para el filtro actual'));
+    }
+}
+
+function seleccionarVolcan(nombre) {
+    volcanSeleccionado = nombre;
+    renderTabla();
+    renderDetalle(nombre);
+}
+
+function formatNum(n) {
+    if (n === undefined || n === null) return 'N/A';
+    return typeof n === 'number' ? n.toFixed(1) : String(n);
+}
+
+function colorMetrica(valor, alto, medio) {
+    if (valor === undefined || valor === null) return '#8b949e';
+    if (valor >= alto) return '#f85149';
+    if (valor >= medio) return '#d29922';
+    return '#3fb950';
+}
+
+function crearMetrica(label, valor, color, sub) {
+    const card = el('div', { className: 'metrica-card' });
+    card.appendChild(el('div', { className: 'metrica-label' }, label));
+    const valEl = el('div', { className: 'metrica-valor' }, valor);
+    valEl.style.color = color;
+    card.appendChild(valEl);
+    card.appendChild(el('div', { className: 'metrica-sub' }, sub));
+    return card;
+}
+
+function crearCrossrefItem(label, valor) {
+    const item = el('div', { className: 'crossref-item' });
+    item.appendChild(el('span', { className: 'label' }, label));
+    item.appendChild(el('span', {}, String(valor)));
+    return item;
+}
+
+function crearImagenCard(labelText, src) {
+    const card = el('div', { className: 'imagen-card' });
+    card.appendChild(el('div', { className: 'img-label' }, labelText));
+    const img = el('img', { src: src, alt: labelText });
+    img.onerror = function() { this.alt = 'Imagen no disponible'; this.src = ''; };
+    card.appendChild(img);
+    return card;
+}
+
+function renderDetalle(nombre) {
+    const v = datosGlobales.volcanes[nombre];
+    if (!v) return;
+    const panel = document.getElementById('detalle-panel');
+    clearEl(panel);
+
+    // Header
+    const header = el('div', { className: 'detalle-header' });
+    const headerLeft = el('div');
+    headerLeft.appendChild(el('div', { className: 'detalle-titulo' }, nombre));
+    headerLeft.appendChild(el('div', { style: 'font-size:0.8em;color:#8b949e;margin-top:4px;' },
+        'Zona ' + (v.zona || '') + ' | Confianza: ' + (v.confianza || 'N/A') + ' | ' + (v.fecha_nueva || '')));
+    header.appendChild(headerLeft);
+    header.appendChild(el('span', { className: 'detalle-estado estado-' + v.estado }, v.estado));
+    panel.appendChild(header);
+
+    // Detalle texto
+    const detalleBox = el('div', { style: 'background:#161b22;border:1px solid #21262d;border-radius:8px;padding:12px;margin-bottom:20px;font-size:0.85em;color:#c9d1d9;' },
+        v.detalle || 'Sin detalle disponible');
+    panel.appendChild(detalleBox);
+
+    // Que dice el otro sensor del mismo volcan. Es el unico lugar del sistema
+    // donde Sentinel-2 y Landsat aparecen juntos para una misma entidad: dos
+    // sensores coincidiendo valen mucho mas que uno solo elevado, y dos
+    // discrepando es justamente lo que merece la segunda mirada.
+    if (v.sentinel2_estado) {
+        const coincide = v.sentinel2_estado === v.estado;
+        const cruce = el('div', { style: 'background:#161b22;border:1px solid #21262d;border-left:3px solid '
+            + (v.confirmacion_cruzada ? '#f85149' : (coincide ? '#3fb950' : '#d29922'))
+            + ';border-radius:8px;padding:10px 12px;margin-bottom:20px;font-size:0.85em;color:#c9d1d9;' });
+        cruce.appendChild(el('span', { style: 'color:#8b949e;' }, 'Sentinel-2 el mismo volcan: '));
+        cruce.appendChild(el('strong', { className: 'detalle-estado estado-' + v.sentinel2_estado },
+            v.sentinel2_estado));
+        if (v.sentinel2_fecha) {
+            cruce.appendChild(el('span', { style: 'color:#8b949e;' }, '  (' + v.sentinel2_fecha + ')'));
+        }
+        cruce.appendChild(el('div', { style: 'margin-top:6px;color:#8b949e;' },
+            v.confirmacion_cruzada
+                ? 'Los dos sensores confirman la anomalia.'
+                : (coincide ? 'Los dos sensores coinciden.'
+                            : 'Los sensores discrepan: Landsat ve ' + v.estado
+                              + ' y Sentinel-2 ve ' + v.sentinel2_estado + '.')));
+        panel.appendChild(cruce);
+    }
+
+    // Métricas
+    const metricas = el('div', { className: 'metricas-grid' });
+    metricas.appendChild(crearMetrica('Cambio termico', formatNum(v.cambio_termico_pct) + '%',
+        colorMetrica(v.cambio_termico_pct, 5, 2), 'Pixeles con anomalia termica'));
+    metricas.appendChild(crearMetrica('Cambio morfologico', formatNum(v.cambio_morfologico_pct) + '%',
+        colorMetrica(v.cambio_morfologico_pct, 30, 15), 'Area con cambio visual'));
+    metricas.appendChild(crearMetrica('Max diff SWIR', formatNum(v.max_diff_termico),
+        colorMetrica(v.max_diff_termico, 150, 80), 'Diferencia maxima canal SWIR2/B7 (0-255)'));
+    metricas.appendChild(crearMetrica('Nubes', formatNum(v.nube_pct) + '%', '#8b949e', 'Cobertura excluida del analisis'));
+    if (v.z_score_termico !== undefined && v.z_score_termico !== null) {
+        const zColor = v.z_score_termico > 3 ? '#f85149' : v.z_score_termico > 2 ? '#d29922' : '#3fb950';
+        metricas.appendChild(crearMetrica('Z-score termico', formatNum(v.z_score_termico),
+            zColor, 'Desviaciones sobre variabilidad historica del volcan'));
+    }
+
+    // NHI Landsat 8/9 — (B7-B6)/(B7+B6)
+    function pushNhi(label, stats, refBands) {
+        if (!stats) {
+            metricas.appendChild(crearMetrica(label, '—', '#8b949e', 'No disponible'));
+            return;
+        }
+        const nhiMax = stats.nhi_max;
+        const nhiColor = nhiMax > 0.4 ? '#f85149' : nhiMax > 0.2 ? '#d29922' : '#3fb950';
+        const nHot = stats.n_hot_pixels_nhi || 0;
+        const nStrict = stats.n_hot_pixels_nhi_strict || 0;
+        metricas.appendChild(crearMetrica(label + ' max', formatNum(nhiMax),
+            nhiColor, refBands + ', pico'));
+        metricas.appendChild(crearMetrica(label + ' hot px',
+            String(nHot),
+            nHot > 5 ? '#d29922' : '#3fb950',
+            'Strict: ' + nStrict + ' · umbral ' + (stats.umbral_nhi || '?')));
+    }
+    pushNhi('NHI Landsat', v.nhi_landsat_stats || v.nhi_stats, '(B7-B6)/(B7+B6)');
+
+    // VRP
+    if (v.vrp_estimado_mw !== undefined && v.vrp_estimado_mw !== null) {
+        const vrp = v.vrp_estimado_mw;
+        const nivel = v.nivel_termico || 'Low';
+        const vrpColor = vrp >= 100 ? '#f85149' : vrp >= 10 ? '#d29922' : vrp > 0 ? '#79c0ff' : '#3fb950';
+        metricas.appendChild(crearMetrica('VRP estimado',
+            formatNum(vrp) + ' MW',
+            vrpColor,
+            'Nivel: ' + nivel + ' · ' + (v.vrp_pixels || 0) + ' px · proxy SWIR (B7)'));
+    } else {
+        metricas.appendChild(crearMetrica('VRP estimado', '—', '#8b949e', 'No calculado'));
+    }
+
+    if (v.ndsi_aplicado) {
+        metricas.appendChild(crearMetrica('Filtro NDSI', 'Activo', '#79c0ff',
+            'Glaciar — pixeles de nieve excluidos (B3-B6)/(B3+B6)'));
+    }
+
+    // Mahalanobis (Zhang 2016 LSMAD) — multivariado
+    const mh = v.mahalanobis_stats;
+    if (mh && mh.mahalanobis_max !== undefined) {
+        const dMax = mh.mahalanobis_max;
+        const mhColor = dMax > 5 ? '#f85149' : dMax > 3 ? '#d29922' : '#3fb950';
+        metricas.appendChild(crearMetrica('Mahalanobis d_max', formatNum(dMax),
+            mhColor, 'Distancia multivariada (umbral chi^2 95%=3.0)'));
+        metricas.appendChild(crearMetrica('Mahalanobis anomalos',
+            (mh.n_anomalous_pixels || 0) + ' px (' + formatNum(mh.pct_anomalous || 0) + '%)',
+            (mh.pct_anomalous || 0) > 3 ? '#f85149' : (mh.pct_anomalous || 0) > 1 ? '#d29922' : '#3fb950',
+            'N imgs baseline: ' + (mh.n_imagenes_baseline || 0)));
+    } else {
+        metricas.appendChild(crearMetrica('Mahalanobis', '—', '#8b949e',
+            (mh && mh.nota) ? mh.nota : 'No calculado'));
+    }
+
+    panel.appendChild(metricas);
+
+    // Triple consenso vs divergencia (Z-score / NHI / Mahalanobis)
+    const algos = [];
+    if (v.z_score_estado) algos.push(['Z-score', v.z_score_estado]);
+    if (v.nhi_estado && v.nhi_estado !== 'SIN_DATOS') algos.push(['NHI', v.nhi_estado]);
+    if (v.mahalanobis_estado && v.mahalanobis_estado !== 'SIN_DATOS') algos.push(['Mahalanobis', v.mahalanobis_estado]);
+    if (algos.length >= 2) {
+        const estadosSet = new Set(algos.map(function(a){return a[1];}));
+        const consensoTriple = (algos.length === 3 && estadosSet.size === 1);
+        const consensoBox = el('div', {
+            style: 'background:#1c2128;border-radius:6px;padding:10px 14px;' +
+                   'margin-bottom:16px;font-size:0.82em;color:#c9d1d9;' +
+                   'border-left:3px solid ' + (consensoTriple ? '#3fb950' : (estadosSet.size === 1 ? '#79c0ff' : '#d29922')) + ';'
+        });
+        let titulo, color;
+        if (consensoTriple) { titulo = 'Triple consenso'; color = '#3fb950'; }
+        else if (estadosSet.size === 1) { titulo = 'Consenso parcial'; color = '#79c0ff'; }
+        else { titulo = 'Divergencia algoritmos'; color = '#d29922'; }
+        consensoBox.appendChild(el('div', { style: 'font-weight:700;color:' + color + ';margin-bottom:4px;' }, titulo));
+        const detalleAlgos = algos.map(function(a){ return a[0] + ': ' + a[1]; }).join(' · ');
+        consensoBox.appendChild(el('div', {}, detalleAlgos));
+        if (v.nhi_detalle && v.nhi_estado && v.nhi_estado !== 'NORMAL' && v.nhi_estado !== 'SIN_DATOS') {
+            consensoBox.appendChild(el('div', { style: 'margin-top:4px;color:#8b949e;font-size:0.92em;' },
+                'NHI: ' + v.nhi_detalle));
+        }
+        panel.appendChild(consensoBox);
+    }
+
+    // Badge de consistencia temporal
+    if (v.consistencia_temporal) {
+        const ct = v.consistencia_temporal;
+        let cls, txt;
+        if (ct.consistent && ct.consecutive_elevated >= 2) {
+            cls = 'consistency-high'; txt = 'Consistente (' + ct.consecutive_elevated + ' dias elevado)';
+        } else if (ct.consistent) {
+            cls = 'consistency-pending'; txt = 'Un dia previo elevado — pendiente confirmacion';
+        } else {
+            cls = 'consistency-low'; txt = 'Evento aislado — sin confirmacion temporal';
+        }
+        panel.appendChild(el('div', { className: 'consistency-badge ' + cls }, txt));
+    }
+
+    // Grafico historico
+    const histChart = renderHistoryChart(nombre);
+    if (histChart) panel.appendChild(histChart);
+
+    // Card de analisis de indices espectrales
+    if (v.indices_spectral) {
+        const sp = v.indices_spectral;
+        const spCard = el('div', { className: 'indices-analisis-card' });
+        spCard.appendChild(el('h4', {}, 'Analisis Indices Espectrales'));
+        spCard.appendChild(crearCrossrefItem('NDVI estable:', sp.ndvi_stable ? 'Si (vegetacion sin cambio)' : 'No (posible alteracion)'));
+        spCard.appendChild(crearCrossrefItem('Anomalia SWIR:', sp.swir_anomaly_confirmed ?
+            'Confirmada (' + (sp.swir_pct || 0) + '% pixeles)' : 'No detectada'));
+        spCard.appendChild(crearCrossrefItem('dNBR cambio:', (sp.dnbr_pct || 0) + '% pixeles alterados'));
+        if (sp.disponibles && sp.disponibles.length > 0) {
+            spCard.appendChild(crearCrossrefItem('Indices disponibles:', sp.disponibles.join(', ')));
+        }
+        panel.appendChild(spCard);
+    }
+
+    // Cross-ref
+    const crossref = el('div', { className: 'crossref-section' });
+
+    // NHI card
+    const nhiCard = el('div', { className: 'crossref-card' });
+    nhiCard.appendChild(el('h4', {}, 'NHI (Anomalias termales)'));
+    if (v.nhi) {
+        const estadoBadge = el('span', { className: 'badge-mini badge-nhi-' + v.nhi.estado }, v.nhi.estado);
+        const estadoItem = el('div', { className: 'crossref-item' });
+        estadoItem.appendChild(el('span', { className: 'label' }, 'Estado:'));
+        estadoItem.appendChild(estadoBadge);
+        nhiCard.appendChild(estadoItem);
+        nhiCard.appendChild(crearCrossrefItem('Alertas 7 dias:', v.nhi.alertas_7d));
+        nhiCard.appendChild(crearCrossrefItem('Alertas 30 dias:', v.nhi.alertas_30d));
+        nhiCard.appendChild(crearCrossrefItem('Ultima alerta:', v.nhi.ultima_alerta || 'Ninguna'));
+        nhiCard.appendChild(crearCrossrefItem('Registros totales:', v.nhi.total_registros));
+    } else {
+        nhiCard.appendChild(el('div', { style: 'font-size:0.8em;color:#484f58;' }, 'Sin datos NHI disponibles'));
+    }
+    crossref.appendChild(nhiCard);
+
+    // Mirova card
+    const mirovaCard = el('div', { className: 'crossref-card' });
+    mirovaCard.appendChild(el('h4', {}, 'MIROVA (VRP)'));
+    if (v.mirova && v.mirova.disponible && v.mirova.registros_recientes > 0) {
+        mirovaCard.appendChild(crearCrossrefItem('VRP max 7 dias:', v.mirova.vrp_max_reciente + ' MW'));
+        mirovaCard.appendChild(crearCrossrefItem('VRP promedio 7 dias:', (v.mirova.vrp_promedio_reciente || 0) + ' MW'));
+        mirovaCard.appendChild(crearCrossrefItem('Registros recientes:', v.mirova.registros_recientes));
+        mirovaCard.appendChild(crearCrossrefItem('Ultimo registro:', v.mirova.ultimo_registro || 'N/A'));
+    } else if (v.mirova) {
+        mirovaCard.appendChild(el('div', { style: 'font-size:0.8em;color:#484f58;' }, 'Sin registros recientes'));
+    } else {
+        mirovaCard.appendChild(el('div', { style: 'font-size:0.8em;color:#484f58;' }, 'Volcan no monitoreado por MIROVA (11 de 43)'));
+    }
+    crossref.appendChild(mirovaCard);
+    panel.appendChild(crossref);
+
+    // Imágenes SWIR (B7-B6-B4)
+    if (v.fecha_nueva && v.fecha_anterior) {
+        const swirSection = el('div', { className: 'imagenes-section' });
+        swirSection.appendChild(el('h3', {}, 'SWIR False Color (B7-B6-B4)'));
+        const swirGrid = el('div', { className: 'imagenes-grid' });
+        swirGrid.appendChild(crearImagenCard('Anterior: ' + v.fecha_anterior,
+            'landsat/' + nombre + '/' + v.fecha_anterior + '_SWIR.png'));
+        swirGrid.appendChild(crearImagenCard('Reciente: ' + v.fecha_nueva,
+            'landsat/' + nombre + '/' + v.fecha_nueva + '_SWIR.png'));
+        swirSection.appendChild(swirGrid);
+        panel.appendChild(swirSection);
+
+        const thermalSection = el('div', { className: 'imagenes-section' });
+        thermalSection.appendChild(el('h3', {}, 'TIRS Thermal (B10, 10.9 μm)'));
+        const thermalGrid = el('div', { className: 'imagenes-grid' });
+        thermalGrid.appendChild(crearImagenCard('Anterior: ' + v.fecha_anterior,
+            'landsat/' + nombre + '/' + v.fecha_anterior + '_THERMAL.png'));
+        thermalGrid.appendChild(crearImagenCard('Reciente: ' + v.fecha_nueva,
+            'landsat/' + nombre + '/' + v.fecha_nueva + '_THERMAL.png'));
+        thermalSection.appendChild(thermalGrid);
+        panel.appendChild(thermalSection);
+
+        const rgbSection = el('div', { className: 'imagenes-section' });
+        rgbSection.appendChild(el('h3', {}, 'RGB (Color Natural, B4-B3-B2)'));
+        const rgbGrid = el('div', { className: 'imagenes-grid' });
+        rgbGrid.appendChild(crearImagenCard('Anterior: ' + v.fecha_anterior,
+            'landsat/' + nombre + '/' + v.fecha_anterior + '_RGB.png'));
+        rgbGrid.appendChild(crearImagenCard('Reciente: ' + v.fecha_nueva,
+            'landsat/' + nombre + '/' + v.fecha_nueva + '_RGB.png'));
+        rgbSection.appendChild(rgbGrid);
+        panel.appendChild(rgbSection);
+    }
+
+    // Índices espectrales adicionales (si están disponibles offline)
+    if (v.indices_disponibles && Object.keys(v.indices_disponibles).length > 0) {
+        const indicesSection = el('div', { className: 'imagenes-section' });
+        indicesSection.appendChild(el('h3', {}, 'Indices Espectrales (fecha: ' + v.fecha_nueva + ')'));
+
+        const indicesInfo = {
+            'NDVI': 'Vegetacion (verde=sana, rojo=danada/ceniza) — (B5-B4)/(B5+B4)',
+            'NBR': 'Burn Ratio (rojo=quemado/lava, verde=sano) — (B5-B7)/(B5+B7)',
+            'SWIR_Anomaly': 'Anomalia SWIR (rojo=caliente, azul=normal) — B7'
+        };
+
+        const indicesGrid = el('div', { className: 'imagenes-grid' });
+        indicesGrid.style.gridTemplateColumns = 'repeat(3, 1fr)';
+
+        for (const [idx, disponible] of Object.entries(v.indices_disponibles)) {
+            if (disponible) {
+                const card = el('div', { className: 'imagen-card' });
+                card.appendChild(el('div', { className: 'img-label' }, idx + ': ' + (indicesInfo[idx] || '')));
+                const img = el('img', { src: 'landsat/' + nombre + '/' + v.fecha_nueva + '_' + idx + '.png', alt: idx });
+                img.onerror = function() { this.alt = 'No disponible'; this.style.minHeight = '100px'; };
+                card.appendChild(img);
+                indicesGrid.appendChild(card);
+            }
+        }
+        indicesSection.appendChild(indicesGrid);
+        panel.appendChild(indicesSection);
+
+        if (v.fecha_anterior) {
+            const indicesCompSection = el('div', { className: 'imagenes-section' });
+            indicesCompSection.appendChild(el('h3', {}, 'Comparacion Indices: ' + v.fecha_anterior + ' vs ' + v.fecha_nueva));
+            for (const [idx, disponible] of Object.entries(v.indices_disponibles)) {
+                if (disponible) {
+                    const compGrid = el('div', { className: 'imagenes-grid' });
+                    compGrid.appendChild(crearImagenCard(idx + ' Anterior: ' + v.fecha_anterior,
+                        'landsat/' + nombre + '/' + v.fecha_anterior + '_' + idx + '.png'));
+                    compGrid.appendChild(crearImagenCard(idx + ' Reciente: ' + v.fecha_nueva,
+                        'landsat/' + nombre + '/' + v.fecha_nueva + '_' + idx + '.png'));
+                    indicesCompSection.appendChild(compGrid);
+                }
+            }
+            panel.appendChild(indicesCompSection);
+        }
+    }
+
+    // Metodología
+    const details = document.createElement('details');
+    details.className = 'info-box';
+    const summary = document.createElement('summary');
+    summary.textContent = 'Metodologia del analisis (Landsat 8/9)';
+    details.appendChild(summary);
+    const infoContent = el('div', { className: 'info-content' });
+    const textos = [
+        'Sensor: Landsat 8/9 OLI/TIRS, resolución 30 m (VIS/SWIR) y 100 m resampleada a 30 m (TIRS B10). Revisita ~16 días por satélite, ~8 días combinados.',
+        'Bandas usadas: B2 (azul ~490nm), B3 (verde ~560nm), B4 (rojo ~660nm), B5 (NIR ~865nm), B6 (SWIR1 ~1610nm), B7 (SWIR2 ~2200nm), B10 (TIRS ~10.9μm). Composite RGB = B4-B3-B2, SWIR false color = B7-B6-B4, THERMAL = B10 con paleta -20°C a 80°C.',
+        'Comparacion contra background estadistico: Se calcula la imagen mediana de las ultimas 8 escenas Landsat SWIR (B7-B6-B4). La imagen mas reciente se compara contra esta mediana, eliminando variaciones aleatorias.',
+        'Mascara de nubes: Se excluyen pixeles brillantes de baja saturacion (nubes) y pixeles negros (sin datos). En offline puede usarse banda QA_PIXEL de Landsat.',
+        'Zona central: Se analiza el 60% central de la imagen (zona del crater).',
+        'Cambio termico: Pixeles cuya diferencia en canal SWIR2 (B7) supera media + 2*sigma. Cambio morfologico: Diferencia en canales SWIR1+Red (B6+B4). Max diff: Valor 0-255, >150 sugiere anomalia fuerte.',
+        'NHI (Marchese 2019, adaptado a Landsat 8/9 OLI): NHI_SWIR = (B7-B6)/(B7+B6), análogo a (B12-B11)/(B12+B11) de Sentinel-2. NHI_SWNIR = (B7-B4)/(B7+B4). Umbral hot pixel relajado a 0.25 por la resolución 30m (vs 0.30 en S2 a 20m). Se exige además brillo SWIR2 (B7) > 0.35 para reducir falsos positivos en sombras.',
+        'VRP estimado (Coppola 2016, Wooster 2003): VRP = 18.9 * A_pixel * L_SWIR_proxy. Aproximacion en MW desde reflectancia SWIR2 (B7) normalizada (no calibrada absolutamente). Niveles termicos: Low <10 MW, Moderate 10-100, High 100-1000, Very High 1-10 GW, Extreme >10 GW. Landsat tiene un proxy adicional vía B10 (radiancia térmica) que puede integrarse offline.',
+        'Filtro NDSI (glaciares): NDSI = (B3-B6)/(B3+B6) > 0.4 marca nieve y excluye esos pixeles del analisis termico. Aplicado a volcanes con glaciar (Villarrica, Nevados de Chillán, Hudson, etc.).',
+        'Mahalanobis (Zhang 2016 LSMAD): distancia multivariada de cada pixel actual contra el baseline temporal de cada banda. Umbral chi-cuadrado al 95% con 7 dof ≈ 14, simplificado a d > 3 para visualización.',
+        'Cross-referencia: NHI-Tool (índices Landsat oficiales del USGS si disponibles) y MIROVA (VRP MODIS/VIIRS independiente).',
+        'Referencia: ' + (v.fecha_referencia || 'N/A')
+    ];
+    for (const t of textos) {
+        const p = document.createElement('p');
+        p.textContent = t;
+        p.style.marginBottom = '8px';
+        infoContent.appendChild(p);
+    }
+    details.appendChild(infoContent);
+    panel.appendChild(details);
+}
+
+// --- Init ---
+cargarDatos();
+
+// =============================================================
+// Comparacion Visual entre fechas — opera sobre PNGs Landsat
+// =============================================================
+// Composicion RGB-multidate (Howarth 1981):
+//   R = fecha A (luminancia), G = fecha B (luminancia), B = (lumA + lumB)/2
+//   sin cambio -> grises/blancos; aparecio en B -> cian; desaparecio -> rojo
+//
+// IMPORTANTE: opera sobre PNGs renderizados (RGB / SWIR / THERMAL), NO sobre
+// bandas crudas. Es aproximación visual, no medida radiométrica.
+
+let cvFechasPorVolcan = null;            // {volcan: [fechas...]}
+let cvTipoImagen = 'RGB';                 // 'RGB' | 'SWIR' | 'THERMAL'
+let cvTipoVisualizacion = 'multidate';    // 'multidate' | 'heatmap' | 'highlight'
+let cvSensibilidad = 5;                   // % umbral (0-100) — heatmap
+let cvHlOpacidad = 60;                    // % opacidad overlay rojo (Hansen-style)
+let cvHlUmbral = 15;                      // % umbral mínimo de cambio en luminancia
+let cvImgACache = null;
+let cvImgBCache = null;
+
+async function cvCargarFechas() {
+    if (cvFechasPorVolcan) return cvFechasPorVolcan;
+    const resp = await fetch('fechas_disponibles_landsat.json');
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    cvFechasPorVolcan = await resp.json();
+    return cvFechasPorVolcan;
+}
+
+function cvLoadImg(src) {
+    return new Promise((res, rej) => {
+        const im = new Image();
+        im.crossOrigin = 'anonymous';
+        im.onload = () => res(im);
+        im.onerror = () => rej(new Error('No se pudo cargar ' + src));
+        im.src = src;
+    });
+}
+
+function cvDrawToOffscreen(img, w, h) {
+    const c = document.createElement('canvas');
+    c.width = w;
+    c.height = h;
+    const ctx = c.getContext('2d');
+    ctx.drawImage(img, 0, 0, w, h);
+    return ctx.getImageData(0, 0, w, h);
+}
+
+// --- Heatmap divergente turbo (Bovolo 2007) ---
+function cvInterpColor(c1, c2, t) {
+    return [
+        c1[0] + (c2[0] - c1[0]) * t,
+        c1[1] + (c2[1] - c1[1]) * t,
+        c1[2] + (c2[2] - c1[2]) * t
+    ];
+}
+
+function cvColorDivergente(valor) {
+    if (valor <= -1) return [0, 50, 150];
+    if (valor >=  1) return [200, 0, 50];
+    if (valor < -0.5) {
+        const t = (valor + 1) / 0.5;
+        return cvInterpColor([0, 50, 150], [0, 200, 200], t);
+    } else if (valor < 0) {
+        const t = (valor + 0.5) / 0.5;
+        return cvInterpColor([0, 200, 200], [240, 240, 240], t);
+    } else if (valor < 0.5) {
+        const t = valor / 0.5;
+        return cvInterpColor([240, 240, 240], [255, 165, 0], t);
+    } else {
+        const t = (valor - 0.5) / 0.5;
+        return cvInterpColor([255, 165, 0], [200, 0, 50], t);
+    }
+}
+
+function cvGenerarHeatmap(imgA, imgB, canvas, sensPct) {
+    const W = Math.min(imgA.naturalWidth || 800, imgB.naturalWidth || 800);
+    const H = Math.min(imgA.naturalHeight || 800, imgB.naturalHeight || 800);
+    canvas.width = W;
+    canvas.height = H;
+    const ctx = canvas.getContext('2d');
+    const dataA = cvDrawToOffscreen(imgA, W, H).data;
+    const dataB = cvDrawToOffscreen(imgB, W, H).data;
+    const out = ctx.createImageData(W, H);
+
+    const umbral = (sensPct / 100) * 255;
+
+    for (let i = 0; i < dataA.length; i += 4) {
+        const lumA = 0.299 * dataA[i] + 0.587 * dataA[i + 1] + 0.114 * dataA[i + 2];
+        const lumB = 0.299 * dataB[i] + 0.587 * dataB[i + 1] + 0.114 * dataB[i + 2];
+        const diff = lumB - lumA;
+
+        if (Math.abs(diff) < umbral) {
+            out.data[i]     = 240;
+            out.data[i + 1] = 240;
+            out.data[i + 2] = 240;
+            out.data[i + 3] = 255;
+        } else {
+            const norm = Math.max(-1, Math.min(1, diff / 255));
+            const c = cvColorDivergente(norm);
+            out.data[i]     = c[0];
+            out.data[i + 1] = c[1];
+            out.data[i + 2] = c[2];
+            out.data[i + 3] = 255;
+        }
+    }
+    ctx.putImageData(out, 0, 0);
+}
+
+// --- Highlight overlay (Hansen 2013 style) ---
+function cvGenerarHighlight(imgA, imgB, canvas, opacidadPct, umbralPct) {
+    const W = Math.min(imgA.naturalWidth || 800, imgB.naturalWidth || 800);
+    const H = Math.min(imgA.naturalHeight || 800, imgB.naturalHeight || 800);
+    canvas.width = W;
+    canvas.height = H;
+    const ctx = canvas.getContext('2d');
+
+    ctx.drawImage(imgB, 0, 0, W, H);
+
+    const dataA = cvDrawToOffscreen(imgA, W, H).data;
+    const dataB = cvDrawToOffscreen(imgB, W, H).data;
+
+    const mask = ctx.createImageData(W, H);
+    const umbralAbs = (umbralPct / 100) * 255;
+    const opacFactor = opacidadPct / 100;
+    for (let i = 0; i < dataA.length; i += 4) {
+        const lumA = 0.299 * dataA[i] + 0.587 * dataA[i + 1] + 0.114 * dataA[i + 2];
+        const lumB = 0.299 * dataB[i] + 0.587 * dataB[i + 1] + 0.114 * dataB[i + 2];
+        const diff = Math.abs(lumB - lumA);
+        if (diff > umbralAbs) {
+            const intensity = Math.min(1, diff / 255);
+            mask.data[i]     = 255;
+            mask.data[i + 1] = 0;
+            mask.data[i + 2] = 0;
+            mask.data[i + 3] = Math.round(intensity * 255 * opacFactor);
+        } else {
+            mask.data[i + 3] = 0;
+        }
+    }
+
+    const maskCanvas = document.createElement('canvas');
+    maskCanvas.width = W;
+    maskCanvas.height = H;
+    maskCanvas.getContext('2d').putImageData(mask, 0, 0);
+    ctx.drawImage(maskCanvas, 0, 0);
+}
+
+function cvGenerarComposicion(imgA, imgB, canvas) {
+    const W = Math.min(imgA.naturalWidth || 800, imgB.naturalWidth || 800);
+    const H = Math.min(imgA.naturalHeight || 800, imgB.naturalHeight || 800);
+    canvas.width = W;
+    canvas.height = H;
+    const ctx = canvas.getContext('2d');
+    const dataA = cvDrawToOffscreen(imgA, W, H).data;
+    const dataB = cvDrawToOffscreen(imgB, W, H).data;
+    const out = ctx.createImageData(W, H);
+
+    for (let i = 0; i < dataA.length; i += 4) {
+        const lumA = 0.299 * dataA[i] + 0.587 * dataA[i + 1] + 0.114 * dataA[i + 2];
+        const lumB = 0.299 * dataB[i] + 0.587 * dataB[i + 1] + 0.114 * dataB[i + 2];
+        out.data[i]     = lumA;
+        out.data[i + 1] = lumB;
+        out.data[i + 2] = (lumA + lumB) / 2;
+        out.data[i + 3] = 255;
+    }
+    ctx.putImageData(out, 0, 0);
+}
+
+function cvCrearUI() {
+    const section = el('section', { className: 'comparacion-visual', id: 'cv-section' });
+
+    section.appendChild(el('h2', {}, 'Comparación Visual entre Fechas'));
+    section.appendChild(el('div', { className: 'subtitle' },
+        'Técnica RGB-multidate (Howarth & Wickware, 1981). Compone dos fechas Landsat 8/9 en una sola imagen: ' +
+        'el canal rojo trae la fecha A, el verde trae la fecha B y el azul es el promedio. ' +
+        'Las zonas sin cambio aparecen en grises/blancos; las que aparecieron en B se ven cian; las que desaparecieron se ven rojas. ' +
+        'Opera sobre los PNG ya renderizados (RGB / SWIR / THERMAL) — aproximación visual, no medida radiométrica.'));
+
+    const controles = el('div', { className: 'cv-controles' });
+
+    // Volcan
+    const fldV = el('div', { className: 'cv-field' });
+    fldV.appendChild(el('label', { for: 'cv-volcan' }, 'Volcán / Vista'));
+    const selVolcan = el('select', { id: 'cv-volcan' });
+    selVolcan.appendChild(el('option', { value: '' }, 'Cargando...'));
+    fldV.appendChild(selVolcan);
+    controles.appendChild(fldV);
+
+    // Fecha A
+    const fldA = el('div', { className: 'cv-field' });
+    fldA.appendChild(el('label', { for: 'cv-fecha-a' }, 'Fecha A (anterior)'));
+    const selA = el('select', { id: 'cv-fecha-a' });
+    selA.appendChild(el('option', { value: '' }, '—'));
+    fldA.appendChild(selA);
+    controles.appendChild(fldA);
+
+    // Fecha B
+    const fldB = el('div', { className: 'cv-field' });
+    fldB.appendChild(el('label', { for: 'cv-fecha-b' }, 'Fecha B (reciente)'));
+    const selB = el('select', { id: 'cv-fecha-b' });
+    selB.appendChild(el('option', { value: '' }, '—'));
+    fldB.appendChild(selB);
+    controles.appendChild(fldB);
+
+    // Tipo imagen — RGB / SWIR / THERMAL
+    const fldT = el('div', { className: 'cv-field' });
+    fldT.appendChild(el('label', {}, 'Tipo de imagen'));
+    const toggleGroup = el('div', { className: 'cv-toggle-group' });
+    const btnRGB = el('button', {
+        className: 'cv-toggle-btn active',
+        'data-tipo': 'RGB',
+        onclick: () => cvSetTipo('RGB')
+    }, 'RGB');
+    const btnSWIR = el('button', {
+        className: 'cv-toggle-btn',
+        'data-tipo': 'SWIR',
+        onclick: () => cvSetTipo('SWIR')
+    }, 'SWIR');
+    const btnTH = el('button', {
+        className: 'cv-toggle-btn',
+        'data-tipo': 'THERMAL',
+        onclick: () => cvSetTipo('THERMAL')
+    }, 'THERMAL');
+    toggleGroup.appendChild(btnRGB);
+    toggleGroup.appendChild(btnSWIR);
+    toggleGroup.appendChild(btnTH);
+    fldT.appendChild(toggleGroup);
+    controles.appendChild(fldT);
+
+    // Tipo visualizacion
+    const fldV2 = el('div', { className: 'cv-field' });
+    fldV2.appendChild(el('label', {}, 'Tipo de visualización'));
+    const visGroup = el('div', { className: 'cv-toggle-group' });
+    const btnMd = el('button', {
+        className: 'cv-toggle-btn active',
+        'data-vis': 'multidate',
+        onclick: () => cvSetVisualizacion('multidate')
+    }, 'RGB-multidate');
+    const btnHm = el('button', {
+        className: 'cv-toggle-btn',
+        'data-vis': 'heatmap',
+        onclick: () => cvSetVisualizacion('heatmap')
+    }, 'Heatmap diferencia');
+    const btnHl = el('button', {
+        className: 'cv-toggle-btn',
+        'data-vis': 'highlight',
+        onclick: () => cvSetVisualizacion('highlight')
+    }, 'Highlight overlay');
+    visGroup.appendChild(btnMd);
+    visGroup.appendChild(btnHm);
+    visGroup.appendChild(btnHl);
+    fldV2.appendChild(visGroup);
+    controles.appendChild(fldV2);
+
+    // Slider sensibilidad
+    const fldSens = el('div', { className: 'cv-field', id: 'cv-field-sensibilidad' });
+    fldSens.style.display = 'none';
+    fldSens.appendChild(el('label', { for: 'cv-sensibilidad' }, 'Sensibilidad (umbral %)'));
+    const sliderWrap = el('div', { className: 'cv-slider-wrap' });
+    const slider = el('input', {
+        type: 'range',
+        id: 'cv-sensibilidad',
+        min: '0',
+        max: '50',
+        step: '1',
+        value: String(cvSensibilidad)
+    });
+    const sliderVal = el('span', { className: 'cv-slider-val', id: 'cv-sensibilidad-val' },
+        cvSensibilidad + '%');
+    slider.addEventListener('input', (e) => {
+        cvSensibilidad = parseInt(e.target.value, 10) || 0;
+        document.getElementById('cv-sensibilidad-val').textContent = cvSensibilidad + '%';
+        cvRegenerarSiHeatmap();
+    });
+    sliderWrap.appendChild(slider);
+    sliderWrap.appendChild(sliderVal);
+    fldSens.appendChild(sliderWrap);
+    controles.appendChild(fldSens);
+
+    // Slider opacidad overlay
+    const fldHlOp = el('div', { className: 'cv-field', id: 'cv-field-hl-opacidad' });
+    fldHlOp.style.display = 'none';
+    fldHlOp.appendChild(el('label', { for: 'cv-hl-opacidad' }, 'Opacidad overlay'));
+    const opWrap = el('div', { className: 'cv-slider-wrap' });
+    const opSlider = el('input', {
+        type: 'range',
+        id: 'cv-hl-opacidad',
+        min: '0',
+        max: '100',
+        step: '5',
+        value: String(cvHlOpacidad)
+    });
+    const opVal = el('span', { className: 'cv-slider-val', id: 'cv-hl-opacidad-val' },
+        cvHlOpacidad + '%');
+    opSlider.addEventListener('input', (e) => {
+        cvHlOpacidad = parseInt(e.target.value, 10) || 0;
+        document.getElementById('cv-hl-opacidad-val').textContent = cvHlOpacidad + '%';
+        cvRegenerarSiHighlight();
+    });
+    opWrap.appendChild(opSlider);
+    opWrap.appendChild(opVal);
+    fldHlOp.appendChild(opWrap);
+    controles.appendChild(fldHlOp);
+
+    // Slider umbral cambio
+    const fldHlUm = el('div', { className: 'cv-field', id: 'cv-field-hl-umbral' });
+    fldHlUm.style.display = 'none';
+    fldHlUm.appendChild(el('label', { for: 'cv-hl-umbral' }, 'Umbral cambio mínimo'));
+    const umWrap = el('div', { className: 'cv-slider-wrap' });
+    const umSlider = el('input', {
+        type: 'range',
+        id: 'cv-hl-umbral',
+        min: '5',
+        max: '50',
+        step: '1',
+        value: String(cvHlUmbral)
+    });
+    const umVal = el('span', { className: 'cv-slider-val', id: 'cv-hl-umbral-val' },
+        cvHlUmbral + '%');
+    umSlider.addEventListener('input', (e) => {
+        cvHlUmbral = parseInt(e.target.value, 10) || 5;
+        document.getElementById('cv-hl-umbral-val').textContent = cvHlUmbral + '%';
+        cvRegenerarSiHighlight();
+        cvRenderLeyenda();
+    });
+    umWrap.appendChild(umSlider);
+    umWrap.appendChild(umVal);
+    fldHlUm.appendChild(umWrap);
+    controles.appendChild(fldHlUm);
+
+    // Boton generar
+    const fldGen = el('div', { className: 'cv-field' });
+    fldGen.appendChild(el('label', {}, ' '));
+    const btnGen = el('button', {
+        className: 'cv-btn-generar',
+        id: 'cv-btn-generar',
+        onclick: cvGenerarYRenderizar
+    }, 'Generar Comparación');
+    fldGen.appendChild(btnGen);
+    controles.appendChild(fldGen);
+
+    // Boton descargar
+    const fldDl = el('div', { className: 'cv-field' });
+    fldDl.appendChild(el('label', {}, ' '));
+    const btnDl = el('button', {
+        className: 'cv-btn-descargar',
+        id: 'cv-btn-descargar',
+        onclick: cvDescargar
+    }, 'Descargar PNG');
+    btnDl.disabled = true;
+    fldDl.appendChild(btnDl);
+    controles.appendChild(fldDl);
+
+    section.appendChild(controles);
+
+    const leyenda = el('div', { className: 'cv-leyenda', id: 'cv-leyenda' });
+    section.appendChild(leyenda);
+    cvRenderLeyenda();
+
+    const status = el('div', { className: 'cv-status', id: 'cv-status' },
+        'Selecciona un volcán y dos fechas para comenzar.');
+    section.appendChild(status);
+
+    const resultado = el('div', { className: 'cv-resultado', id: 'cv-resultado' });
+
+    const cardA = el('div', { className: 'cv-imagen-card' });
+    cardA.appendChild(el('div', { className: 'cv-img-label', id: 'cv-label-a' }, 'Fecha A'));
+    const imgEA = el('img', { id: 'cv-img-a', alt: 'Fecha A' });
+    imgEA.style.display = 'none';
+    cardA.appendChild(imgEA);
+    resultado.appendChild(cardA);
+
+    const cardC = el('div', { className: 'cv-imagen-card composite' });
+    cardC.appendChild(el('div', { className: 'cv-img-label', id: 'cv-label-composite' },
+        'Composición RGB-multidate'));
+    const canvasC = el('canvas', { id: 'cv-canvas-composite' });
+    cardC.appendChild(canvasC);
+    resultado.appendChild(cardC);
+
+    const cardB = el('div', { className: 'cv-imagen-card' });
+    cardB.appendChild(el('div', { className: 'cv-img-label', id: 'cv-label-b' }, 'Fecha B'));
+    const imgEB = el('img', { id: 'cv-img-b', alt: 'Fecha B' });
+    imgEB.style.display = 'none';
+    cardB.appendChild(imgEB);
+    resultado.appendChild(cardB);
+
+    section.appendChild(resultado);
+
+    document.body.appendChild(section);
+}
+
+function cvSetTipo(tipo) {
+    cvTipoImagen = tipo;
+    document.querySelectorAll('#cv-section .cv-toggle-btn[data-tipo]').forEach(b => {
+        b.classList.toggle('active', b.getAttribute('data-tipo') === tipo);
+    });
+}
+
+function cvSetVisualizacion(vis) {
+    cvTipoVisualizacion = vis;
+    document.querySelectorAll('#cv-section .cv-toggle-btn[data-vis]').forEach(b => {
+        b.classList.toggle('active', b.getAttribute('data-vis') === vis);
+    });
+    const fldSens = document.getElementById('cv-field-sensibilidad');
+    if (fldSens) fldSens.style.display = (vis === 'heatmap') ? 'flex' : 'none';
+    const fldHlOp = document.getElementById('cv-field-hl-opacidad');
+    if (fldHlOp) fldHlOp.style.display = (vis === 'highlight') ? 'flex' : 'none';
+    const fldHlUm = document.getElementById('cv-field-hl-umbral');
+    if (fldHlUm) fldHlUm.style.display = (vis === 'highlight') ? 'flex' : 'none';
+    const lblC = document.getElementById('cv-label-composite');
+    if (lblC) {
+        if (vis === 'heatmap') {
+            lblC.textContent = 'Heatmap divergente (B − A)';
+        } else if (vis === 'highlight') {
+            lblC.textContent = 'Highlight overlay (Hansen 2013)';
+        } else {
+            lblC.textContent = 'Composición RGB-multidate';
+        }
+    }
+    cvRenderLeyenda();
+    cvRegenerarSiHayCache();
+}
+
+function cvRegenerarSiHighlight() {
+    if (cvTipoVisualizacion !== 'highlight') return;
+    if (!cvImgACache || !cvImgBCache) return;
+    const canvas = document.getElementById('cv-canvas-composite');
+    if (!canvas) return;
+    cvGenerarHighlight(cvImgACache, cvImgBCache, canvas, cvHlOpacidad, cvHlUmbral);
+}
+
+function cvRegenerarSiHeatmap() {
+    if (cvTipoVisualizacion !== 'heatmap') return;
+    if (!cvImgACache || !cvImgBCache) return;
+    const canvas = document.getElementById('cv-canvas-composite');
+    if (!canvas) return;
+    cvGenerarHeatmap(cvImgACache, cvImgBCache, canvas, cvSensibilidad);
+}
+
+function cvRegenerarSiHayCache() {
+    if (!cvImgACache || !cvImgBCache) return;
+    const canvas = document.getElementById('cv-canvas-composite');
+    if (!canvas) return;
+    if (cvTipoVisualizacion === 'heatmap') {
+        cvGenerarHeatmap(cvImgACache, cvImgBCache, canvas, cvSensibilidad);
+    } else if (cvTipoVisualizacion === 'highlight') {
+        cvGenerarHighlight(cvImgACache, cvImgBCache, canvas, cvHlOpacidad, cvHlUmbral);
+    } else {
+        cvGenerarComposicion(cvImgACache, cvImgBCache, canvas);
+    }
+}
+
+function cvRenderLeyenda() {
+    const leyenda = document.getElementById('cv-leyenda');
+    if (!leyenda) return;
+    clearEl(leyenda);
+
+    if (cvTipoVisualizacion === 'highlight') {
+        const items = [
+            ['rgba(255, 0, 0, 0.7)', 'Áreas con cambio significativo (>' + cvHlUmbral + '%)'],
+            ['rgb(220, 220, 220)',   'Áreas estables (sin cambio sobre umbral)']
+        ];
+        for (const [color, txt] of items) {
+            const item = el('div', { className: 'cv-leyenda-item' });
+            const sw = el('div', { className: 'cv-leyenda-swatch' });
+            sw.style.background = color;
+            item.appendChild(sw);
+            item.appendChild(text(txt));
+            leyenda.appendChild(item);
+        }
+        return;
+    }
+
+    if (cvTipoVisualizacion === 'heatmap') {
+        const items = [
+            ['rgb(0,50,150)',    'Cambio negativo fuerte (A ≫ B, desapareció)'],
+            ['rgb(0,200,200)',   'Cambio negativo leve (A > B)'],
+            ['rgb(240,240,240)', 'Sin cambio (bajo umbral)'],
+            ['rgb(255,165,0)',   'Cambio positivo leve (B > A)'],
+            ['rgb(200,0,50)',    'Cambio positivo fuerte (B ≫ A, apareció)']
+        ];
+        for (const [color, txt] of items) {
+            const item = el('div', { className: 'cv-leyenda-item' });
+            const sw = el('div', { className: 'cv-leyenda-swatch' });
+            sw.style.background = color;
+            item.appendChild(sw);
+            item.appendChild(text(txt));
+            leyenda.appendChild(item);
+        }
+        const cbar = el('div', { className: 'cv-colorbar' });
+        cbar.appendChild(text('−'));
+        cbar.appendChild(el('div', { className: 'cv-colorbar-gradient' }));
+        cbar.appendChild(text('+'));
+        leyenda.appendChild(cbar);
+    } else {
+        const items = [
+            ['rgb(220, 60, 60)',   'Rojo → desapareció (estaba en A, no en B)'],
+            ['rgb(80, 200, 220)',  'Cian → apareció (no estaba en A, ahora en B)'],
+            ['rgb(220, 220, 220)', 'Gris / blanco → sin cambio'],
+            ['rgb(20, 20, 20)',    'Negro → sin cobertura / nubes en ambas']
+        ];
+        for (const [color, txt] of items) {
+            const item = el('div', { className: 'cv-leyenda-item' });
+            const sw = el('div', { className: 'cv-leyenda-swatch' });
+            sw.style.background = color;
+            item.appendChild(sw);
+            item.appendChild(text(txt));
+            leyenda.appendChild(item);
+        }
+    }
+}
+
+function cvPopularVolcanes() {
+    const sel = document.getElementById('cv-volcan');
+    clearEl(sel);
+    sel.appendChild(el('option', { value: '' }, '— Selecciona —'));
+    const nombres = Object.keys(cvFechasPorVolcan).sort((a, b) => a.localeCompare(b));
+    for (const n of nombres) {
+        sel.appendChild(el('option', { value: n }, n));
+    }
+    sel.addEventListener('change', cvPopularFechas);
+}
+
+function cvPopularFechas() {
+    const volcan = document.getElementById('cv-volcan').value;
+    const selA = document.getElementById('cv-fecha-a');
+    const selB = document.getElementById('cv-fecha-b');
+    clearEl(selA);
+    clearEl(selB);
+    selA.appendChild(el('option', { value: '' }, '—'));
+    selB.appendChild(el('option', { value: '' }, '—'));
+    if (!volcan || !cvFechasPorVolcan[volcan]) return;
+    const fechas = cvFechasPorVolcan[volcan].slice().sort();
+    for (const f of fechas) {
+        selA.appendChild(el('option', { value: f }, f));
+        selB.appendChild(el('option', { value: f }, f));
+    }
+    if (fechas.length >= 2) {
+        selA.value = fechas[fechas.length - 2];
+        selB.value = fechas[fechas.length - 1];
+    }
+}
+
+async function cvGenerarYRenderizar() {
+    const volcan = document.getElementById('cv-volcan').value;
+    const fechaA = document.getElementById('cv-fecha-a').value;
+    const fechaB = document.getElementById('cv-fecha-b').value;
+    const status = document.getElementById('cv-status');
+    const btnGen = document.getElementById('cv-btn-generar');
+    const btnDl = document.getElementById('cv-btn-descargar');
+
+    if (!volcan || !fechaA || !fechaB) {
+        status.className = 'cv-status error';
+        status.textContent = 'Selecciona volcán y ambas fechas antes de generar.';
+        return;
+    }
+    if (fechaA === fechaB) {
+        status.className = 'cv-status error';
+        status.textContent = 'Las fechas A y B deben ser distintas.';
+        return;
+    }
+
+    btnGen.disabled = true;
+    btnDl.disabled = true;
+    status.className = 'cv-status';
+    clearEl(status);
+    const sp = el('span', { className: 'cv-spinner' });
+    status.appendChild(sp);
+    status.appendChild(text('Generando comparación...'));
+
+    const urlA = 'landsat/' + encodeURIComponent(volcan) + '/' + fechaA + '_' + cvTipoImagen + '.png';
+    const urlB = 'landsat/' + encodeURIComponent(volcan) + '/' + fechaB + '_' + cvTipoImagen + '.png';
+
+    const imgEA = document.getElementById('cv-img-a');
+    const imgEB = document.getElementById('cv-img-b');
+    document.getElementById('cv-label-a').textContent = 'Fecha A: ' + fechaA;
+    document.getElementById('cv-label-b').textContent = 'Fecha B: ' + fechaB;
+
+    try {
+        const [imgA, imgB] = await Promise.all([cvLoadImg(urlA), cvLoadImg(urlB)]);
+
+        cvImgACache = imgA;
+        cvImgBCache = imgB;
+
+        imgEA.src = urlA;
+        imgEA.style.display = 'block';
+        imgEB.src = urlB;
+        imgEB.style.display = 'block';
+
+        const canvas = document.getElementById('cv-canvas-composite');
+        let mensajeOk;
+        if (cvTipoVisualizacion === 'heatmap') {
+            cvGenerarHeatmap(imgA, imgB, canvas, cvSensibilidad);
+            mensajeOk = 'Heatmap generado (' + canvas.width + '×' + canvas.height + ' px, umbral ' +
+                cvSensibilidad + '%). Rojo = pixeles más brillantes en ' + fechaB +
+                ' · Azul = más brillantes en ' + fechaA + '.';
+        } else if (cvTipoVisualizacion === 'highlight') {
+            cvGenerarHighlight(imgA, imgB, canvas, cvHlOpacidad, cvHlUmbral);
+            mensajeOk = 'Highlight overlay generado (' + canvas.width + '×' + canvas.height +
+                ' px). Máscara roja sobre ' + fechaB + ' donde |Δluminancia| > ' + cvHlUmbral +
+                '% (opacidad ' + cvHlOpacidad + '%). Movés los sliders para re-renderizar en vivo.';
+        } else {
+            cvGenerarComposicion(imgA, imgB, canvas);
+            mensajeOk = 'Comparación generada (' + canvas.width + '×' + canvas.height + ' px). ' +
+                'Cian = apareció en ' + fechaB + ' · Rojo = desapareció de ' + fechaA + '.';
+        }
+
+        status.className = 'cv-status';
+        status.textContent = mensajeOk;
+        btnDl.disabled = false;
+    } catch (e) {
+        status.className = 'cv-status error';
+        clearEl(status);
+        status.appendChild(text('Error: ' + e.message + '. Verifica que existan los PNG ' + cvTipoImagen + ' de ambas fechas.'));
+        imgEA.style.display = 'none';
+        imgEB.style.display = 'none';
+    } finally {
+        btnGen.disabled = false;
+    }
+}
+
+function cvDescargar() {
+    const canvas = document.getElementById('cv-canvas-composite');
+    const volcan = document.getElementById('cv-volcan').value || 'volcan';
+    const fechaA = document.getElementById('cv-fecha-a').value || 'A';
+    const fechaB = document.getElementById('cv-fecha-b').value || 'B';
+    try {
+        const link = document.createElement('a');
+        let prefix;
+        if (cvTipoVisualizacion === 'heatmap') {
+            prefix = 'heatmap';
+        } else if (cvTipoVisualizacion === 'highlight') {
+            prefix = 'highlight';
+        } else {
+            prefix = 'rgb_multidate';
+        }
+        link.download = prefix + '_landsat_' + volcan + '_' + fechaA + '_vs_' + fechaB + '_' + cvTipoImagen + '.png';
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+    } catch (e) {
+        const status = document.getElementById('cv-status');
+        status.className = 'cv-status error';
+        status.textContent = 'No se pudo exportar (posible CORS): ' + e.message;
+    }
+}
+
+(async function cvInit() {
+    try {
+        cvCrearUI();
+        await cvCargarFechas();
+        cvPopularVolcanes();
+    } catch (e) {
+        const status = document.getElementById('cv-status');
+        if (status) {
+            status.className = 'cv-status error';
+            status.textContent = 'No se pudo cargar fechas_disponibles_landsat.json: ' + e.message;
+        }
+    }
+})();
+</script>
+</body>
+</html>

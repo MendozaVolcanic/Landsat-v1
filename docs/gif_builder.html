@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Constructor GIF — Landsat-v1</title>
+<style>
+  :root {
+    --bg: #0d1117; --surface: #161b22; --border: #30363d;
+    --text: #e6edf3; --muted: #8b949e; --accent: #e67e22;
+    --green: #7ee787; --orange: #f97316; --red: #f85149;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; font-family: -apple-system, 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg); color: var(--text); line-height: 1.5;
+  }
+  header {
+    background: linear-gradient(90deg, #b45309 0%, #e67e22 100%);
+    padding: 18px 28px; border-bottom: 1px solid var(--border);
+  }
+  header h1 { margin: 0; font-size: 1.4em; }
+  header p { margin: 4px 0 0; color: rgba(255,255,255,0.85); font-size: 0.9em; }
+
+  .layout {
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    min-height: calc(100vh - 70px);
+  }
+
+  aside {
+    background: var(--surface); border-right: 1px solid var(--border);
+    padding: 18px; overflow-y: auto;
+  }
+  aside h3 {
+    color: var(--accent); font-size: 0.95em;
+    margin: 16px 0 8px; border-bottom: 1px solid var(--border); padding-bottom: 6px;
+  }
+  aside h3:first-child { margin-top: 0; }
+  aside label {
+    display: block; font-size: 0.85em; color: var(--muted);
+    margin-bottom: 4px; margin-top: 10px;
+  }
+  aside select, aside input[type="date"], aside input[type="number"] {
+    width: 100%; background: #1c2128; color: var(--text);
+    border: 1px solid var(--border); padding: 7px 10px;
+    border-radius: 6px; font-size: 0.9em;
+  }
+  aside .btn {
+    display: block; width: 100%;
+    padding: 10px 14px; border-radius: 6px; border: none;
+    cursor: pointer; font-weight: 600;
+    margin-top: 10px; font-size: 0.9em;
+  }
+  .btn-primary { background: #2ea043; color: white; }
+  .btn-primary:hover { background: #3fb950; }
+  .btn-primary:disabled { background: #555; cursor: wait; }
+  .btn-secondary { background: #b45309; color: white; }
+  .btn-secondary:hover { background: #e67e22; }
+  .btn-action { background: #1c2128; color: var(--text); border: 1px solid var(--border); }
+  .btn-action:hover { background: #21262d; }
+  .btn-row {
+    display: grid; grid-template-columns: 1fr 1fr 1fr;
+    gap: 6px; margin-top: 8px;
+  }
+  .btn-row .btn { margin: 0; padding: 6px; font-size: 0.78em; }
+
+  main {
+    padding: 18px 24px;
+    overflow-y: auto;
+  }
+  .summary {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; padding: 12px 16px; margin-bottom: 16px;
+    display: flex; justify-content: space-between; align-items: center;
+    flex-wrap: wrap; gap: 8px; font-size: 0.9em;
+  }
+  .summary .stats { color: var(--muted); }
+  .summary .stats strong { color: var(--text); }
+
+  .grid {
+    display: grid; gap: 10px;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  }
+
+  .thumb {
+    background: var(--surface); border: 2px solid var(--border);
+    border-radius: 8px; padding: 6px; cursor: pointer;
+    position: relative; overflow: hidden;
+    transition: all 0.15s;
+  }
+  .thumb.selected {
+    border-color: var(--green);
+    box-shadow: 0 0 8px rgba(126, 231, 135, 0.4);
+  }
+  .thumb img {
+    width: 100%; aspect-ratio: 1; object-fit: cover;
+    border-radius: 4px; background: #000;
+  }
+  .thumb .meta {
+    margin-top: 4px; font-size: 0.78em;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .thumb .fecha { color: var(--text); font-family: 'Consolas', monospace; }
+  .thumb .nubes {
+    padding: 1px 6px; border-radius: 4px; font-weight: 600; font-size: 0.7em;
+  }
+  .nubes-low { background: #064e3b; color: #6ee7b7; }
+  .nubes-mid { background: #78350f; color: #fcd34d; }
+  .nubes-high { background: #7f1d1d; color: #fca5a5; }
+
+  .thumb .check {
+    position: absolute; top: 10px; right: 10px;
+    width: 22px; height: 22px;
+    background: rgba(0,0,0,0.7); border: 2px solid white;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    color: white; font-weight: 700; font-size: 14px;
+  }
+  .thumb.selected .check { background: var(--green); border-color: var(--green); color: black; }
+
+  .preview {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 16px; margin-bottom: 16px;
+    text-align: center;
+  }
+  .preview img { max-width: 100%; max-height: 600px; border-radius: 6px; }
+  .preview .empty { color: var(--muted); padding: 40px; }
+
+  .progress {
+    height: 8px; background: #1c2128; border-radius: 4px;
+    overflow: hidden; margin-top: 8px;
+  }
+  .progress-bar {
+    height: 100%; background: var(--green);
+    transition: width 0.2s; width: 0%;
+  }
+
+  .info-banner {
+    background: rgba(230, 126, 34, 0.1);
+    border-left: 3px solid var(--accent);
+    padding: 10px 14px; border-radius: 0 6px 6px 0;
+    font-size: 0.85em; margin-bottom: 16px;
+  }
+  .back {
+    color: white; text-decoration: none;
+    border: 1px solid white; padding: 6px 12px;
+    border-radius: 6px; font-size: 0.85em;
+  }
+  .back:hover { background: rgba(255,255,255,0.1); }
+
+  @media (max-width: 800px) {
+    .layout { grid-template-columns: 1fr; }
+    aside { border-right: none; border-bottom: 1px solid var(--border); }
+  }
+</style>
+</head>
+<body>
+
+<header style="display:flex; justify-content:space-between; align-items:center;">
+  <div>
+    <h1>Constructor de GIF — Landsat-v1</h1>
+    <p>Selecciona imagenes Landsat 8/9 manualmente, ajusta velocidad y descarga</p>
+  </div>
+  <a href="index.html" class="back">&larr; Dashboard</a>
+</header>
+
+<div class="layout">
+
+  <aside>
+    <h3>1. Volcan y composite</h3>
+    <label>Volcan</label>
+    <select id="sel-volcan"></select>
+    <label>Tipo de imagen</label>
+    <select id="sel-tipo">
+      <option value="RGB">RGB - Color natural (B4-B3-B2)</option>
+      <option value="SWIR">SWIR - Anomalias termicas (B7-B6-B4)</option>
+      <option value="THERMAL">THERMAL - Temperatura superficial (B10)</option>
+    </select>
+
+    <h3>2. Filtro fechas</h3>
+    <label>Desde</label>
+    <input type="date" id="fecha-desde">
+    <label>Hasta</label>
+    <input type="date" id="fecha-hasta">
+    <label>Filtrar nubes (&le; %)</label>
+    <input type="number" id="filtro-nubes" min="0" max="100" value="100">
+
+    <h3>3. Seleccion</h3>
+    <div class="btn-row">
+      <button class="btn btn-action" id="btn-todo">Todas</button>
+      <button class="btn btn-action" id="btn-ninguna">Ninguna</button>
+      <button class="btn btn-action" id="btn-invertir">Invertir</button>
+    </div>
+
+    <h3>4. Configuracion GIF</h3>
+    <label>Velocidad (ms por frame)</label>
+    <input type="number" id="ms-frame" min="100" max="5000" step="100" value="1000">
+    <label>Tamano (px lado)</label>
+    <select id="tamano-gif">
+      <option value="600">600 x 600 (recomendado)</option>
+      <option value="400">400 x 400 (rapido)</option>
+      <option value="800">800 x 800 (alta calidad)</option>
+    </select>
+    <label style="display:flex; align-items:center; gap:8px; margin-top:12px;">
+      <input type="checkbox" id="overlay-fecha" checked>
+      <span style="color: var(--text); font-size: 0.85em;">Sobreponer fecha + nombre del volcan</span>
+    </label>
+
+    <h3>5. Generar</h3>
+    <button class="btn btn-primary" id="btn-generar">Generar GIF</button>
+    <button class="btn btn-secondary" id="btn-descargar" disabled>Descargar</button>
+
+    <div id="progreso" style="display:none; margin-top:10px;">
+      <div style="font-size:0.85em; color: var(--muted);" id="progreso-txt">Procesando...</div>
+      <div class="progress"><div class="progress-bar" id="progreso-bar"></div></div>
+    </div>
+  </aside>
+
+  <main>
+    <div class="summary">
+      <div class="stats" id="stats">Cargando...</div>
+      <div style="color: var(--muted); font-size: 0.85em;">Click en miniatura para incluir/excluir</div>
+    </div>
+
+    <div class="info-banner" id="info-banner">
+      <strong>Como usar:</strong> selecciona el volcan y composite, ajusta el rango de fechas, todas las imagenes disponibles aparecen abajo (verde = incluida en GIF). Click para excluir/incluir. Genera y descarga.
+    </div>
+
+    <div class="preview" id="preview-box" style="display:none;">
+      <h3 style="margin-top:0; color: var(--accent);">Vista previa del GIF</h3>
+      <img id="preview-img" alt="GIF generado">
+      <div style="margin-top:10px; color: var(--muted); font-size:0.85em;" id="preview-meta"></div>
+    </div>
+
+    <div id="grid" class="grid"></div>
+  </main>
+
+</div>
+
+<script src="lib/gif.js"></script>
+<script>
+// Estado global
+let fechasJson = null;
+let metadataPorVolcan = {};
+let fechasMostradas = [];
+let seleccionadas = new Set();
+let gifBlob = null;
+
+async function init() {
+  try {
+    const r = await fetch('fechas_disponibles_landsat.json?t=' + Date.now());
+    fechasJson = await r.json();
+  } catch (e) {
+    setStats('Error cargando datos: ' + e);
+    return;
+  }
+
+  const sel = document.getElementById('sel-volcan');
+  Object.keys(fechasJson).sort().forEach(v => {
+    const opt = document.createElement('option');
+    opt.value = v;
+    opt.textContent = v;
+    sel.appendChild(opt);
+  });
+
+  const hoy = new Date();
+  const hace60 = new Date(hoy.getTime() - 60*24*3600*1000);
+  document.getElementById('fecha-desde').value = hace60.toISOString().slice(0,10);
+  document.getElementById('fecha-hasta').value = hoy.toISOString().slice(0,10);
+
+  sel.addEventListener('change', refrescarGrid);
+  document.getElementById('sel-tipo').addEventListener('change', refrescarGrid);
+  document.getElementById('fecha-desde').addEventListener('change', refrescarGrid);
+  document.getElementById('fecha-hasta').addEventListener('change', refrescarGrid);
+  document.getElementById('filtro-nubes').addEventListener('change', refrescarGrid);
+  document.getElementById('btn-todo').addEventListener('click', () => seleccionMasiva('todas'));
+  document.getElementById('btn-ninguna').addEventListener('click', () => seleccionMasiva('ninguna'));
+  document.getElementById('btn-invertir').addEventListener('click', () => seleccionMasiva('invertir'));
+  document.getElementById('btn-generar').addEventListener('click', generarGif);
+  document.getElementById('btn-descargar').addEventListener('click', descargarGif);
+
+  if (sel.options.length > 0) {
+    refrescarGrid();
+  }
+}
+
+async function cargarMetadata(volcan) {
+  if (metadataPorVolcan[volcan]) return metadataPorVolcan[volcan];
+  try {
+    const r = await fetch(`landsat/${encodeURIComponent(volcan)}/metadata.csv?t=${Date.now()}`);
+    if (!r.ok) { metadataPorVolcan[volcan] = {}; return {}; }
+    const txt = await r.text();
+    const lines = txt.trim().split('\n');
+    const headers = lines[0].split(',');
+    const idxFecha = headers.indexOf('fecha');
+    const idxNubes = headers.indexOf('cloud_cover');
+    const idxSat = headers.indexOf('satelite');
+    const map = {};
+    for (let i = 1; i < lines.length; i++) {
+      const cols = lines[i].split(',');
+      const f = cols[idxFecha];
+      if (!f) continue;
+      // Landsat metadata: una fila por escena (no por tipo, como Sentinel)
+      map[f] = {
+        nubes: parseFloat(cols[idxNubes]) || 0,
+        sensor: cols[idxSat] || ''
+      };
+    }
+    metadataPorVolcan[volcan] = map;
+    return map;
+  } catch (e) {
+    metadataPorVolcan[volcan] = {};
+    return {};
+  }
+}
+
+async function refrescarGrid() {
+  const volcan = document.getElementById('sel-volcan').value;
+  const tipo = document.getElementById('sel-tipo').value;
+  const desde = document.getElementById('fecha-desde').value;
+  const hasta = document.getElementById('fecha-hasta').value;
+  const maxNubes = parseFloat(document.getElementById('filtro-nubes').value) || 100;
+
+  const fechasVol = fechasJson[volcan] || [];
+  const meta = await cargarMetadata(volcan);
+
+  fechasMostradas = fechasVol.filter(f => {
+    if (desde && f < desde) return false;
+    if (hasta && f > hasta) return false;
+    const m = meta[f];
+    if (m && m.nubes > maxNubes) return false;
+    return true;
+  }).sort();
+
+  seleccionadas = new Set(fechasMostradas);
+
+  renderGrid(volcan, tipo, meta);
+  actualizarStats();
+}
+
+function renderGrid(volcan, tipo, meta) {
+  const grid = document.getElementById('grid');
+  while (grid.firstChild) grid.removeChild(grid.firstChild);
+
+  if (fechasMostradas.length === 0) {
+    const div = document.createElement('div');
+    div.className = 'info-banner';
+    div.style.gridColumn = '1 / -1';
+    div.textContent = 'Sin imagenes en el rango seleccionado.';
+    grid.appendChild(div);
+    return;
+  }
+
+  fechasMostradas.forEach(f => {
+    const m = (meta[f] || {nubes: 0, sensor: ''});
+    const card = document.createElement('div');
+    card.className = 'thumb selected';
+    card.dataset.fecha = f;
+
+    const img = document.createElement('img');
+    img.src = `landsat/${encodeURIComponent(volcan)}/${f}_${tipo}.png?t=${Date.now()}`;
+    img.alt = f;
+    img.loading = 'lazy';
+    img.onerror = () => {
+      img.style.background = '#222';
+      img.alt = 'No disponible';
+    };
+    card.appendChild(img);
+
+    const metaDiv = document.createElement('div');
+    metaDiv.className = 'meta';
+    const fechaSpan = document.createElement('span');
+    fechaSpan.className = 'fecha';
+    fechaSpan.textContent = f;
+    const nubesSpan = document.createElement('span');
+    const nubesPct = Math.round(m.nubes);
+    nubesSpan.className = 'nubes ' + (nubesPct < 30 ? 'nubes-low' : nubesPct < 70 ? 'nubes-mid' : 'nubes-high');
+    nubesSpan.textContent = nubesPct + '%';
+    metaDiv.appendChild(fechaSpan);
+    metaDiv.appendChild(nubesSpan);
+    card.appendChild(metaDiv);
+
+    const check = document.createElement('div');
+    check.className = 'check';
+    check.textContent = '✓';
+    card.appendChild(check);
+
+    card.addEventListener('click', () => toggleSeleccion(f, card));
+
+    grid.appendChild(card);
+  });
+}
+
+function toggleSeleccion(fecha, card) {
+  if (seleccionadas.has(fecha)) {
+    seleccionadas.delete(fecha);
+    card.classList.remove('selected');
+  } else {
+    seleccionadas.add(fecha);
+    card.classList.add('selected');
+  }
+  actualizarStats();
+}
+
+function seleccionMasiva(tipo) {
+  document.querySelectorAll('.thumb').forEach(c => {
+    const f = c.dataset.fecha;
+    let nuevo;
+    if (tipo === 'todas') nuevo = true;
+    else if (tipo === 'ninguna') nuevo = false;
+    else nuevo = !seleccionadas.has(f);
+    if (nuevo) {
+      seleccionadas.add(f);
+      c.classList.add('selected');
+    } else {
+      seleccionadas.delete(f);
+      c.classList.remove('selected');
+    }
+  });
+  actualizarStats();
+}
+
+function actualizarStats() {
+  const total = fechasMostradas.length;
+  const sel = seleccionadas.size;
+  setStats(`<strong>${sel}</strong> seleccionadas de <strong>${total}</strong> disponibles`);
+  document.getElementById('btn-generar').disabled = sel === 0;
+}
+
+function setStats(html) {
+  const el = document.getElementById('stats');
+  while (el.firstChild) el.removeChild(el.firstChild);
+  const parts = html.split(/(<strong>|<\/strong>)/);
+  let inStrong = false;
+  parts.forEach(p => {
+    if (p === '<strong>') inStrong = true;
+    else if (p === '</strong>') inStrong = false;
+    else if (p) {
+      const node = inStrong ? document.createElement('strong') : document.createTextNode(p);
+      if (inStrong) node.textContent = p;
+      el.appendChild(node);
+    }
+  });
+}
+
+async function generarGif() {
+  const volcan = document.getElementById('sel-volcan').value;
+  const tipo = document.getElementById('sel-tipo').value;
+  const ms = parseInt(document.getElementById('ms-frame').value) || 1000;
+  const tamano = parseInt(document.getElementById('tamano-gif').value) || 600;
+  const overlay = document.getElementById('overlay-fecha').checked;
+
+  const fechasOrdenadas = Array.from(seleccionadas).sort();
+  if (fechasOrdenadas.length === 0) {
+    alert('Selecciona al menos una imagen');
+    return;
+  }
+
+  document.getElementById('btn-generar').disabled = true;
+  document.getElementById('btn-descargar').disabled = true;
+  document.getElementById('progreso').style.display = 'block';
+  document.getElementById('progreso-txt').textContent = 'Cargando imagenes...';
+  document.getElementById('progreso-bar').style.width = '0%';
+
+  const imagenes = [];
+  for (let i = 0; i < fechasOrdenadas.length; i++) {
+    const f = fechasOrdenadas[i];
+    const url = `landsat/${encodeURIComponent(volcan)}/${f}_${tipo}.png?t=${Date.now()}`;
+    document.getElementById('progreso-txt').textContent = `Cargando ${f}... (${i+1}/${fechasOrdenadas.length})`;
+    document.getElementById('progreso-bar').style.width = `${(i / fechasOrdenadas.length) * 30}%`;
+    try {
+      const img = await cargarImagen(url);
+      imagenes.push({ fecha: f, img });
+    } catch (e) {
+      console.warn('No se pudo cargar', f, e);
+    }
+  }
+
+  if (imagenes.length === 0) {
+    alert('No se pudo cargar ninguna imagen');
+    document.getElementById('btn-generar').disabled = false;
+    document.getElementById('progreso').style.display = 'none';
+    return;
+  }
+
+  document.getElementById('progreso-txt').textContent = 'Componiendo frames...';
+
+  const gif = new GIF({
+    workers: 2,
+    quality: 1,
+    width: tamano,
+    height: tamano,
+    workerScript: 'lib/gif.worker.js',
+    dither: false
+  });
+
+  imagenes.forEach((it, idx) => {
+    const canvas = document.createElement('canvas');
+    canvas.width = tamano;
+    canvas.height = tamano;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#000';
+    ctx.fillRect(0, 0, tamano, tamano);
+    ctx.drawImage(it.img, 0, 0, tamano, tamano);
+
+    if (overlay) {
+      // Fecha (arriba derecha)
+      ctx.fillStyle = 'rgba(0,0,0,0.7)';
+      ctx.fillRect(tamano - 130, 10, 120, 28);
+      ctx.fillStyle = 'white';
+      ctx.font = 'bold 16px Consolas, monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText(it.fecha, tamano - 70, 30);
+
+      // Volcan + composite (abajo izquierda)
+      ctx.fillStyle = 'rgba(0,0,0,0.7)';
+      ctx.fillRect(10, tamano - 35, 320, 26);
+      ctx.fillStyle = 'white';
+      ctx.font = 'bold 14px Arial';
+      ctx.textAlign = 'left';
+      ctx.fillText(`${volcan} - Landsat 8/9 ${tipo}`, 16, tamano - 16);
+    }
+
+    gif.addFrame(canvas, { delay: ms, copy: true });
+  });
+
+  gif.on('progress', p => {
+    document.getElementById('progreso-bar').style.width = `${30 + p * 70}%`;
+    document.getElementById('progreso-txt').textContent = `Renderizando GIF... ${Math.round(p*100)}%`;
+  });
+
+  gif.on('finished', blob => {
+    gifBlob = blob;
+    const url = URL.createObjectURL(blob);
+    const previewBox = document.getElementById('preview-box');
+    const previewImg = document.getElementById('preview-img');
+    previewBox.style.display = 'block';
+    previewImg.src = url;
+    const sizeMB = (blob.size / 1024 / 1024).toFixed(2);
+    document.getElementById('preview-meta').textContent =
+      `${imagenes.length} frames - ${ms}ms/frame - ${tamano}x${tamano}px - ${sizeMB} MB`;
+    document.getElementById('progreso').style.display = 'none';
+    document.getElementById('btn-generar').disabled = false;
+    document.getElementById('btn-descargar').disabled = false;
+    previewBox.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+
+  gif.render();
+}
+
+function cargarImagen(url) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => resolve(img);
+    img.onerror = reject;
+    img.src = url;
+  });
+}
+
+function descargarGif() {
+  if (!gifBlob) return;
+  const volcan = document.getElementById('sel-volcan').value.replace(/\s+/g, '_').replace(/[^\w-]/g, '');
+  const tipo = document.getElementById('sel-tipo').value;
+  const fechas = Array.from(seleccionadas).sort();
+  const desde = fechas[0];
+  const hasta = fechas[fechas.length - 1];
+  const filename = `${volcan}_${tipo}_${desde}_${hasta}.gif`;
+
+  const url = URL.createObjectURL(gifBlob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+init();
+</script>
+
+</body>
+</html>

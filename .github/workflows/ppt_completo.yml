@@ -1,0 +1,83 @@
+name: PPT Completo Landsat (Todos los Volcanes)
+
+on:
+  workflow_dispatch:
+    inputs:
+      fecha_inicio:
+        description: 'Fecha inicio (YYYY-MM-DD)'
+        required: true
+        default: '2026-03-01'
+      fecha_fin:
+        description: 'Fecha fin (YYYY-MM-DD)'
+        required: true
+        default: '2026-04-30'
+
+permissions:
+  contents: write
+
+# El paso "Publicar PPT combinado" hace delete + create sobre el MISMO tag fijo
+# (landsat-ppt-completo). Sin este grupo, dos dispatches simultaneos se pisan:
+# el delete del run B borra el release que el run A acaba de crear, y queda un
+# tag sin asset. El grupo es global (no incluye las fechas de input) porque el
+# recurso en disputa es el tag, que es unico sin importar el rango pedido.
+# cancel-in-progress: false -> el segundo run espera; cancelarlo a mitad de
+# camino podria dejar el release borrado y sin recrear.
+concurrency:
+  group: landsat-ppt-completo
+  cancel-in-progress: false
+
+jobs:
+  generar-todo:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with: {python-version: '3.11', cache: 'pip'}
+      - run: pip install Pillow numpy pandas python-pptx lxml requests pytz
+      - name: Verificar plantilla
+        run: test -f "docs/plantillas/Cambios_morfologicos.pptx" && echo "OK" || { echo "Plantilla no encontrada"; exit 1; }
+      - name: Limpiar GIFs anteriores
+        run: find docs/landsat -path "*/timelapses_ppt/*.gif" -delete 2>/dev/null || true
+      - name: Generar GIFs todos los volcanes
+        env:
+          FECHA_INICIO: ${{ github.event.inputs.fecha_inicio }}
+          FECHA_FIN: ${{ github.event.inputs.fecha_fin }}
+        run: python timelapse_generator.py
+      - name: Generar PPTs individuales + combinado
+        env:
+          FECHA_INICIO: ${{ github.event.inputs.fecha_inicio }}
+          FECHA_FIN: ${{ github.event.inputs.fecha_fin }}
+        run: python ppt_generator.py
+      - name: Regenerar manifest GIFs PPT
+        run: python scripts/generar_manifest_gifs.py
+      - name: Publicar PPT combinado en Releases
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          FECHA_INICIO: ${{ github.event.inputs.fecha_inicio }}
+          FECHA_FIN: ${{ github.event.inputs.fecha_fin }}
+        run: |
+          PPT=$(find docs/reportes -name "Evaluacion_Completa_*.pptx" | head -1)
+          if [ -n "$PPT" ]; then
+            gh release delete "landsat-ppt-completo" --yes 2>/dev/null || true
+            gh release create "landsat-ppt-completo" "$PPT" \
+              --title "PPT Landsat Completo: $FECHA_INICIO a $FECHA_FIN" \
+              --notes "43 volcanes, RGB + SWIR, Landsat 8/9 Collection 2 L2" \
+              --latest=false
+            rm -f "$PPT"
+            echo "PPT publicado en Releases"
+          fi
+      - name: Commit GIFs e individual PPTs
+        run: |
+          git config user.name "PPTLandsatCompletoBot"
+          git config user.email "ppt@landsat.cl"
+          rm -f docs/reportes/Evaluacion_Completa_*.pptx 2>/dev/null || true
+          git add docs/landsat/ || true
+          if git diff --quiet --staged; then echo "Sin cambios"; exit 0; fi
+          git commit -m "PPT Landsat Completo: ${{ github.event.inputs.fecha_inicio }} a ${{ github.event.inputs.fecha_fin }}"
+          for i in 1 2 3 4 5; do
+            git add docs/landsat/ || true
+            git pull origin master --rebase -X ours || true
+            git push origin master && exit 0
+            sleep $((i*3))
+          done
+          exit 1
