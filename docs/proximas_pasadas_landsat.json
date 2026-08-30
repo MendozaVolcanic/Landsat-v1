@@ -1,5 +1,5 @@
 {
-  "generado_utc": "2026-08-30T18:58:08.719009+00:00",
+  "generado_utc": "2026-08-30T21:51:42.181351+00:00",
   "ciclo_dias_por_satelite": 16,
   "ciclo_combinado_aprox_dias": "4-8 (segun solape de path/rows)",
   "latencia_l2": {
@@ -195,8 +195,8 @@
       ]
     },
     "Isluga": {
-      "lat": -19.16737,
-      "lon": -68.82225,
+      "lat": -19.155746,
+      "lon": -68.834406,
       "zona": "Norte",
       "hora_utc_estimada": "14:45",
       "hora_chile_estimada": "10:45",
@@ -310,7 +310,7 @@
       "zona": "Norte",
       "hora_utc_estimada": "14:45",
       "hora_chile_estimada": "10:45",
-      "ultima_imagen": "2026-08-22",
+      "ultima_imagen": "2026-08-30",
       "revisita_mediana_d": 8,
       "satelites": {
         "Landsat-8": {
@@ -323,7 +323,7 @@
           ]
         },
         "Landsat-9": {
-          "ultima_observacion": "2026-08-14",
+          "ultima_observacion": "2026-08-30",
           "proximas": [
             "2026-08-30",
             "2026-09-15",
@@ -371,7 +371,7 @@
       "zona": "Norte",
       "hora_utc_estimada": "14:45",
       "hora_chile_estimada": "10:45",
-      "ultima_imagen": "2026-08-22",
+      "ultima_imagen": "2026-08-30",
       "revisita_mediana_d": 8,
       "satelites": {
         "Landsat-8": {
@@ -384,7 +384,7 @@
           ]
         },
         "Landsat-9": {
-          "ultima_observacion": "2026-08-14",
+          "ultima_observacion": "2026-08-30",
           "proximas": [
             "2026-08-30",
             "2026-09-15",
@@ -493,7 +493,7 @@
       "zona": "Centro",
       "hora_utc_estimada": "14:45",
       "hora_chile_estimada": "10:45",
-      "ultima_imagen": "2026-08-23",
+      "ultima_imagen": "2026-08-30",
       "revisita_mediana_d": 7,
       "satelites": {
         "Landsat-8": {
@@ -510,7 +510,7 @@
           ]
         },
         "Landsat-9": {
-          "ultima_observacion": "2026-08-23",
+          "ultima_observacion": "2026-08-30",
           "proximas": [
             "2026-08-30",
             "2026-09-08",
@@ -592,7 +592,7 @@
       "zona": "Centro",
       "hora_utc_estimada": "14:45",
       "hora_chile_estimada": "10:45",
-      "ultima_imagen": "2026-08-23",
+      "ultima_imagen": "2026-08-30",
       "revisita_mediana_d": 7,
       "satelites": {
         "Landsat-8": {
@@ -609,7 +609,7 @@
           ]
         },
         "Landsat-9": {
-          "ultima_observacion": "2026-08-23",
+          "ultima_observacion": "2026-08-30",
           "proximas": [
             "2026-08-30",
             "2026-09-08",
@@ -691,7 +691,7 @@
       "zona": "Centro",
       "hora_utc_estimada": "14:45",
       "hora_chile_estimada": "10:45",
-      "ultima_imagen": "2026-08-23",
+      "ultima_imagen": "2026-08-30",
       "revisita_mediana_d": 7,
       "satelites": {
         "Landsat-8": {
@@ -708,7 +708,7 @@
           ]
         },
         "Landsat-9": {
-          "ultima_observacion": "2026-08-23",
+          "ultima_observacion": "2026-08-30",
           "proximas": [
             "2026-08-30",
             "2026-09-08",
@@ -790,7 +790,7 @@
       "zona": "Centro",
       "hora_utc_estimada": "14:45",
       "hora_chile_estimada": "10:45",
-      "ultima_imagen": "2026-08-23",
+      "ultima_imagen": "2026-08-30",
       "revisita_mediana_d": 7,
       "satelites": {
         "Landsat-8": {
@@ -807,7 +807,7 @@
           ]
         },
         "Landsat-9": {
-          "ultima_observacion": "2026-08-23",
+          "ultima_observacion": "2026-08-30",
           "proximas": [
             "2026-08-30",
             "2026-09-08",
@@ -889,7 +889,7 @@
       "zona": "Centro",
       "hora_utc_estimada": "14:45",
       "hora_chile_estimada": "10:45",
-      "ultima_imagen": "2026-08-23",
+      "ultima_imagen": "2026-08-30",
       "revisita_mediana_d": 7,
       "satelites": {
         "Landsat-8": {
@@ -906,7 +906,7 @@
           ]
         },
         "Landsat-9": {
-          "ultima_observacion": "2026-08-23",
+          "ultima_observacion": "2026-08-30",
           "proximas": [
             "2026-08-30",
             "2026-09-08",
@@ -988,7 +988,7 @@
       "zona": "Centro",
       "hora_utc_estimada": "14:45",
       "hora_chile_estimada": "10:45",
-      "ultima_imagen": "2026-08-23",
+      "ultima_imagen": "2026-08-30",
       "revisita_mediana_d": 7,
       "satelites": {
         "Landsat-8": {
@@ -1005,7 +1005,7 @@
           ]
         },
         "Landsat-9": {
-          "ultima_observacion": "2026-08-23",
+          "ultima_observacion": "2026-08-30",
           "proximas": [
             "2026-08-30",
             "2026-09-08",
@@ -1087,7 +1087,7 @@
       "zona": "Centro",
       "hora_utc_estimada": "14:45",
       "hora_chile_estimada": "10:45",
-      "ultima_imagen": "2026-08-23",
+      "ultima_imagen": "2026-08-30",
       "revisita_mediana_d": 7,
       "satelites": {
         "Landsat-8": {
@@ -1104,7 +1104,7 @@
           ]
         },
         "Landsat-9": {
-          "ultima_observacion": "2026-08-23",
+          "ultima_observacion": "2026-08-30",
           "proximas": [
             "2026-08-30",
             "2026-09-08",
@@ -1186,7 +1186,7 @@
       "zona": "Centro",
       "hora_utc_estimada": "14:45",
       "hora_chile_estimada": "10:45",
-      "ultima_imagen": "2026-08-23",
+      "ultima_imagen": "2026-08-30",
       "revisita_mediana_d": 7,
       "satelites": {
         "Landsat-8": {
@@ -1203,7 +1203,7 @@
           ]
         },
         "Landsat-9": {
-          "ultima_observacion": "2026-08-23",
+          "ultima_observacion": "2026-08-30",
           "proximas": [
             "2026-08-30",
             "2026-09-08",
@@ -1341,8 +1341,8 @@
       ]
     },
     "Antuco": {
-      "lat": -37.41859,
-      "lon": -71.34097,
+      "lat": -37.41093,
+      "lon": -71.351307,
       "zona": "Sur",
       "hora_utc_estimada": "14:45",
       "hora_chile_estimada": "10:45",
@@ -1440,8 +1440,8 @@
       ]
     },
     "Copahue": {
-      "lat": -37.85715,
-      "lon": -71.16836,
+      "lat": -37.858693,
+      "lon": -71.16832,
       "zona": "Sur",
       "hora_utc_estimada": "14:45",
       "hora_chile_estimada": "10:45",
@@ -1935,8 +1935,8 @@
       ]
     },
     "Villarrica": {
-      "lat": -39.42052,
-      "lon": -71.93939,
+      "lat": -39.42021,
+      "lon": -71.93987,
       "zona": "Sur",
       "hora_utc_estimada": "14:45",
       "hora_chile_estimada": "10:45",
@@ -2133,8 +2133,8 @@
       ]
     },
     "Lanin": {
-      "lat": -39.62762,
-      "lon": -71.47923,
+      "lat": -39.637488,
+      "lon": -71.502686,
       "zona": "Sur",
       "hora_utc_estimada": "14:45",
       "hora_chile_estimada": "10:45",
@@ -2232,8 +2232,8 @@
       ]
     },
     "Mocho-Choshuenco": {
-      "lat": -39.93439,
-      "lon": -72.00281,
+      "lat": -39.933961,
+      "lon": -72.030398,
       "zona": "Sur",
       "hora_utc_estimada": "14:45",
       "hora_chile_estimada": "10:45",
@@ -2529,8 +2529,8 @@
       ]
     },
     "Antillanca - Casablanca": {
-      "lat": -40.76716,
-      "lon": -72.15114,
+      "lat": -40.774523,
+      "lon": -72.171543,
       "zona": "Sur",
       "hora_utc_estimada": "14:45",
       "hora_chile_estimada": "10:45",
@@ -2633,7 +2633,7 @@
       "zona": "Austral",
       "hora_utc_estimada": "14:45",
       "hora_chile_estimada": "10:45",
-      "ultima_imagen": "2026-08-23",
+      "ultima_imagen": "2026-08-30",
       "revisita_mediana_d": 7,
       "satelites": {
         "Landsat-8": {
@@ -2650,7 +2650,7 @@
           ]
         },
         "Landsat-9": {
-          "ultima_observacion": "2026-08-23",
+          "ultima_observacion": "2026-08-30",
           "proximas": [
             "2026-08-30",
             "2026-09-08",
@@ -2732,7 +2732,7 @@
       "zona": "Austral",
       "hora_utc_estimada": "14:45",
       "hora_chile_estimada": "10:45",
-      "ultima_imagen": "2026-08-23",
+      "ultima_imagen": "2026-08-30",
       "revisita_mediana_d": 7,
       "satelites": {
         "Landsat-8": {
@@ -2749,7 +2749,7 @@
           ]
         },
         "Landsat-9": {
-          "ultima_observacion": "2026-08-23",
+          "ultima_observacion": "2026-08-30",
           "proximas": [
             "2026-08-30",
             "2026-09-08",
@@ -2826,12 +2826,12 @@
       ]
     },
     "Yate": {
-      "lat": -41.7775,
-      "lon": -72.38678,
+      "lat": -41.78269,
+      "lon": -72.387644,
       "zona": "Austral",
       "hora_utc_estimada": "14:45",
       "hora_chile_estimada": "10:45",
-      "ultima_imagen": "2026-08-23",
+      "ultima_imagen": "2026-08-30",
       "revisita_mediana_d": 7,
       "satelites": {
         "Landsat-8": {
@@ -2848,7 +2848,7 @@
           ]
         },
         "Landsat-9": {
-          "ultima_observacion": "2026-08-23",
+          "ultima_observacion": "2026-08-30",
           "proximas": [
             "2026-08-30",
             "2026-09-08",
@@ -2930,7 +2930,7 @@
       "zona": "Austral",
       "hora_utc_estimada": "14:45",
       "hora_chile_estimada": "10:45",
-      "ultima_imagen": "2026-08-23",
+      "ultima_imagen": "2026-08-30",
       "revisita_mediana_d": 7,
       "satelites": {
         "Landsat-8": {
@@ -2947,7 +2947,7 @@
           ]
         },
         "Landsat-9": {
-          "ultima_observacion": "2026-08-23",
+          "ultima_observacion": "2026-08-30",
           "proximas": [
             "2026-08-30",
             "2026-09-08",
@@ -3024,12 +3024,12 @@
       ]
     },
     "Huequi": {
-      "lat": -42.38094,
-      "lon": -72.58103,
+      "lat": -42.38142,
+      "lon": -72.582982,
       "zona": "Austral",
       "hora_utc_estimada": "14:45",
       "hora_chile_estimada": "10:45",
-      "ultima_imagen": "2026-08-23",
+      "ultima_imagen": "2026-08-30",
       "revisita_mediana_d": 7,
       "satelites": {
         "Landsat-8": {
@@ -3046,7 +3046,7 @@
           ]
         },
         "Landsat-9": {
-          "ultima_observacion": "2026-08-23",
+          "ultima_observacion": "2026-08-30",
           "proximas": [
             "2026-08-30",
             "2026-09-08",
@@ -3128,7 +3128,7 @@
       "zona": "Austral",
       "hora_utc_estimada": "14:45",
       "hora_chile_estimada": "10:45",
-      "ultima_imagen": "2026-08-23",
+      "ultima_imagen": "2026-08-30",
       "revisita_mediana_d": 7,
       "satelites": {
         "Landsat-8": {
@@ -3145,7 +3145,7 @@
           ]
         },
         "Landsat-9": {
-          "ultima_observacion": "2026-08-23",
+          "ultima_observacion": "2026-08-30",
           "proximas": [
             "2026-08-30",
             "2026-09-08",
@@ -3227,7 +3227,7 @@
       "zona": "Austral",
       "hora_utc_estimada": "14:45",
       "hora_chile_estimada": "10:45",
-      "ultima_imagen": "2026-08-23",
+      "ultima_imagen": "2026-08-30",
       "revisita_mediana_d": 7,
       "satelites": {
         "Landsat-8": {
@@ -3244,7 +3244,7 @@
           ]
         },
         "Landsat-9": {
-          "ultima_observacion": "2026-08-23",
+          "ultima_observacion": "2026-08-30",
           "proximas": [
             "2026-08-30",
             "2026-09-08",
@@ -3326,7 +3326,7 @@
       "zona": "Austral",
       "hora_utc_estimada": "14:45",
       "hora_chile_estimada": "10:45",
-      "ultima_imagen": "2026-08-23",
+      "ultima_imagen": "2026-08-30",
       "revisita_mediana_d": 7,
       "satelites": {
         "Landsat-8": {
@@ -3343,7 +3343,7 @@
           ]
         },
         "Landsat-9": {
-          "ultima_observacion": "2026-08-23",
+          "ultima_observacion": "2026-08-30",
           "proximas": [
             "2026-08-30",
             "2026-09-08",
@@ -3420,8 +3420,8 @@
       ]
     },
     "Melimoyu": {
-      "lat": -44.07612,
-      "lon": -72.85073,
+      "lat": -44.074015,
+      "lon": -72.867431,
       "zona": "Austral",
       "hora_utc_estimada": "14:45",
       "hora_chile_estimada": "10:45",
@@ -3519,8 +3519,8 @@
       ]
     },
     "Mentolat": {
-      "lat": -44.69272,
-      "lon": -73.07507,
+      "lat": -44.696206,
+      "lon": -73.072694,
       "zona": "Austral",
       "hora_utc_estimada": "14:45",
       "hora_chile_estimada": "10:45",
