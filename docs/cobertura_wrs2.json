@@ -381,7 +381,7 @@
    "escenas_por_huella": {
     "001073": 32,
     "002072": 4,
-    "002073": 4
+    "002073": 5
    }
   },
   "Planchon-Peteroa": {
@@ -471,7 +471,7 @@
    "revisita_dias_nominal": 4.0,
    "escenas_por_huella": {
     "002072": 3,
-    "002073": 28
+    "002073": 29
    }
   },
   "Tatara-San Pedro": {

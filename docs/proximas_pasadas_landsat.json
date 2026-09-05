@@ -1,5 +1,5 @@
 {
-  "generado_utc": "2026-09-05T18:45:47.542865+00:00",
+  "generado_utc": "2026-09-05T20:52:36.898325+00:00",
   "ciclo_dias_por_satelite": 16,
   "ciclo_combinado_aprox_dias": "4-8 (segun solape de path/rows)",
   "latencia_l2": {
@@ -19,11 +19,11 @@
       "zona": "Norte",
       "hora_utc_estimada": "14:45",
       "hora_chile_estimada": "10:45",
-      "ultima_imagen": "2026-08-28",
+      "ultima_imagen": "2026-09-05",
       "revisita_mediana_d": 8,
       "satelites": {
         "Landsat-8": {
-          "ultima_observacion": "2026-08-20",
+          "ultima_observacion": "2026-09-05",
           "proximas": [
             "2026-09-05",
             "2026-09-21",
@@ -80,11 +80,11 @@
       "zona": "Norte",
       "hora_utc_estimada": "14:45",
       "hora_chile_estimada": "10:45",
-      "ultima_imagen": "2026-08-29",
+      "ultima_imagen": "2026-09-05",
       "revisita_mediana_d": 7,
       "satelites": {
         "Landsat-8": {
-          "ultima_observacion": "2026-08-29",
+          "ultima_observacion": "2026-09-05",
           "proximas": [
             "2026-09-05",
             "2026-09-14",
