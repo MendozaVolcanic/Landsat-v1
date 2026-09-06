@@ -1,5 +1,5 @@
 {
-  "generado_utc": "2026-09-05T20:52:36.898325+00:00",
+  "generado_utc": "2026-09-06T16:36:29.577763+00:00",
   "ciclo_dias_por_satelite": 16,
   "ciclo_combinado_aprox_dias": "4-8 (segun solape de path/rows)",
   "latencia_l2": {
@@ -18,17 +18,17 @@
       "lon": -69.50584,
       "zona": "Norte",
       "hora_utc_estimada": "14:45",
-      "hora_chile_estimada": "10:45",
+      "hora_chile_estimada": "11:45",
       "ultima_imagen": "2026-09-05",
       "revisita_mediana_d": 8,
       "satelites": {
         "Landsat-8": {
           "ultima_observacion": "2026-09-05",
           "proximas": [
-            "2026-09-05",
             "2026-09-21",
             "2026-10-07",
-            "2026-10-23"
+            "2026-10-23",
+            "2026-11-08"
           ]
         },
         "Landsat-9": {
@@ -42,12 +42,6 @@
         }
       },
       "proxima_combinada": [
-        {
-          "fecha": "2026-09-05",
-          "sat": "Landsat-8",
-          "confianza": "alta",
-          "hora_chile": "10:45"
-        },
         {
           "fecha": "2026-09-13",
           "sat": "Landsat-9",
@@ -79,21 +73,21 @@
       "lon": -69.14534,
       "zona": "Norte",
       "hora_utc_estimada": "14:45",
-      "hora_chile_estimada": "10:45",
+      "hora_chile_estimada": "11:45",
       "ultima_imagen": "2026-09-05",
       "revisita_mediana_d": 7,
       "satelites": {
         "Landsat-8": {
           "ultima_observacion": "2026-09-05",
           "proximas": [
-            "2026-09-05",
             "2026-09-14",
             "2026-09-21",
             "2026-09-30",
             "2026-10-07",
             "2026-10-16",
             "2026-10-23",
-            "2026-11-01"
+            "2026-11-01",
+            "2026-11-08"
           ]
         },
         "Landsat-9": {
@@ -107,12 +101,6 @@
         }
       },
       "proxima_combinada": [
-        {
-          "fecha": "2026-09-05",
-          "sat": "Landsat-8",
-          "confianza": "alta",
-          "hora_chile": "10:45"
-        },
         {
           "fecha": "2026-09-06",
           "sat": "Landsat-9",
@@ -162,7 +150,7 @@
       "lon": -69.085,
       "zona": "Norte",
       "hora_utc_estimada": "14:45",
-      "hora_chile_estimada": "10:45",
+      "hora_chile_estimada": "11:45",
       "ultima_imagen": "2026-08-29",
       "revisita_mediana_d": 8,
       "satelites": {
@@ -223,7 +211,7 @@
       "lon": -68.834406,
       "zona": "Norte",
       "hora_utc_estimada": "14:45",
-      "hora_chile_estimada": "10:45",
+      "hora_chile_estimada": "11:45",
       "ultima_imagen": "2026-08-29",
       "revisita_mediana_d": 8,
       "satelites": {
@@ -284,7 +272,7 @@
       "lon": -68.56041,
       "zona": "Norte",
       "hora_utc_estimada": "14:45",
-      "hora_chile_estimada": "10:45",
+      "hora_chile_estimada": "11:45",
       "ultima_imagen": "2026-08-29",
       "revisita_mediana_d": 8,
       "satelites": {
@@ -345,7 +333,7 @@
       "lon": -68.17941,
       "zona": "Norte",
       "hora_utc_estimada": "14:45",
-      "hora_chile_estimada": "10:45",
+      "hora_chile_estimada": "11:45",
       "ultima_imagen": "2026-08-30",
       "revisita_mediana_d": 8,
       "satelites": {
@@ -406,7 +394,7 @@
       "lon": -68.40706,
       "zona": "Norte",
       "hora_utc_estimada": "14:45",
-      "hora_chile_estimada": "10:45",
+      "hora_chile_estimada": "11:45",
       "ultima_imagen": "2026-08-30",
       "revisita_mediana_d": 8,
       "satelites": {
@@ -467,7 +455,7 @@
       "lon": -67.73611,
       "zona": "Norte",
       "hora_utc_estimada": "14:45",
-      "hora_chile_estimada": "10:45",
+      "hora_chile_estimada": "11:45",
       "ultima_imagen": "2026-08-30",
       "revisita_mediana_d": 8,
       "satelites": {
@@ -528,7 +516,7 @@
       "lon": -69.82181,
       "zona": "Centro",
       "hora_utc_estimada": "14:45",
-      "hora_chile_estimada": "10:45",
+      "hora_chile_estimada": "11:45",
       "ultima_imagen": "2026-08-31",
       "revisita_mediana_d": 7,
       "satelites": {
@@ -627,7 +615,7 @@
       "lon": -69.89732,
       "zona": "Centro",
       "hora_utc_estimada": "14:45",
-      "hora_chile_estimada": "10:45",
+      "hora_chile_estimada": "11:45",
       "ultima_imagen": "2026-08-31",
       "revisita_mediana_d": 7,
       "satelites": {
@@ -726,7 +714,7 @@
       "lon": -70.34917,
       "zona": "Centro",
       "hora_utc_estimada": "14:45",
-      "hora_chile_estimada": "10:45",
+      "hora_chile_estimada": "11:45",
       "ultima_imagen": "2026-08-31",
       "revisita_mediana_d": 7,
       "satelites": {
@@ -825,7 +813,7 @@
       "lon": -70.57189,
       "zona": "Centro",
       "hora_utc_estimada": "14:45",
-      "hora_chile_estimada": "10:45",
+      "hora_chile_estimada": "11:45",
       "ultima_imagen": "2026-08-31",
       "revisita_mediana_d": 7,
       "satelites": {
@@ -924,7 +912,7 @@
       "lon": -70.7483,
       "zona": "Centro",
       "hora_utc_estimada": "14:45",
-      "hora_chile_estimada": "10:45",
+      "hora_chile_estimada": "11:45",
       "ultima_imagen": "2026-08-31",
       "revisita_mediana_d": 7,
       "satelites": {
@@ -1023,7 +1011,7 @@
       "lon": -70.84533,
       "zona": "Centro",
       "hora_utc_estimada": "14:45",
-      "hora_chile_estimada": "10:45",
+      "hora_chile_estimada": "11:45",
       "ultima_imagen": "2026-08-31",
       "revisita_mediana_d": 7,
       "satelites": {
@@ -1122,7 +1110,7 @@
       "lon": -70.49828,
       "zona": "Centro",
       "hora_utc_estimada": "14:45",
-      "hora_chile_estimada": "10:45",
+      "hora_chile_estimada": "11:45",
       "ultima_imagen": "2026-08-31",
       "revisita_mediana_d": 7,
       "satelites": {
@@ -1221,7 +1209,7 @@
       "lon": -71.1701,
       "zona": "Centro",
       "hora_utc_estimada": "14:45",
-      "hora_chile_estimada": "10:45",
+      "hora_chile_estimada": "11:45",
       "ultima_imagen": "2026-08-31",
       "revisita_mediana_d": 7,
       "satelites": {
@@ -1320,7 +1308,7 @@
       "lon": -71.38,
       "zona": "Centro",
       "hora_utc_estimada": "14:45",
-      "hora_chile_estimada": "10:45",
+      "hora_chile_estimada": "11:45",
       "ultima_imagen": "2026-08-30",
       "revisita_mediana_d": 8,
       "satelites": {
@@ -1381,7 +1369,7 @@
       "lon": -71.351307,
       "zona": "Sur",
       "hora_utc_estimada": "14:45",
-      "hora_chile_estimada": "10:45",
+      "hora_chile_estimada": "11:45",
       "ultima_imagen": "2026-08-31",
       "revisita_mediana_d": 7,
       "satelites": {
@@ -1480,7 +1468,7 @@
       "lon": -71.16832,
       "zona": "Sur",
       "hora_utc_estimada": "14:45",
-      "hora_chile_estimada": "10:45",
+      "hora_chile_estimada": "11:45",
       "ultima_imagen": "2026-08-31",
       "revisita_mediana_d": 7,
       "satelites": {
@@ -1579,7 +1567,7 @@
       "lon": -71.46113,
       "zona": "Sur",
       "hora_utc_estimada": "14:45",
-      "hora_chile_estimada": "10:45",
+      "hora_chile_estimada": "11:45",
       "ultima_imagen": "2026-08-31",
       "revisita_mediana_d": 7,
       "satelites": {
@@ -1678,7 +1666,7 @@
       "lon": -71.5853,
       "zona": "Sur",
       "hora_utc_estimada": "14:45",
-      "hora_chile_estimada": "10:45",
+      "hora_chile_estimada": "11:45",
       "ultima_imagen": "2026-08-31",
       "revisita_mediana_d": 7,
       "satelites": {
@@ -1777,7 +1765,7 @@
       "lon": -71.73447,
       "zona": "Sur",
       "hora_utc_estimada": "14:45",
-      "hora_chile_estimada": "10:45",
+      "hora_chile_estimada": "11:45",
       "ultima_imagen": "2026-08-31",
       "revisita_mediana_d": 7,
       "satelites": {
@@ -1876,7 +1864,7 @@
       "lon": -71.51557,
       "zona": "Sur",
       "hora_utc_estimada": "14:45",
-      "hora_chile_estimada": "10:45",
+      "hora_chile_estimada": "11:45",
       "ultima_imagen": "2026-08-31",
       "revisita_mediana_d": 7,
       "satelites": {
@@ -1975,7 +1963,7 @@
       "lon": -71.93987,
       "zona": "Sur",
       "hora_utc_estimada": "14:45",
-      "hora_chile_estimada": "10:45",
+      "hora_chile_estimada": "11:45",
       "ultima_imagen": "2026-08-31",
       "revisita_mediana_d": 7,
       "satelites": {
@@ -2074,7 +2062,7 @@
       "lon": -71.70337,
       "zona": "Sur",
       "hora_utc_estimada": "14:45",
-      "hora_chile_estimada": "10:45",
+      "hora_chile_estimada": "11:45",
       "ultima_imagen": "2026-08-31",
       "revisita_mediana_d": 7,
       "satelites": {
@@ -2173,7 +2161,7 @@
       "lon": -71.502686,
       "zona": "Sur",
       "hora_utc_estimada": "14:45",
-      "hora_chile_estimada": "10:45",
+      "hora_chile_estimada": "11:45",
       "ultima_imagen": "2026-08-31",
       "revisita_mediana_d": 7,
       "satelites": {
@@ -2272,7 +2260,7 @@
       "lon": -72.030398,
       "zona": "Sur",
       "hora_utc_estimada": "14:45",
-      "hora_chile_estimada": "10:45",
+      "hora_chile_estimada": "11:45",
       "ultima_imagen": "2026-08-31",
       "revisita_mediana_d": 7,
       "satelites": {
@@ -2371,7 +2359,7 @@
       "lon": -72.10509,
       "zona": "Sur",
       "hora_utc_estimada": "14:45",
-      "hora_chile_estimada": "10:45",
+      "hora_chile_estimada": "11:45",
       "ultima_imagen": "2026-08-31",
       "revisita_mediana_d": 7,
       "satelites": {
@@ -2470,7 +2458,7 @@
       "lon": -72.14826,
       "zona": "Sur",
       "hora_utc_estimada": "14:45",
-      "hora_chile_estimada": "10:45",
+      "hora_chile_estimada": "11:45",
       "ultima_imagen": "2026-08-31",
       "revisita_mediana_d": 7,
       "satelites": {
@@ -2569,7 +2557,7 @@
       "lon": -72.171543,
       "zona": "Sur",
       "hora_utc_estimada": "14:45",
-      "hora_chile_estimada": "10:45",
+      "hora_chile_estimada": "11:45",
       "ultima_imagen": "2026-08-31",
       "revisita_mediana_d": 7,
       "satelites": {
@@ -2668,7 +2656,7 @@
       "lon": -72.49271,
       "zona": "Austral",
       "hora_utc_estimada": "14:45",
-      "hora_chile_estimada": "10:45",
+      "hora_chile_estimada": "11:45",
       "ultima_imagen": "2026-08-31",
       "revisita_mediana_d": 7,
       "satelites": {
@@ -2767,7 +2755,7 @@
       "lon": -72.60399,
       "zona": "Austral",
       "hora_utc_estimada": "14:45",
-      "hora_chile_estimada": "10:45",
+      "hora_chile_estimada": "11:45",
       "ultima_imagen": "2026-08-31",
       "revisita_mediana_d": 7,
       "satelites": {
@@ -2866,7 +2854,7 @@
       "lon": -72.387644,
       "zona": "Austral",
       "hora_utc_estimada": "14:45",
-      "hora_chile_estimada": "10:45",
+      "hora_chile_estimada": "11:45",
       "ultima_imagen": "2026-08-31",
       "revisita_mediana_d": 7,
       "satelites": {
@@ -2965,7 +2953,7 @@
       "lon": -72.43178,
       "zona": "Austral",
       "hora_utc_estimada": "14:45",
-      "hora_chile_estimada": "10:45",
+      "hora_chile_estimada": "11:45",
       "ultima_imagen": "2026-08-31",
       "revisita_mediana_d": 7,
       "satelites": {
@@ -3064,7 +3052,7 @@
       "lon": -72.582982,
       "zona": "Austral",
       "hora_utc_estimada": "14:45",
-      "hora_chile_estimada": "10:45",
+      "hora_chile_estimada": "11:45",
       "ultima_imagen": "2026-08-31",
       "revisita_mediana_d": 7,
       "satelites": {
@@ -3163,7 +3151,7 @@
       "lon": -72.43927,
       "zona": "Austral",
       "hora_utc_estimada": "14:45",
-      "hora_chile_estimada": "10:45",
+      "hora_chile_estimada": "11:45",
       "ultima_imagen": "2026-08-31",
       "revisita_mediana_d": 7,
       "satelites": {
@@ -3262,7 +3250,7 @@
       "lon": -72.65155,
       "zona": "Austral",
       "hora_utc_estimada": "14:45",
-      "hora_chile_estimada": "10:45",
+      "hora_chile_estimada": "11:45",
       "ultima_imagen": "2026-08-31",
       "revisita_mediana_d": 7,
       "satelites": {
@@ -3361,7 +3349,7 @@
       "lon": -72.78979,
       "zona": "Austral",
       "hora_utc_estimada": "14:45",
-      "hora_chile_estimada": "10:45",
+      "hora_chile_estimada": "11:45",
       "ultima_imagen": "2026-08-31",
       "revisita_mediana_d": 7,
       "satelites": {
@@ -3460,7 +3448,7 @@
       "lon": -72.867431,
       "zona": "Austral",
       "hora_utc_estimada": "14:45",
-      "hora_chile_estimada": "10:45",
+      "hora_chile_estimada": "11:45",
       "ultima_imagen": "2026-08-31",
       "revisita_mediana_d": 7,
       "satelites": {
@@ -3559,7 +3547,7 @@
       "lon": -73.072694,
       "zona": "Austral",
       "hora_utc_estimada": "14:45",
-      "hora_chile_estimada": "10:45",
+      "hora_chile_estimada": "11:45",
       "ultima_imagen": "2026-08-31",
       "revisita_mediana_d": 7,
       "satelites": {
@@ -3658,7 +3646,7 @@
       "lon": -72.96318,
       "zona": "Austral",
       "hora_utc_estimada": "14:45",
-      "hora_chile_estimada": "10:45",
+      "hora_chile_estimada": "11:45",
       "ultima_imagen": "2026-08-31",
       "revisita_mediana_d": 8,
       "satelites": {
@@ -3719,7 +3707,7 @@
       "lon": -73.16908,
       "zona": "Austral",
       "hora_utc_estimada": "14:45",
-      "hora_chile_estimada": "10:45",
+      "hora_chile_estimada": "11:45",
       "ultima_imagen": "2026-08-30",
       "revisita_mediana_d": 7,
       "satelites": {
@@ -3796,7 +3784,7 @@
       "lon": -72.96508,
       "zona": "Austral",
       "hora_utc_estimada": "14:45",
-      "hora_chile_estimada": "10:45",
+      "hora_chile_estimada": "11:45",
       "ultima_imagen": "2026-09-01",
       "revisita_mediana_d": 7,
       "satelites": {
@@ -3879,6 +3867,12 @@
         {
           "fecha": "2026-10-10",
           "sat": "Landsat-9",
+          "confianza": "alta",
+          "hora_chile": "11:45"
+        },
+        {
+          "fecha": "2026-10-11",
+          "sat": "Landsat-8",
           "confianza": "alta",
           "hora_chile": "11:45"
         }
