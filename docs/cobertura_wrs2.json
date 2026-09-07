@@ -133,7 +133,7 @@
    "n_huellas": 1,
    "revisita_dias_nominal": 8.0,
    "escenas_por_huella": {
-    "001073": 33
+    "001073": 34
    }
   },
   "Hornopiren": {
@@ -181,7 +181,7 @@
    "n_huellas": 1,
    "revisita_dias_nominal": 8.0,
    "escenas_por_huella": {
-    "001074": 33
+    "001074": 34
    }
   },
   "Isluga": {
@@ -191,7 +191,7 @@
    "n_huellas": 1,
    "revisita_dias_nominal": 8.0,
    "escenas_por_huella": {
-    "001073": 33
+    "001073": 34
    }
   },
   "Laguna del Maule": {
@@ -379,7 +379,7 @@
    "n_huellas": 3,
    "revisita_dias_nominal": 2.7,
    "escenas_por_huella": {
-    "001073": 33,
+    "001073": 34,
     "002072": 4,
     "002073": 5
    }
