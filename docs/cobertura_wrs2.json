@@ -12,7 +12,7 @@
    "revisita_dias_nominal": 2.7,
    "escenas_por_huella": {
     "232088": 4,
-    "232089": 33,
+    "232089": 34,
     "233088": 37
    }
   },
@@ -24,7 +24,7 @@
    "n_huellas": 2,
    "revisita_dias_nominal": 4.0,
    "escenas_por_huella": {
-    "232086": 37,
+    "232086": 38,
     "233086": 37
    }
   },
@@ -36,7 +36,7 @@
    "n_huellas": 2,
    "revisita_dias_nominal": 4.0,
    "escenas_por_huella": {
-    "232089": 37,
+    "232089": 38,
     "233089": 38
    }
   },
@@ -50,7 +50,7 @@
    "revisita_dias_nominal": 2.7,
    "escenas_por_huella": {
     "232086": 4,
-    "232087": 33,
+    "232087": 34,
     "233086": 37
    }
   },
@@ -62,7 +62,7 @@
    "n_huellas": 2,
    "revisita_dias_nominal": 4.0,
    "escenas_por_huella": {
-    "232088": 37,
+    "232088": 38,
     "233088": 37
    }
   },
@@ -73,7 +73,7 @@
    "n_huellas": 1,
    "revisita_dias_nominal": 8.0,
    "escenas_por_huella": {
-    "232091": 37
+    "232091": 38
    }
   },
   "Chaiten": {
@@ -84,7 +84,7 @@
    "n_huellas": 2,
    "revisita_dias_nominal": 4.0,
    "escenas_por_huella": {
-    "232090": 37,
+    "232090": 38,
     "233090": 37
    }
   },
@@ -96,7 +96,7 @@
    "n_huellas": 2,
    "revisita_dias_nominal": 4.0,
    "escenas_por_huella": {
-    "232086": 37,
+    "232086": 38,
     "233086": 37
    }
   },
@@ -108,7 +108,7 @@
    "n_huellas": 2,
    "revisita_dias_nominal": 4.0,
    "escenas_por_huella": {
-    "232090": 37,
+    "232090": 38,
     "233090": 37
    }
   },
@@ -121,7 +121,7 @@
    "n_huellas": 3,
    "revisita_dias_nominal": 2.7,
    "escenas_por_huella": {
-    "232085": 37,
+    "232085": 38,
     "233084": 4,
     "233085": 33
    }
@@ -133,7 +133,7 @@
    "n_huellas": 1,
    "revisita_dias_nominal": 8.0,
    "escenas_por_huella": {
-    "001073": 34
+    "001073": 35
    }
   },
   "Hornopiren": {
@@ -144,7 +144,7 @@
    "n_huellas": 2,
    "revisita_dias_nominal": 4.0,
    "escenas_por_huella": {
-    "232089": 37,
+    "232089": 38,
     "233089": 37
    }
   },
@@ -157,7 +157,7 @@
    "revisita_dias_nominal": 4.0,
    "escenas_por_huella": {
     "231092": 33,
-    "232092": 33
+    "232092": 34
    }
   },
   "Huequi": {
@@ -170,7 +170,7 @@
    "revisita_dias_nominal": 2.7,
    "escenas_por_huella": {
     "232089": 5,
-    "232090": 32,
+    "232090": 33,
     "233089": 37
    }
   },
@@ -181,7 +181,7 @@
    "n_huellas": 1,
    "revisita_dias_nominal": 8.0,
    "escenas_por_huella": {
-    "001074": 34
+    "001074": 35
    }
   },
   "Isluga": {
@@ -191,7 +191,7 @@
    "n_huellas": 1,
    "revisita_dias_nominal": 8.0,
    "escenas_por_huella": {
-    "001073": 34
+    "001073": 35
    }
   },
   "Laguna del Maule": {
@@ -202,7 +202,7 @@
    "n_huellas": 2,
    "revisita_dias_nominal": 4.0,
    "escenas_por_huella": {
-    "232085": 37,
+    "232085": 38,
     "233085": 37
    }
   },
@@ -217,7 +217,7 @@
    "revisita_dias_nominal": 2.0,
    "escenas_por_huella": {
     "232087": 5,
-    "232088": 32,
+    "232088": 33,
     "233087": 25,
     "233088": 8
    }
@@ -240,7 +240,7 @@
    "n_huellas": 2,
    "revisita_dias_nominal": 4.0,
    "escenas_por_huella": {
-    "232087": 37,
+    "232087": 38,
     "233087": 37
    }
   },
@@ -253,7 +253,7 @@
    "n_huellas": 3,
    "revisita_dias_nominal": 2.7,
    "escenas_por_huella": {
-    "232087": 37,
+    "232087": 38,
     "233086": 4,
     "233087": 33
    }
@@ -281,7 +281,7 @@
    "n_huellas": 3,
    "revisita_dias_nominal": 2.7,
    "escenas_por_huella": {
-    "232091": 37,
+    "232091": 38,
     "233090": 3,
     "233091": 34
    }
@@ -294,7 +294,7 @@
    "n_huellas": 2,
    "revisita_dias_nominal": 4.0,
    "escenas_por_huella": {
-    "232091": 37,
+    "232091": 38,
     "233091": 37
    }
   },
@@ -307,7 +307,7 @@
    "n_huellas": 3,
    "revisita_dias_nominal": 2.7,
    "escenas_por_huella": {
-    "232090": 37,
+    "232090": 38,
     "233089": 4,
     "233090": 33
    }
@@ -320,7 +320,7 @@
    "n_huellas": 2,
    "revisita_dias_nominal": 4.0,
    "escenas_por_huella": {
-    "232088": 37,
+    "232088": 38,
     "233088": 37
    }
   },
@@ -365,7 +365,7 @@
    "n_huellas": 3,
    "revisita_dias_nominal": 2.7,
    "escenas_por_huella": {
-    "232089": 37,
+    "232089": 38,
     "233088": 4,
     "233089": 33
    }
@@ -379,7 +379,7 @@
    "n_huellas": 3,
    "revisita_dias_nominal": 2.7,
    "escenas_por_huella": {
-    "001073": 34,
+    "001073": 35,
     "002072": 4,
     "002073": 5
    }
@@ -394,7 +394,7 @@
    "revisita_dias_nominal": 2.7,
    "escenas_por_huella": {
     "232084": 4,
-    "232085": 33,
+    "232085": 34,
     "233084": 37
    }
   },
@@ -406,7 +406,7 @@
    "n_huellas": 2,
    "revisita_dias_nominal": 4.0,
    "escenas_por_huella": {
-    "232088": 37,
+    "232088": 38,
     "233088": 37
    }
   },
@@ -420,7 +420,7 @@
    "revisita_dias_nominal": 2.7,
    "escenas_por_huella": {
     "232087": 5,
-    "232088": 32,
+    "232088": 33,
     "233087": 37
    }
   },
@@ -434,7 +434,7 @@
    "revisita_dias_nominal": 2.7,
    "escenas_por_huella": {
     "232083": 6,
-    "232084": 31,
+    "232084": 32,
     "233083": 37
    }
   },
@@ -458,7 +458,7 @@
    "n_huellas": 2,
    "revisita_dias_nominal": 4.0,
    "escenas_por_huella": {
-    "232087": 37,
+    "232087": 38,
     "233087": 37
    }
   },
@@ -482,7 +482,7 @@
    "n_huellas": 2,
    "revisita_dias_nominal": 4.0,
    "escenas_por_huella": {
-    "232085": 37,
+    "232085": 38,
     "233085": 37
    }
   },
@@ -494,7 +494,7 @@
    "n_huellas": 2,
    "revisita_dias_nominal": 4.0,
    "escenas_por_huella": {
-    "232084": 37,
+    "232084": 38,
     "233084": 37
    }
   },
@@ -506,7 +506,7 @@
    "n_huellas": 2,
    "revisita_dias_nominal": 4.0,
    "escenas_por_huella": {
-    "232083": 37,
+    "232083": 38,
     "233083": 37
    }
   },
@@ -520,7 +520,7 @@
    "revisita_dias_nominal": 2.7,
    "escenas_por_huella": {
     "232087": 3,
-    "232088": 33,
+    "232088": 34,
     "233087": 36
    }
   },
@@ -532,7 +532,7 @@
    "n_huellas": 2,
    "revisita_dias_nominal": 4.0,
    "escenas_por_huella": {
-    "232089": 37,
+    "232089": 38,
     "233089": 37
    }
   }
