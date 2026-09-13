@@ -1,5 +1,5 @@
 {
-  "generado_utc": "2026-09-12T19:52:16.283820+00:00",
+  "generado_utc": "2026-09-13T06:59:15.623402+00:00",
   "ciclo_dias_por_satelite": 16,
   "ciclo_combinado_aprox_dias": "4-8 (segun solape de path/rows)",
   "latencia_l2": {
@@ -607,6 +607,12 @@
           "sat": "Landsat-9",
           "confianza": "alta",
           "hora_chile": "11:45"
+        },
+        {
+          "fecha": "2026-10-18",
+          "sat": "Landsat-8",
+          "confianza": "alta",
+          "hora_chile": "11:45"
         }
       ]
     },
@@ -698,6 +704,12 @@
         {
           "fecha": "2026-10-17",
           "sat": "Landsat-9",
+          "confianza": "alta",
+          "hora_chile": "11:45"
+        },
+        {
+          "fecha": "2026-10-18",
+          "sat": "Landsat-8",
           "confianza": "alta",
           "hora_chile": "11:45"
         }
@@ -793,6 +805,12 @@
           "sat": "Landsat-9",
           "confianza": "alta",
           "hora_chile": "11:45"
+        },
+        {
+          "fecha": "2026-10-18",
+          "sat": "Landsat-8",
+          "confianza": "alta",
+          "hora_chile": "11:45"
         }
       ]
     },
@@ -884,6 +902,12 @@
         {
           "fecha": "2026-10-17",
           "sat": "Landsat-9",
+          "confianza": "alta",
+          "hora_chile": "11:45"
+        },
+        {
+          "fecha": "2026-10-18",
+          "sat": "Landsat-8",
           "confianza": "alta",
           "hora_chile": "11:45"
         }
@@ -979,6 +1003,12 @@
           "sat": "Landsat-9",
           "confianza": "alta",
           "hora_chile": "11:45"
+        },
+        {
+          "fecha": "2026-10-18",
+          "sat": "Landsat-8",
+          "confianza": "alta",
+          "hora_chile": "11:45"
         }
       ]
     },
@@ -1070,6 +1100,12 @@
         {
           "fecha": "2026-10-17",
           "sat": "Landsat-9",
+          "confianza": "alta",
+          "hora_chile": "11:45"
+        },
+        {
+          "fecha": "2026-10-18",
+          "sat": "Landsat-8",
           "confianza": "alta",
           "hora_chile": "11:45"
         }
@@ -1165,6 +1201,12 @@
           "sat": "Landsat-9",
           "confianza": "alta",
           "hora_chile": "11:45"
+        },
+        {
+          "fecha": "2026-10-18",
+          "sat": "Landsat-8",
+          "confianza": "alta",
+          "hora_chile": "11:45"
         }
       ]
     },
@@ -1256,6 +1298,12 @@
         {
           "fecha": "2026-10-17",
           "sat": "Landsat-9",
+          "confianza": "alta",
+          "hora_chile": "11:45"
+        },
+        {
+          "fecha": "2026-10-18",
+          "sat": "Landsat-8",
           "confianza": "alta",
           "hora_chile": "11:45"
         }
@@ -1412,6 +1460,12 @@
           "sat": "Landsat-9",
           "confianza": "alta",
           "hora_chile": "11:45"
+        },
+        {
+          "fecha": "2026-10-18",
+          "sat": "Landsat-8",
+          "confianza": "alta",
+          "hora_chile": "11:45"
         }
       ]
     },
@@ -1503,6 +1557,12 @@
         {
           "fecha": "2026-10-17",
           "sat": "Landsat-9",
+          "confianza": "alta",
+          "hora_chile": "11:45"
+        },
+        {
+          "fecha": "2026-10-18",
+          "sat": "Landsat-8",
           "confianza": "alta",
           "hora_chile": "11:45"
         }
@@ -1598,6 +1658,12 @@
           "sat": "Landsat-9",
           "confianza": "alta",
           "hora_chile": "11:45"
+        },
+        {
+          "fecha": "2026-10-18",
+          "sat": "Landsat-8",
+          "confianza": "alta",
+          "hora_chile": "11:45"
         }
       ]
     },
@@ -1689,6 +1755,12 @@
         {
           "fecha": "2026-10-17",
           "sat": "Landsat-9",
+          "confianza": "alta",
+          "hora_chile": "11:45"
+        },
+        {
+          "fecha": "2026-10-18",
+          "sat": "Landsat-8",
           "confianza": "alta",
           "hora_chile": "11:45"
         }
@@ -1784,6 +1856,12 @@
           "sat": "Landsat-9",
           "confianza": "alta",
           "hora_chile": "11:45"
+        },
+        {
+          "fecha": "2026-10-18",
+          "sat": "Landsat-8",
+          "confianza": "alta",
+          "hora_chile": "11:45"
         }
       ]
     },
@@ -1875,6 +1953,12 @@
         {
           "fecha": "2026-10-17",
           "sat": "Landsat-9",
+          "confianza": "alta",
+          "hora_chile": "11:45"
+        },
+        {
+          "fecha": "2026-10-18",
+          "sat": "Landsat-8",
           "confianza": "alta",
           "hora_chile": "11:45"
         }
@@ -1970,6 +2054,12 @@
           "sat": "Landsat-9",
           "confianza": "alta",
           "hora_chile": "11:45"
+        },
+        {
+          "fecha": "2026-10-18",
+          "sat": "Landsat-8",
+          "confianza": "alta",
+          "hora_chile": "11:45"
         }
       ]
     },
@@ -2061,6 +2151,12 @@
         {
           "fecha": "2026-10-17",
           "sat": "Landsat-9",
+          "confianza": "alta",
+          "hora_chile": "11:45"
+        },
+        {
+          "fecha": "2026-10-18",
+          "sat": "Landsat-8",
           "confianza": "alta",
           "hora_chile": "11:45"
         }
@@ -2156,6 +2252,12 @@
           "sat": "Landsat-9",
           "confianza": "alta",
           "hora_chile": "11:45"
+        },
+        {
+          "fecha": "2026-10-18",
+          "sat": "Landsat-8",
+          "confianza": "alta",
+          "hora_chile": "11:45"
         }
       ]
     },
@@ -2247,6 +2349,12 @@
         {
           "fecha": "2026-10-17",
           "sat": "Landsat-9",
+          "confianza": "alta",
+          "hora_chile": "11:45"
+        },
+        {
+          "fecha": "2026-10-18",
+          "sat": "Landsat-8",
           "confianza": "alta",
           "hora_chile": "11:45"
         }
@@ -2342,6 +2450,12 @@
           "sat": "Landsat-9",
           "confianza": "alta",
           "hora_chile": "11:45"
+        },
+        {
+          "fecha": "2026-10-18",
+          "sat": "Landsat-8",
+          "confianza": "alta",
+          "hora_chile": "11:45"
         }
       ]
     },
@@ -2433,6 +2547,12 @@
         {
           "fecha": "2026-10-17",
           "sat": "Landsat-9",
+          "confianza": "alta",
+          "hora_chile": "11:45"
+        },
+        {
+          "fecha": "2026-10-18",
+          "sat": "Landsat-8",
           "confianza": "alta",
           "hora_chile": "11:45"
         }
@@ -2528,6 +2648,12 @@
           "sat": "Landsat-9",
           "confianza": "alta",
           "hora_chile": "11:45"
+        },
+        {
+          "fecha": "2026-10-18",
+          "sat": "Landsat-8",
+          "confianza": "alta",
+          "hora_chile": "11:45"
         }
       ]
     },
@@ -2619,6 +2745,12 @@
         {
           "fecha": "2026-10-17",
           "sat": "Landsat-9",
+          "confianza": "alta",
+          "hora_chile": "11:45"
+        },
+        {
+          "fecha": "2026-10-18",
+          "sat": "Landsat-8",
           "confianza": "alta",
           "hora_chile": "11:45"
         }
@@ -2714,6 +2846,12 @@
           "sat": "Landsat-9",
           "confianza": "alta",
           "hora_chile": "11:45"
+        },
+        {
+          "fecha": "2026-10-18",
+          "sat": "Landsat-8",
+          "confianza": "alta",
+          "hora_chile": "11:45"
         }
       ]
     },
@@ -2805,6 +2943,12 @@
         {
           "fecha": "2026-10-17",
           "sat": "Landsat-9",
+          "confianza": "alta",
+          "hora_chile": "11:45"
+        },
+        {
+          "fecha": "2026-10-18",
+          "sat": "Landsat-8",
           "confianza": "alta",
           "hora_chile": "11:45"
         }
@@ -2900,6 +3044,12 @@
           "sat": "Landsat-9",
           "confianza": "alta",
           "hora_chile": "11:45"
+        },
+        {
+          "fecha": "2026-10-18",
+          "sat": "Landsat-8",
+          "confianza": "alta",
+          "hora_chile": "11:45"
         }
       ]
     },
@@ -2991,6 +3141,12 @@
         {
           "fecha": "2026-10-17",
           "sat": "Landsat-9",
+          "confianza": "alta",
+          "hora_chile": "11:45"
+        },
+        {
+          "fecha": "2026-10-18",
+          "sat": "Landsat-8",
           "confianza": "alta",
           "hora_chile": "11:45"
         }
@@ -3086,6 +3242,12 @@
           "sat": "Landsat-9",
           "confianza": "alta",
           "hora_chile": "11:45"
+        },
+        {
+          "fecha": "2026-10-18",
+          "sat": "Landsat-8",
+          "confianza": "alta",
+          "hora_chile": "11:45"
         }
       ]
     },
@@ -3177,6 +3339,12 @@
         {
           "fecha": "2026-10-17",
           "sat": "Landsat-9",
+          "confianza": "alta",
+          "hora_chile": "11:45"
+        },
+        {
+          "fecha": "2026-10-18",
+          "sat": "Landsat-8",
           "confianza": "alta",
           "hora_chile": "11:45"
         }
@@ -3272,6 +3440,12 @@
           "sat": "Landsat-9",
           "confianza": "alta",
           "hora_chile": "11:45"
+        },
+        {
+          "fecha": "2026-10-18",
+          "sat": "Landsat-8",
+          "confianza": "alta",
+          "hora_chile": "11:45"
         }
       ]
     },
@@ -3363,6 +3537,12 @@
         {
           "fecha": "2026-10-17",
           "sat": "Landsat-9",
+          "confianza": "alta",
+          "hora_chile": "11:45"
+        },
+        {
+          "fecha": "2026-10-18",
+          "sat": "Landsat-8",
           "confianza": "alta",
           "hora_chile": "11:45"
         }
@@ -3458,6 +3638,12 @@
           "sat": "Landsat-9",
           "confianza": "alta",
           "hora_chile": "11:45"
+        },
+        {
+          "fecha": "2026-10-18",
+          "sat": "Landsat-8",
+          "confianza": "alta",
+          "hora_chile": "11:45"
         }
       ]
     },
@@ -3511,6 +3697,12 @@
         {
           "fecha": "2026-10-10",
           "sat": "Landsat-9",
+          "confianza": "alta",
+          "hora_chile": "11:45"
+        },
+        {
+          "fecha": "2026-10-18",
+          "sat": "Landsat-8",
           "confianza": "alta",
           "hora_chile": "11:45"
         }
@@ -3589,6 +3781,12 @@
           "fecha": "2026-10-17",
           "sat": "Landsat-9",
           "confianza": "alta",
+          "hora_chile": "11:45"
+        },
+        {
+          "fecha": "2026-10-18",
+          "sat": "Landsat-8",
+          "confianza": "baja",
           "hora_chile": "11:45"
         }
       ]
@@ -3674,6 +3872,12 @@
         },
         {
           "fecha": "2026-10-11",
+          "sat": "Landsat-8",
+          "confianza": "alta",
+          "hora_chile": "11:45"
+        },
+        {
+          "fecha": "2026-10-18",
           "sat": "Landsat-8",
           "confianza": "alta",
           "hora_chile": "11:45"
