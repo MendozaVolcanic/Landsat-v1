@@ -126,6 +126,11 @@ jobs:
       # empieza a recibir escenas de un path nuevo cambia su revisita real.
       - name: Regenerar cobertura WRS-2 por volcan
         run: python scripts/generar_cobertura_wrs2.py
+      # buffer_km publicado para la barra de escala del dashboard Copernicus-v1
+      # (que muestra estas imagenes junto a Sentinel-2 con OTRO buffer). Derivado
+      # de config_landsat.py en cada corrida: nunca una copia a mano.
+      - name: Publicar config (buffer_km) para dashboards externos
+        run: python scripts/generar_config_publica.py
       - name: Commit y push
         run: |
           git config user.name "LandsatBot"

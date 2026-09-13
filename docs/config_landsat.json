@@ -1,0 +1,134 @@
+{
+ "descripcion": "Derivado de config_landsat.py (no editar a mano). Cada PNG Landsat cubre un cuadrado de lado 2 x buffer_km centrado en el volcan.",
+ "volcanes": {
+  "Taapaca": {
+   "buffer_km": 5.0
+  },
+  "Parinacota": {
+   "buffer_km": 2.5
+  },
+  "Guallatiri": {
+   "buffer_km": 2.5
+  },
+  "Isluga": {
+   "buffer_km": 3.5
+  },
+  "Irruputuncu": {
+   "buffer_km": 1.4
+  },
+  "Ollague": {
+   "buffer_km": 3.5
+  },
+  "San Pedro": {
+   "buffer_km": 4.5
+  },
+  "Lascar": {
+   "buffer_km": 2.8
+  },
+  "Tupungatito": {
+   "buffer_km": 3.5
+  },
+  "San Jose": {
+   "buffer_km": 2.5
+  },
+  "Tinguiririca": {
+   "buffer_km": 2.8
+  },
+  "Planchon-Peteroa": {
+   "buffer_km": 1.3
+  },
+  "Descabezado Grande": {
+   "buffer_km": 7.0
+  },
+  "Tatara-San Pedro": {
+   "buffer_km": 3.5
+  },
+  "Laguna del Maule": {
+   "buffer_km": 9.0
+  },
+  "Nevado de Longavi": {
+   "buffer_km": 5.0
+  },
+  "Nevados de Chillan": {
+   "buffer_km": 3.3
+  },
+  "Antuco": {
+   "buffer_km": 3.0
+  },
+  "Copahue": {
+   "buffer_km": 2.0
+  },
+  "Callaqui": {
+   "buffer_km": 5.0
+  },
+  "Lonquimay": {
+   "buffer_km": 3.0
+  },
+  "Llaima": {
+   "buffer_km": 4.0
+  },
+  "Sollipulli": {
+   "buffer_km": 5.0
+  },
+  "Villarrica": {
+   "buffer_km": 1.5
+  },
+  "Quetrupillan": {
+   "buffer_km": 5.5
+  },
+  "Lanin": {
+   "buffer_km": 4.5
+  },
+  "Mocho-Choshuenco": {
+   "buffer_km": 5.0
+  },
+  "Carran - Los Venados": {
+   "buffer_km": 6.5
+  },
+  "Puyehue - Cordon Caulle": {
+   "buffer_km": 10.0
+  },
+  "Antillanca - Casablanca": {
+   "buffer_km": 5.5
+  },
+  "Osorno": {
+   "buffer_km": 4.0
+  },
+  "Calbuco": {
+   "buffer_km": 2.5
+  },
+  "Yate": {
+   "buffer_km": 4.5
+  },
+  "Hornopiren": {
+   "buffer_km": 2.5
+  },
+  "Huequi": {
+   "buffer_km": 1.5
+  },
+  "Michinmahuida": {
+   "buffer_km": 9.5
+  },
+  "Chaiten": {
+   "buffer_km": 2.7
+  },
+  "Corcovado": {
+   "buffer_km": 2.5
+  },
+  "Melimoyu": {
+   "buffer_km": 7.0
+  },
+  "Mentolat": {
+   "buffer_km": 3.0
+  },
+  "Cay": {
+   "buffer_km": 3.5
+  },
+  "Maca": {
+   "buffer_km": 3.5
+  },
+  "Hudson": {
+   "buffer_km": 8.0
+  }
+ }
+}
