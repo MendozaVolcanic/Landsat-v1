@@ -1,5 +1,5 @@
 {
-  "generado_utc": "2026-09-18T06:53:36.499137+00:00",
+  "generado_utc": "2026-09-19T06:56:14.620779+00:00",
   "ciclo_dias_por_satelite": 16,
   "ciclo_combinado_aprox_dias": "4-8 (segun solape de path/rows)",
   "latencia_l2": {
@@ -164,6 +164,12 @@
           "sat": "Landsat-8",
           "confianza": "alta",
           "hora_chile": "11:45"
+        },
+        {
+          "fecha": "2026-10-24",
+          "sat": "Landsat-9",
+          "confianza": "alta",
+          "hora_chile": "11:45"
         }
       ]
     },
@@ -217,6 +223,12 @@
         {
           "fecha": "2026-10-16",
           "sat": "Landsat-8",
+          "confianza": "alta",
+          "hora_chile": "11:45"
+        },
+        {
+          "fecha": "2026-10-24",
+          "sat": "Landsat-9",
           "confianza": "alta",
           "hora_chile": "11:45"
         }
@@ -274,6 +286,12 @@
           "sat": "Landsat-8",
           "confianza": "alta",
           "hora_chile": "11:45"
+        },
+        {
+          "fecha": "2026-10-24",
+          "sat": "Landsat-9",
+          "confianza": "alta",
+          "hora_chile": "11:45"
         }
       ]
     },
@@ -327,6 +345,12 @@
         {
           "fecha": "2026-10-16",
           "sat": "Landsat-8",
+          "confianza": "alta",
+          "hora_chile": "11:45"
+        },
+        {
+          "fecha": "2026-10-24",
+          "sat": "Landsat-9",
           "confianza": "alta",
           "hora_chile": "11:45"
         }
@@ -3381,7 +3405,7 @@
       "zona": "Austral",
       "hora_utc_estimada": "14:45",
       "hora_chile_estimada": "11:45",
-      "ultima_imagen": "2026-09-16",
+      "ultima_imagen": "2026-09-17",
       "revisita_mediana_d": 7,
       "satelites": {
         "Landsat-8": {
@@ -3398,7 +3422,7 @@
           ]
         },
         "Landsat-9": {
-          "ultima_observacion": "2026-09-08",
+          "ultima_observacion": "2026-09-17",
           "proximas": [
             "2026-09-24",
             "2026-10-03",
