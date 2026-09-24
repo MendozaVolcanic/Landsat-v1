@@ -13,7 +13,7 @@
    "escenas_por_huella": {
     "232088": 4,
     "232089": 35,
-    "233088": 40
+    "233088": 41
    }
   },
   "Antuco": {
@@ -25,7 +25,7 @@
    "revisita_dias_nominal": 4.0,
    "escenas_por_huella": {
     "232086": 39,
-    "233086": 40
+    "233086": 41
    }
   },
   "Calbuco": {
@@ -37,7 +37,7 @@
    "revisita_dias_nominal": 4.0,
    "escenas_por_huella": {
     "232089": 39,
-    "233089": 41
+    "233089": 42
    }
   },
   "Callaqui": {
@@ -51,7 +51,7 @@
    "escenas_por_huella": {
     "232086": 4,
     "232087": 35,
-    "233086": 40
+    "233086": 41
    }
   },
   "Carran - Los Venados": {
@@ -63,7 +63,7 @@
    "revisita_dias_nominal": 4.0,
    "escenas_por_huella": {
     "232088": 39,
-    "233088": 40
+    "233088": 41
    }
   },
   "Cay": {
@@ -97,7 +97,7 @@
    "revisita_dias_nominal": 4.0,
    "escenas_por_huella": {
     "232086": 39,
-    "233086": 40
+    "233086": 41
    }
   },
   "Corcovado": {
@@ -123,7 +123,7 @@
    "escenas_por_huella": {
     "232085": 39,
     "233084": 4,
-    "233085": 36
+    "233085": 37
    }
   },
   "Guallatiri": {
@@ -133,7 +133,7 @@
    "n_huellas": 1,
    "revisita_dias_nominal": 8.0,
    "escenas_por_huella": {
-    "001073": 37
+    "001073": 38
    }
   },
   "Hornopiren": {
@@ -145,7 +145,7 @@
    "revisita_dias_nominal": 4.0,
    "escenas_por_huella": {
     "232089": 39,
-    "233089": 40
+    "233089": 41
    }
   },
   "Hudson": {
@@ -171,7 +171,7 @@
    "escenas_por_huella": {
     "232089": 5,
     "232090": 34,
-    "233089": 40
+    "233089": 41
    }
   },
   "Irruputuncu": {
@@ -191,7 +191,7 @@
    "n_huellas": 1,
    "revisita_dias_nominal": 8.0,
    "escenas_por_huella": {
-    "001073": 37
+    "001073": 38
    }
   },
   "Laguna del Maule": {
@@ -203,7 +203,7 @@
    "revisita_dias_nominal": 4.0,
    "escenas_por_huella": {
     "232085": 39,
-    "233085": 40
+    "233085": 41
    }
   },
   "Lanin": {
@@ -229,7 +229,7 @@
    "n_huellas": 1,
    "revisita_dias_nominal": 8.0,
    "escenas_por_huella": {
-    "233076": 43
+    "233076": 44
    }
   },
   "Llaima": {
@@ -241,7 +241,7 @@
    "revisita_dias_nominal": 4.0,
    "escenas_por_huella": {
     "232087": 39,
-    "233087": 40
+    "233087": 41
    }
   },
   "Lonquimay": {
@@ -255,7 +255,7 @@
    "escenas_por_huella": {
     "232087": 39,
     "233086": 4,
-    "233087": 36
+    "233087": 37
    }
   },
   "Maca": {
@@ -269,7 +269,7 @@
    "escenas_por_huella": {
     "232091": 10,
     "232092": 9,
-    "233091": 26
+    "233091": 27
    }
   },
   "Melimoyu": {
@@ -283,7 +283,7 @@
    "escenas_por_huella": {
     "232091": 39,
     "233090": 3,
-    "233091": 37
+    "233091": 38
    }
   },
   "Mentolat": {
@@ -295,7 +295,7 @@
    "revisita_dias_nominal": 4.0,
    "escenas_por_huella": {
     "232091": 39,
-    "233091": 40
+    "233091": 41
    }
   },
   "Michinmahuida": {
@@ -321,7 +321,7 @@
    "revisita_dias_nominal": 4.0,
    "escenas_por_huella": {
     "232088": 39,
-    "233088": 40
+    "233088": 41
    }
   },
   "Nevado de Longavi": {
@@ -333,7 +333,7 @@
    "revisita_dias_nominal": 4.0,
    "escenas_por_huella": {
     "232085": 23,
-    "233085": 40
+    "233085": 41
    }
   },
   "Nevados de Chillan": {
@@ -343,7 +343,7 @@
    "n_huellas": 1,
    "revisita_dias_nominal": 8.0,
    "escenas_por_huella": {
-    "233086": 13
+    "233086": 14
    }
   },
   "Ollague": {
@@ -353,7 +353,7 @@
    "n_huellas": 1,
    "revisita_dias_nominal": 8.0,
    "escenas_por_huella": {
-    "233075": 40
+    "233075": 41
    }
   },
   "Osorno": {
@@ -367,7 +367,7 @@
    "escenas_por_huella": {
     "232089": 39,
     "233088": 4,
-    "233089": 36
+    "233089": 37
    }
   },
   "Parinacota": {
@@ -379,7 +379,7 @@
    "n_huellas": 3,
    "revisita_dias_nominal": 2.7,
    "escenas_por_huella": {
-    "001073": 37,
+    "001073": 38,
     "002072": 4,
     "002073": 7
    }
@@ -395,7 +395,7 @@
    "escenas_por_huella": {
     "232084": 4,
     "232085": 35,
-    "233084": 40
+    "233084": 41
    }
   },
   "Puyehue - Cordon Caulle": {
@@ -407,7 +407,7 @@
    "revisita_dias_nominal": 4.0,
    "escenas_por_huella": {
     "232088": 39,
-    "233088": 40
+    "233088": 41
    }
   },
   "Quetrupillan": {
@@ -421,7 +421,7 @@
    "escenas_por_huella": {
     "232087": 5,
     "232088": 34,
-    "233087": 40
+    "233087": 41
    }
   },
   "San Jose": {
@@ -435,7 +435,7 @@
    "escenas_por_huella": {
     "232083": 6,
     "232084": 33,
-    "233083": 40
+    "233083": 41
    }
   },
   "San Pedro": {
@@ -447,7 +447,7 @@
    "revisita_dias_nominal": 4.0,
    "escenas_por_huella": {
     "001075": 5,
-    "233075": 40
+    "233075": 41
    }
   },
   "Sollipulli": {
@@ -459,7 +459,7 @@
    "revisita_dias_nominal": 4.0,
    "escenas_por_huella": {
     "232087": 39,
-    "233087": 40
+    "233087": 41
    }
   },
   "Taapaca": {
@@ -483,7 +483,7 @@
    "revisita_dias_nominal": 4.0,
    "escenas_por_huella": {
     "232085": 39,
-    "233085": 40
+    "233085": 41
    }
   },
   "Tinguiririca": {
@@ -495,7 +495,7 @@
    "revisita_dias_nominal": 4.0,
    "escenas_por_huella": {
     "232084": 39,
-    "233084": 40
+    "233084": 41
    }
   },
   "Tupungatito": {
@@ -507,7 +507,7 @@
    "revisita_dias_nominal": 4.0,
    "escenas_por_huella": {
     "232083": 39,
-    "233083": 40
+    "233083": 41
    }
   },
   "Villarrica": {
@@ -521,7 +521,7 @@
    "escenas_por_huella": {
     "232087": 3,
     "232088": 35,
-    "233087": 39
+    "233087": 40
    }
   },
   "Yate": {
@@ -533,7 +533,7 @@
    "revisita_dias_nominal": 4.0,
    "escenas_por_huella": {
     "232089": 39,
-    "233089": 40
+    "233089": 41
    }
   }
  }
