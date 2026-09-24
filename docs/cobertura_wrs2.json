@@ -85,7 +85,7 @@
    "revisita_dias_nominal": 4.0,
    "escenas_por_huella": {
     "232090": 39,
-    "233090": 40
+    "233090": 41
    }
   },
   "Copahue": {
@@ -109,7 +109,7 @@
    "revisita_dias_nominal": 4.0,
    "escenas_por_huella": {
     "232090": 39,
-    "233090": 40
+    "233090": 41
    }
   },
   "Descabezado Grande": {
@@ -181,7 +181,7 @@
    "n_huellas": 1,
    "revisita_dias_nominal": 8.0,
    "escenas_por_huella": {
-    "001074": 37
+    "001074": 38
    }
   },
   "Isluga": {
@@ -309,7 +309,7 @@
    "escenas_por_huella": {
     "232090": 39,
     "233089": 4,
-    "233090": 36
+    "233090": 37
    }
   },
   "Mocho-Choshuenco": {
