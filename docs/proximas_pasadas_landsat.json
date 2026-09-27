@@ -1,5 +1,5 @@
 {
-  "generado_utc": "2026-09-26T21:55:12.347575+00:00",
+  "generado_utc": "2026-09-27T14:31:48.335826+00:00",
   "ciclo_dias_por_satelite": 16,
   "ciclo_combinado_aprox_dias": "4-8 (segun solape de path/rows)",
   "latencia_l2": {
@@ -164,6 +164,12 @@
           "sat": "Landsat-9",
           "confianza": "baja",
           "hora_chile": "11:45"
+        },
+        {
+          "fecha": "2026-11-01",
+          "sat": "Landsat-8",
+          "confianza": "alta",
+          "hora_chile": "11:45"
         }
       ]
     },
@@ -217,6 +223,12 @@
         {
           "fecha": "2026-10-24",
           "sat": "Landsat-9",
+          "confianza": "alta",
+          "hora_chile": "11:45"
+        },
+        {
+          "fecha": "2026-11-01",
+          "sat": "Landsat-8",
           "confianza": "alta",
           "hora_chile": "11:45"
         }
@@ -274,6 +286,12 @@
           "sat": "Landsat-9",
           "confianza": "alta",
           "hora_chile": "11:45"
+        },
+        {
+          "fecha": "2026-11-01",
+          "sat": "Landsat-8",
+          "confianza": "alta",
+          "hora_chile": "11:45"
         }
       ]
     },
@@ -327,6 +345,12 @@
         {
           "fecha": "2026-10-24",
           "sat": "Landsat-9",
+          "confianza": "alta",
+          "hora_chile": "11:45"
+        },
+        {
+          "fecha": "2026-11-01",
+          "sat": "Landsat-8",
           "confianza": "alta",
           "hora_chile": "11:45"
         }
