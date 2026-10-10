@@ -12,7 +12,7 @@
    "revisita_dias_nominal": 2.7,
    "escenas_por_huella": {
     "232088": 4,
-    "232089": 39,
+    "232089": 40,
     "233088": 45
    }
   },
@@ -36,7 +36,7 @@
    "n_huellas": 2,
    "revisita_dias_nominal": 4.0,
    "escenas_por_huella": {
-    "232089": 43,
+    "232089": 44,
     "233089": 46
    }
   },
@@ -50,7 +50,7 @@
    "revisita_dias_nominal": 2.7,
    "escenas_por_huella": {
     "232086": 4,
-    "232087": 39,
+    "232087": 40,
     "233086": 45
    }
   },
@@ -73,7 +73,7 @@
    "n_huellas": 1,
    "revisita_dias_nominal": 8.0,
    "escenas_por_huella": {
-    "232091": 43
+    "232091": 44
    }
   },
   "Chaiten": {
@@ -133,7 +133,7 @@
    "n_huellas": 1,
    "revisita_dias_nominal": 8.0,
    "escenas_por_huella": {
-    "001073": 42
+    "001073": 43
    }
   },
   "Hornopiren": {
@@ -144,7 +144,7 @@
    "n_huellas": 2,
    "revisita_dias_nominal": 4.0,
    "escenas_por_huella": {
-    "232089": 43,
+    "232089": 44,
     "233089": 45
    }
   },
@@ -181,7 +181,7 @@
    "n_huellas": 1,
    "revisita_dias_nominal": 8.0,
    "escenas_por_huella": {
-    "001074": 42
+    "001074": 43
    }
   },
   "Isluga": {
@@ -191,7 +191,7 @@
    "n_huellas": 1,
    "revisita_dias_nominal": 8.0,
    "escenas_por_huella": {
-    "001073": 42
+    "001073": 43
    }
   },
   "Laguna del Maule": {
@@ -240,7 +240,7 @@
    "n_huellas": 2,
    "revisita_dias_nominal": 4.0,
    "escenas_por_huella": {
-    "232087": 43,
+    "232087": 44,
     "233087": 45
    }
   },
@@ -253,7 +253,7 @@
    "n_huellas": 3,
    "revisita_dias_nominal": 2.7,
    "escenas_por_huella": {
-    "232087": 43,
+    "232087": 44,
     "233086": 4,
     "233087": 41
    }
@@ -281,7 +281,7 @@
    "n_huellas": 3,
    "revisita_dias_nominal": 2.7,
    "escenas_por_huella": {
-    "232091": 43,
+    "232091": 44,
     "233090": 3,
     "233091": 42
    }
@@ -294,7 +294,7 @@
    "n_huellas": 2,
    "revisita_dias_nominal": 4.0,
    "escenas_por_huella": {
-    "232091": 43,
+    "232091": 44,
     "233091": 45
    }
   },
@@ -365,7 +365,7 @@
    "n_huellas": 3,
    "revisita_dias_nominal": 2.7,
    "escenas_por_huella": {
-    "232089": 43,
+    "232089": 44,
     "233088": 4,
     "233089": 41
    }
@@ -379,7 +379,7 @@
    "n_huellas": 3,
    "revisita_dias_nominal": 2.7,
    "escenas_por_huella": {
-    "001073": 42,
+    "001073": 43,
     "002072": 4,
     "002073": 7
    }
@@ -458,7 +458,7 @@
    "n_huellas": 2,
    "revisita_dias_nominal": 4.0,
    "escenas_por_huella": {
-    "232087": 43,
+    "232087": 44,
     "233087": 45
    }
   },
@@ -532,7 +532,7 @@
    "n_huellas": 2,
    "revisita_dias_nominal": 4.0,
    "escenas_por_huella": {
-    "232089": 43,
+    "232089": 44,
     "233089": 45
    }
   }
