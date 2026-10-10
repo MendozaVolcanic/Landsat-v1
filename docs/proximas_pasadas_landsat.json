@@ -1,5 +1,5 @@
 {
-  "generado_utc": "2026-10-09T23:52:43.389711+00:00",
+  "generado_utc": "2026-10-10T09:24:33.271803+00:00",
   "ciclo_dias_por_satelite": 16,
   "ciclo_combinado_aprox_dias": "4-8 (segun solape de path/rows)",
   "latencia_l2": {
@@ -326,16 +326,16 @@
       "zona": "Norte",
       "hora_utc_estimada": "14:45",
       "hora_chile_estimada": "11:45",
-      "ultima_imagen": "2026-10-01",
+      "ultima_imagen": "2026-10-09",
       "revisita_mediana_d": 8,
       "satelites": {
         "Landsat-8": {
-          "ultima_observacion": "2026-09-23",
+          "ultima_observacion": "2026-10-09",
           "proximas": [
-            "2026-10-09",
             "2026-10-25",
             "2026-11-10",
-            "2026-11-26"
+            "2026-11-26",
+            "2026-12-12"
           ]
         },
         "Landsat-9": {
@@ -349,12 +349,6 @@
         }
       },
       "proxima_combinada": [
-        {
-          "fecha": "2026-10-09",
-          "sat": "Landsat-8",
-          "confianza": "alta",
-          "hora_chile": "11:45"
-        },
         {
           "fecha": "2026-10-17",
           "sat": "Landsat-9",
@@ -387,16 +381,16 @@
       "zona": "Norte",
       "hora_utc_estimada": "14:45",
       "hora_chile_estimada": "11:45",
-      "ultima_imagen": "2026-10-01",
+      "ultima_imagen": "2026-10-09",
       "revisita_mediana_d": 8,
       "satelites": {
         "Landsat-8": {
-          "ultima_observacion": "2026-09-23",
+          "ultima_observacion": "2026-10-09",
           "proximas": [
-            "2026-10-09",
             "2026-10-25",
             "2026-11-10",
-            "2026-11-26"
+            "2026-11-26",
+            "2026-12-12"
           ]
         },
         "Landsat-9": {
@@ -410,12 +404,6 @@
         }
       },
       "proxima_combinada": [
-        {
-          "fecha": "2026-10-09",
-          "sat": "Landsat-8",
-          "confianza": "alta",
-          "hora_chile": "11:45"
-        },
         {
           "fecha": "2026-10-17",
           "sat": "Landsat-9",
@@ -448,16 +436,16 @@
       "zona": "Norte",
       "hora_utc_estimada": "14:45",
       "hora_chile_estimada": "11:45",
-      "ultima_imagen": "2026-10-01",
+      "ultima_imagen": "2026-10-09",
       "revisita_mediana_d": 8,
       "satelites": {
         "Landsat-8": {
-          "ultima_observacion": "2026-09-23",
+          "ultima_observacion": "2026-10-09",
           "proximas": [
-            "2026-10-09",
             "2026-10-25",
             "2026-11-10",
-            "2026-11-26"
+            "2026-11-26",
+            "2026-12-12"
           ]
         },
         "Landsat-9": {
@@ -471,12 +459,6 @@
         }
       },
       "proxima_combinada": [
-        {
-          "fecha": "2026-10-09",
-          "sat": "Landsat-8",
-          "confianza": "alta",
-          "hora_chile": "11:45"
-        },
         {
           "fecha": "2026-10-17",
           "sat": "Landsat-9",
@@ -509,20 +491,20 @@
       "zona": "Centro",
       "hora_utc_estimada": "14:45",
       "hora_chile_estimada": "11:45",
-      "ultima_imagen": "2026-10-02",
+      "ultima_imagen": "2026-10-09",
       "revisita_mediana_d": 7,
       "satelites": {
         "Landsat-8": {
-          "ultima_observacion": "2026-10-02",
+          "ultima_observacion": "2026-10-09",
           "proximas": [
-            "2026-10-09",
             "2026-10-18",
             "2026-10-25",
             "2026-11-03",
             "2026-11-10",
             "2026-11-19",
             "2026-11-26",
-            "2026-12-05"
+            "2026-12-05",
+            "2026-12-12"
           ]
         },
         "Landsat-9": {
@@ -540,12 +522,6 @@
         }
       },
       "proxima_combinada": [
-        {
-          "fecha": "2026-10-09",
-          "sat": "Landsat-8",
-          "confianza": "alta",
-          "hora_chile": "11:45"
-        },
         {
           "fecha": "2026-10-10",
           "sat": "Landsat-9",
@@ -608,20 +584,20 @@
       "zona": "Centro",
       "hora_utc_estimada": "14:45",
       "hora_chile_estimada": "11:45",
-      "ultima_imagen": "2026-10-02",
+      "ultima_imagen": "2026-10-09",
       "revisita_mediana_d": 7,
       "satelites": {
         "Landsat-8": {
-          "ultima_observacion": "2026-10-02",
+          "ultima_observacion": "2026-10-09",
           "proximas": [
-            "2026-10-09",
             "2026-10-18",
             "2026-10-25",
             "2026-11-03",
             "2026-11-10",
             "2026-11-19",
             "2026-11-26",
-            "2026-12-05"
+            "2026-12-05",
+            "2026-12-12"
           ]
         },
         "Landsat-9": {
@@ -639,12 +615,6 @@
         }
       },
       "proxima_combinada": [
-        {
-          "fecha": "2026-10-09",
-          "sat": "Landsat-8",
-          "confianza": "alta",
-          "hora_chile": "11:45"
-        },
         {
           "fecha": "2026-10-10",
           "sat": "Landsat-9",
@@ -707,20 +677,20 @@
       "zona": "Centro",
       "hora_utc_estimada": "14:45",
       "hora_chile_estimada": "11:45",
-      "ultima_imagen": "2026-10-02",
+      "ultima_imagen": "2026-10-09",
       "revisita_mediana_d": 7,
       "satelites": {
         "Landsat-8": {
-          "ultima_observacion": "2026-10-02",
+          "ultima_observacion": "2026-10-09",
           "proximas": [
-            "2026-10-09",
             "2026-10-18",
             "2026-10-25",
             "2026-11-03",
             "2026-11-10",
             "2026-11-19",
             "2026-11-26",
-            "2026-12-05"
+            "2026-12-05",
+            "2026-12-12"
           ]
         },
         "Landsat-9": {
@@ -738,12 +708,6 @@
         }
       },
       "proxima_combinada": [
-        {
-          "fecha": "2026-10-09",
-          "sat": "Landsat-8",
-          "confianza": "alta",
-          "hora_chile": "11:45"
-        },
         {
           "fecha": "2026-10-10",
           "sat": "Landsat-9",
@@ -806,20 +770,20 @@
       "zona": "Centro",
       "hora_utc_estimada": "14:45",
       "hora_chile_estimada": "11:45",
-      "ultima_imagen": "2026-10-02",
+      "ultima_imagen": "2026-10-09",
       "revisita_mediana_d": 7,
       "satelites": {
         "Landsat-8": {
-          "ultima_observacion": "2026-10-02",
+          "ultima_observacion": "2026-10-09",
           "proximas": [
-            "2026-10-09",
             "2026-10-18",
             "2026-10-25",
             "2026-11-03",
             "2026-11-10",
             "2026-11-19",
             "2026-11-26",
-            "2026-12-05"
+            "2026-12-05",
+            "2026-12-12"
           ]
         },
         "Landsat-9": {
@@ -837,12 +801,6 @@
         }
       },
       "proxima_combinada": [
-        {
-          "fecha": "2026-10-09",
-          "sat": "Landsat-8",
-          "confianza": "alta",
-          "hora_chile": "11:45"
-        },
         {
           "fecha": "2026-10-10",
           "sat": "Landsat-9",
@@ -905,20 +863,20 @@
       "zona": "Centro",
       "hora_utc_estimada": "14:45",
       "hora_chile_estimada": "11:45",
-      "ultima_imagen": "2026-10-02",
+      "ultima_imagen": "2026-10-09",
       "revisita_mediana_d": 7,
       "satelites": {
         "Landsat-8": {
-          "ultima_observacion": "2026-10-02",
+          "ultima_observacion": "2026-10-09",
           "proximas": [
-            "2026-10-09",
             "2026-10-18",
             "2026-10-25",
             "2026-11-03",
             "2026-11-10",
             "2026-11-19",
             "2026-11-26",
-            "2026-12-05"
+            "2026-12-05",
+            "2026-12-12"
           ]
         },
         "Landsat-9": {
@@ -936,12 +894,6 @@
         }
       },
       "proxima_combinada": [
-        {
-          "fecha": "2026-10-09",
-          "sat": "Landsat-8",
-          "confianza": "alta",
-          "hora_chile": "11:45"
-        },
         {
           "fecha": "2026-10-10",
           "sat": "Landsat-9",
@@ -1004,20 +956,20 @@
       "zona": "Centro",
       "hora_utc_estimada": "14:45",
       "hora_chile_estimada": "11:45",
-      "ultima_imagen": "2026-10-02",
+      "ultima_imagen": "2026-10-09",
       "revisita_mediana_d": 7,
       "satelites": {
         "Landsat-8": {
-          "ultima_observacion": "2026-10-02",
+          "ultima_observacion": "2026-10-09",
           "proximas": [
-            "2026-10-09",
             "2026-10-18",
             "2026-10-25",
             "2026-11-03",
             "2026-11-10",
             "2026-11-19",
             "2026-11-26",
-            "2026-12-05"
+            "2026-12-05",
+            "2026-12-12"
           ]
         },
         "Landsat-9": {
@@ -1035,12 +987,6 @@
         }
       },
       "proxima_combinada": [
-        {
-          "fecha": "2026-10-09",
-          "sat": "Landsat-8",
-          "confianza": "alta",
-          "hora_chile": "11:45"
-        },
         {
           "fecha": "2026-10-10",
           "sat": "Landsat-9",
@@ -1109,14 +1055,14 @@
         "Landsat-8": {
           "ultima_observacion": "2026-10-09",
           "proximas": [
-            "2026-10-09",
             "2026-10-18",
             "2026-10-25",
             "2026-11-03",
             "2026-11-10",
             "2026-11-19",
             "2026-11-26",
-            "2026-12-05"
+            "2026-12-05",
+            "2026-12-12"
           ]
         },
         "Landsat-9": {
@@ -1134,12 +1080,6 @@
         }
       },
       "proxima_combinada": [
-        {
-          "fecha": "2026-10-09",
-          "sat": "Landsat-8",
-          "confianza": "alta",
-          "hora_chile": "11:45"
-        },
         {
           "fecha": "2026-10-10",
           "sat": "Landsat-9",
@@ -1208,14 +1148,14 @@
         "Landsat-8": {
           "ultima_observacion": "2026-10-09",
           "proximas": [
-            "2026-10-09",
             "2026-10-18",
             "2026-10-25",
             "2026-11-03",
             "2026-11-10",
             "2026-11-19",
             "2026-11-26",
-            "2026-12-05"
+            "2026-12-05",
+            "2026-12-12"
           ]
         },
         "Landsat-9": {
@@ -1233,12 +1173,6 @@
         }
       },
       "proxima_combinada": [
-        {
-          "fecha": "2026-10-09",
-          "sat": "Landsat-8",
-          "confianza": "alta",
-          "hora_chile": "11:45"
-        },
         {
           "fecha": "2026-10-10",
           "sat": "Landsat-9",
@@ -1307,10 +1241,10 @@
         "Landsat-8": {
           "ultima_observacion": "2026-10-09",
           "proximas": [
-            "2026-10-09",
             "2026-10-25",
             "2026-11-10",
-            "2026-11-26"
+            "2026-11-26",
+            "2026-12-12"
           ]
         },
         "Landsat-9": {
@@ -1324,12 +1258,6 @@
         }
       },
       "proxima_combinada": [
-        {
-          "fecha": "2026-10-09",
-          "sat": "Landsat-8",
-          "confianza": "alta",
-          "hora_chile": "11:45"
-        },
         {
           "fecha": "2026-10-17",
           "sat": "Landsat-9",
@@ -1362,20 +1290,20 @@
       "zona": "Sur",
       "hora_utc_estimada": "14:45",
       "hora_chile_estimada": "11:45",
-      "ultima_imagen": "2026-10-02",
+      "ultima_imagen": "2026-10-09",
       "revisita_mediana_d": 7,
       "satelites": {
         "Landsat-8": {
-          "ultima_observacion": "2026-10-02",
+          "ultima_observacion": "2026-10-09",
           "proximas": [
-            "2026-10-09",
             "2026-10-18",
             "2026-10-25",
             "2026-11-03",
             "2026-11-10",
             "2026-11-19",
             "2026-11-26",
-            "2026-12-05"
+            "2026-12-05",
+            "2026-12-12"
           ]
         },
         "Landsat-9": {
@@ -1393,12 +1321,6 @@
         }
       },
       "proxima_combinada": [
-        {
-          "fecha": "2026-10-09",
-          "sat": "Landsat-8",
-          "confianza": "alta",
-          "hora_chile": "11:45"
-        },
         {
           "fecha": "2026-10-10",
           "sat": "Landsat-9",
@@ -1461,20 +1383,20 @@
       "zona": "Sur",
       "hora_utc_estimada": "14:45",
       "hora_chile_estimada": "11:45",
-      "ultima_imagen": "2026-10-02",
+      "ultima_imagen": "2026-10-09",
       "revisita_mediana_d": 7,
       "satelites": {
         "Landsat-8": {
-          "ultima_observacion": "2026-10-02",
+          "ultima_observacion": "2026-10-09",
           "proximas": [
-            "2026-10-09",
             "2026-10-18",
             "2026-10-25",
             "2026-11-03",
             "2026-11-10",
             "2026-11-19",
             "2026-11-26",
-            "2026-12-05"
+            "2026-12-05",
+            "2026-12-12"
           ]
         },
         "Landsat-9": {
@@ -1492,12 +1414,6 @@
         }
       },
       "proxima_combinada": [
-        {
-          "fecha": "2026-10-09",
-          "sat": "Landsat-8",
-          "confianza": "alta",
-          "hora_chile": "11:45"
-        },
         {
           "fecha": "2026-10-10",
           "sat": "Landsat-9",
@@ -1560,20 +1476,20 @@
       "zona": "Sur",
       "hora_utc_estimada": "14:45",
       "hora_chile_estimada": "11:45",
-      "ultima_imagen": "2026-10-02",
+      "ultima_imagen": "2026-10-09",
       "revisita_mediana_d": 7,
       "satelites": {
         "Landsat-8": {
-          "ultima_observacion": "2026-10-02",
+          "ultima_observacion": "2026-10-09",
           "proximas": [
-            "2026-10-09",
             "2026-10-18",
             "2026-10-25",
             "2026-11-03",
             "2026-11-10",
             "2026-11-19",
             "2026-11-26",
-            "2026-12-05"
+            "2026-12-05",
+            "2026-12-12"
           ]
         },
         "Landsat-9": {
@@ -1591,12 +1507,6 @@
         }
       },
       "proxima_combinada": [
-        {
-          "fecha": "2026-10-09",
-          "sat": "Landsat-8",
-          "confianza": "alta",
-          "hora_chile": "11:45"
-        },
         {
           "fecha": "2026-10-10",
           "sat": "Landsat-9",
@@ -1665,14 +1575,14 @@
         "Landsat-8": {
           "ultima_observacion": "2026-10-09",
           "proximas": [
-            "2026-10-09",
             "2026-10-18",
             "2026-10-25",
             "2026-11-03",
             "2026-11-10",
             "2026-11-19",
             "2026-11-26",
-            "2026-12-05"
+            "2026-12-05",
+            "2026-12-12"
           ]
         },
         "Landsat-9": {
@@ -1690,12 +1600,6 @@
         }
       },
       "proxima_combinada": [
-        {
-          "fecha": "2026-10-09",
-          "sat": "Landsat-8",
-          "confianza": "alta",
-          "hora_chile": "11:45"
-        },
         {
           "fecha": "2026-10-10",
           "sat": "Landsat-9",
@@ -1764,14 +1668,14 @@
         "Landsat-8": {
           "ultima_observacion": "2026-10-09",
           "proximas": [
-            "2026-10-09",
             "2026-10-18",
             "2026-10-25",
             "2026-11-03",
             "2026-11-10",
             "2026-11-19",
             "2026-11-26",
-            "2026-12-05"
+            "2026-12-05",
+            "2026-12-12"
           ]
         },
         "Landsat-9": {
@@ -1789,12 +1693,6 @@
         }
       },
       "proxima_combinada": [
-        {
-          "fecha": "2026-10-09",
-          "sat": "Landsat-8",
-          "confianza": "alta",
-          "hora_chile": "11:45"
-        },
         {
           "fecha": "2026-10-10",
           "sat": "Landsat-9",
@@ -1863,14 +1761,14 @@
         "Landsat-8": {
           "ultima_observacion": "2026-10-09",
           "proximas": [
-            "2026-10-09",
             "2026-10-18",
             "2026-10-25",
             "2026-11-03",
             "2026-11-10",
             "2026-11-19",
             "2026-11-26",
-            "2026-12-05"
+            "2026-12-05",
+            "2026-12-12"
           ]
         },
         "Landsat-9": {
@@ -1888,12 +1786,6 @@
         }
       },
       "proxima_combinada": [
-        {
-          "fecha": "2026-10-09",
-          "sat": "Landsat-8",
-          "confianza": "alta",
-          "hora_chile": "11:45"
-        },
         {
           "fecha": "2026-10-10",
           "sat": "Landsat-9",
@@ -1962,14 +1854,14 @@
         "Landsat-8": {
           "ultima_observacion": "2026-10-09",
           "proximas": [
-            "2026-10-09",
             "2026-10-18",
             "2026-10-25",
             "2026-11-03",
             "2026-11-10",
             "2026-11-19",
             "2026-11-26",
-            "2026-12-05"
+            "2026-12-05",
+            "2026-12-12"
           ]
         },
         "Landsat-9": {
@@ -1987,12 +1879,6 @@
         }
       },
       "proxima_combinada": [
-        {
-          "fecha": "2026-10-09",
-          "sat": "Landsat-8",
-          "confianza": "alta",
-          "hora_chile": "11:45"
-        },
         {
           "fecha": "2026-10-10",
           "sat": "Landsat-9",
@@ -2061,14 +1947,14 @@
         "Landsat-8": {
           "ultima_observacion": "2026-10-09",
           "proximas": [
-            "2026-10-09",
             "2026-10-18",
             "2026-10-25",
             "2026-11-03",
             "2026-11-10",
             "2026-11-19",
             "2026-11-26",
-            "2026-12-05"
+            "2026-12-05",
+            "2026-12-12"
           ]
         },
         "Landsat-9": {
@@ -2086,12 +1972,6 @@
         }
       },
       "proxima_combinada": [
-        {
-          "fecha": "2026-10-09",
-          "sat": "Landsat-8",
-          "confianza": "alta",
-          "hora_chile": "11:45"
-        },
         {
           "fecha": "2026-10-10",
           "sat": "Landsat-9",
@@ -2160,14 +2040,14 @@
         "Landsat-8": {
           "ultima_observacion": "2026-10-02",
           "proximas": [
-            "2026-10-09",
             "2026-10-18",
             "2026-10-25",
             "2026-11-03",
             "2026-11-10",
             "2026-11-19",
             "2026-11-26",
-            "2026-12-05"
+            "2026-12-05",
+            "2026-12-12"
           ]
         },
         "Landsat-9": {
@@ -2185,12 +2065,6 @@
         }
       },
       "proxima_combinada": [
-        {
-          "fecha": "2026-10-09",
-          "sat": "Landsat-8",
-          "confianza": "baja",
-          "hora_chile": "11:45"
-        },
         {
           "fecha": "2026-10-10",
           "sat": "Landsat-9",
@@ -2259,14 +2133,14 @@
         "Landsat-8": {
           "ultima_observacion": "2026-10-09",
           "proximas": [
-            "2026-10-09",
             "2026-10-18",
             "2026-10-25",
             "2026-11-03",
             "2026-11-10",
             "2026-11-19",
             "2026-11-26",
-            "2026-12-05"
+            "2026-12-05",
+            "2026-12-12"
           ]
         },
         "Landsat-9": {
@@ -2284,12 +2158,6 @@
         }
       },
       "proxima_combinada": [
-        {
-          "fecha": "2026-10-09",
-          "sat": "Landsat-8",
-          "confianza": "alta",
-          "hora_chile": "11:45"
-        },
         {
           "fecha": "2026-10-10",
           "sat": "Landsat-9",
@@ -2358,14 +2226,14 @@
         "Landsat-8": {
           "ultima_observacion": "2026-10-09",
           "proximas": [
-            "2026-10-09",
             "2026-10-18",
             "2026-10-25",
             "2026-11-03",
             "2026-11-10",
             "2026-11-19",
             "2026-11-26",
-            "2026-12-05"
+            "2026-12-05",
+            "2026-12-12"
           ]
         },
         "Landsat-9": {
@@ -2383,12 +2251,6 @@
         }
       },
       "proxima_combinada": [
-        {
-          "fecha": "2026-10-09",
-          "sat": "Landsat-8",
-          "confianza": "alta",
-          "hora_chile": "11:45"
-        },
         {
           "fecha": "2026-10-10",
           "sat": "Landsat-9",
@@ -2457,14 +2319,14 @@
         "Landsat-8": {
           "ultima_observacion": "2026-10-09",
           "proximas": [
-            "2026-10-09",
             "2026-10-18",
             "2026-10-25",
             "2026-11-03",
             "2026-11-10",
             "2026-11-19",
             "2026-11-26",
-            "2026-12-05"
+            "2026-12-05",
+            "2026-12-12"
           ]
         },
         "Landsat-9": {
@@ -2482,12 +2344,6 @@
         }
       },
       "proxima_combinada": [
-        {
-          "fecha": "2026-10-09",
-          "sat": "Landsat-8",
-          "confianza": "alta",
-          "hora_chile": "11:45"
-        },
         {
           "fecha": "2026-10-10",
           "sat": "Landsat-9",
@@ -2556,14 +2412,14 @@
         "Landsat-8": {
           "ultima_observacion": "2026-10-09",
           "proximas": [
-            "2026-10-09",
             "2026-10-18",
             "2026-10-25",
             "2026-11-03",
             "2026-11-10",
             "2026-11-19",
             "2026-11-26",
-            "2026-12-05"
+            "2026-12-05",
+            "2026-12-12"
           ]
         },
         "Landsat-9": {
@@ -2581,12 +2437,6 @@
         }
       },
       "proxima_combinada": [
-        {
-          "fecha": "2026-10-09",
-          "sat": "Landsat-8",
-          "confianza": "alta",
-          "hora_chile": "11:45"
-        },
         {
           "fecha": "2026-10-10",
           "sat": "Landsat-9",
@@ -2655,14 +2505,14 @@
         "Landsat-8": {
           "ultima_observacion": "2026-10-09",
           "proximas": [
-            "2026-10-09",
             "2026-10-18",
             "2026-10-25",
             "2026-11-03",
             "2026-11-10",
             "2026-11-19",
             "2026-11-26",
-            "2026-12-05"
+            "2026-12-05",
+            "2026-12-12"
           ]
         },
         "Landsat-9": {
@@ -2680,12 +2530,6 @@
         }
       },
       "proxima_combinada": [
-        {
-          "fecha": "2026-10-09",
-          "sat": "Landsat-8",
-          "confianza": "alta",
-          "hora_chile": "11:45"
-        },
         {
           "fecha": "2026-10-10",
           "sat": "Landsat-9",
@@ -2754,14 +2598,14 @@
         "Landsat-8": {
           "ultima_observacion": "2026-10-09",
           "proximas": [
-            "2026-10-09",
             "2026-10-18",
             "2026-10-25",
             "2026-11-03",
             "2026-11-10",
             "2026-11-19",
             "2026-11-26",
-            "2026-12-05"
+            "2026-12-05",
+            "2026-12-12"
           ]
         },
         "Landsat-9": {
@@ -2779,12 +2623,6 @@
         }
       },
       "proxima_combinada": [
-        {
-          "fecha": "2026-10-09",
-          "sat": "Landsat-8",
-          "confianza": "alta",
-          "hora_chile": "11:45"
-        },
         {
           "fecha": "2026-10-10",
           "sat": "Landsat-9",
@@ -2853,14 +2691,14 @@
         "Landsat-8": {
           "ultima_observacion": "2026-10-09",
           "proximas": [
-            "2026-10-09",
             "2026-10-18",
             "2026-10-25",
             "2026-11-03",
             "2026-11-10",
             "2026-11-19",
             "2026-11-26",
-            "2026-12-05"
+            "2026-12-05",
+            "2026-12-12"
           ]
         },
         "Landsat-9": {
@@ -2878,12 +2716,6 @@
         }
       },
       "proxima_combinada": [
-        {
-          "fecha": "2026-10-09",
-          "sat": "Landsat-8",
-          "confianza": "alta",
-          "hora_chile": "11:45"
-        },
         {
           "fecha": "2026-10-10",
           "sat": "Landsat-9",
@@ -2952,14 +2784,14 @@
         "Landsat-8": {
           "ultima_observacion": "2026-10-09",
           "proximas": [
-            "2026-10-09",
             "2026-10-18",
             "2026-10-25",
             "2026-11-03",
             "2026-11-10",
             "2026-11-19",
             "2026-11-26",
-            "2026-12-05"
+            "2026-12-05",
+            "2026-12-12"
           ]
         },
         "Landsat-9": {
@@ -2977,12 +2809,6 @@
         }
       },
       "proxima_combinada": [
-        {
-          "fecha": "2026-10-09",
-          "sat": "Landsat-8",
-          "confianza": "alta",
-          "hora_chile": "11:45"
-        },
         {
           "fecha": "2026-10-10",
           "sat": "Landsat-9",
@@ -3051,14 +2877,14 @@
         "Landsat-8": {
           "ultima_observacion": "2026-10-09",
           "proximas": [
-            "2026-10-09",
             "2026-10-18",
             "2026-10-25",
             "2026-11-03",
             "2026-11-10",
             "2026-11-19",
             "2026-11-26",
-            "2026-12-05"
+            "2026-12-05",
+            "2026-12-12"
           ]
         },
         "Landsat-9": {
@@ -3076,12 +2902,6 @@
         }
       },
       "proxima_combinada": [
-        {
-          "fecha": "2026-10-09",
-          "sat": "Landsat-8",
-          "confianza": "alta",
-          "hora_chile": "11:45"
-        },
         {
           "fecha": "2026-10-10",
           "sat": "Landsat-9",
@@ -3150,14 +2970,14 @@
         "Landsat-8": {
           "ultima_observacion": "2026-10-09",
           "proximas": [
-            "2026-10-09",
             "2026-10-18",
             "2026-10-25",
             "2026-11-03",
             "2026-11-10",
             "2026-11-19",
             "2026-11-26",
-            "2026-12-05"
+            "2026-12-05",
+            "2026-12-12"
           ]
         },
         "Landsat-9": {
@@ -3175,12 +2995,6 @@
         }
       },
       "proxima_combinada": [
-        {
-          "fecha": "2026-10-09",
-          "sat": "Landsat-8",
-          "confianza": "alta",
-          "hora_chile": "11:45"
-        },
         {
           "fecha": "2026-10-10",
           "sat": "Landsat-9",
@@ -3249,14 +3063,14 @@
         "Landsat-8": {
           "ultima_observacion": "2026-10-09",
           "proximas": [
-            "2026-10-09",
             "2026-10-18",
             "2026-10-25",
             "2026-11-03",
             "2026-11-10",
             "2026-11-19",
             "2026-11-26",
-            "2026-12-05"
+            "2026-12-05",
+            "2026-12-12"
           ]
         },
         "Landsat-9": {
@@ -3274,12 +3088,6 @@
         }
       },
       "proxima_combinada": [
-        {
-          "fecha": "2026-10-09",
-          "sat": "Landsat-8",
-          "confianza": "alta",
-          "hora_chile": "11:45"
-        },
         {
           "fecha": "2026-10-10",
           "sat": "Landsat-9",
@@ -3348,14 +3156,14 @@
         "Landsat-8": {
           "ultima_observacion": "2026-10-09",
           "proximas": [
-            "2026-10-09",
             "2026-10-18",
             "2026-10-25",
             "2026-11-03",
             "2026-11-10",
             "2026-11-19",
             "2026-11-26",
-            "2026-12-05"
+            "2026-12-05",
+            "2026-12-12"
           ]
         },
         "Landsat-9": {
@@ -3373,12 +3181,6 @@
         }
       },
       "proxima_combinada": [
-        {
-          "fecha": "2026-10-09",
-          "sat": "Landsat-8",
-          "confianza": "alta",
-          "hora_chile": "11:45"
-        },
         {
           "fecha": "2026-10-10",
           "sat": "Landsat-9",
@@ -3447,14 +3249,14 @@
         "Landsat-8": {
           "ultima_observacion": "2026-10-09",
           "proximas": [
-            "2026-10-09",
             "2026-10-18",
             "2026-10-25",
             "2026-11-03",
             "2026-11-10",
             "2026-11-19",
             "2026-11-26",
-            "2026-12-05"
+            "2026-12-05",
+            "2026-12-12"
           ]
         },
         "Landsat-9": {
@@ -3472,12 +3274,6 @@
         }
       },
       "proxima_combinada": [
-        {
-          "fecha": "2026-10-09",
-          "sat": "Landsat-8",
-          "confianza": "alta",
-          "hora_chile": "11:45"
-        },
         {
           "fecha": "2026-10-10",
           "sat": "Landsat-9",
@@ -3546,14 +3342,14 @@
         "Landsat-8": {
           "ultima_observacion": "2026-10-09",
           "proximas": [
-            "2026-10-09",
             "2026-10-18",
             "2026-10-25",
             "2026-11-03",
             "2026-11-10",
             "2026-11-19",
             "2026-11-26",
-            "2026-12-05"
+            "2026-12-05",
+            "2026-12-12"
           ]
         },
         "Landsat-9": {
@@ -3571,12 +3367,6 @@
         }
       },
       "proxima_combinada": [
-        {
-          "fecha": "2026-10-09",
-          "sat": "Landsat-8",
-          "confianza": "alta",
-          "hora_chile": "11:45"
-        },
         {
           "fecha": "2026-10-10",
           "sat": "Landsat-9",
@@ -3706,10 +3496,10 @@
         "Landsat-8": {
           "ultima_observacion": "2026-10-09",
           "proximas": [
-            "2026-10-09",
             "2026-10-25",
             "2026-11-10",
-            "2026-11-26"
+            "2026-11-26",
+            "2026-12-12"
           ]
         },
         "Landsat-9": {
@@ -3723,12 +3513,6 @@
         }
       },
       "proxima_combinada": [
-        {
-          "fecha": "2026-10-09",
-          "sat": "Landsat-8",
-          "confianza": "alta",
-          "hora_chile": "11:45"
-        },
         {
           "fecha": "2026-10-17",
           "sat": "Landsat-9",

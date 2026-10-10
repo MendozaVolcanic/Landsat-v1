@@ -24,8 +24,8 @@
    "n_huellas": 2,
    "revisita_dias_nominal": 4.0,
    "escenas_por_huella": {
-    "232086": 43,
-    "233086": 44
+    "232086": 44,
+    "233086": 45
    }
   },
   "Calbuco": {
@@ -51,7 +51,7 @@
    "escenas_por_huella": {
     "232086": 4,
     "232087": 39,
-    "233086": 44
+    "233086": 45
    }
   },
   "Carran - Los Venados": {
@@ -62,7 +62,7 @@
    "n_huellas": 2,
    "revisita_dias_nominal": 4.0,
    "escenas_por_huella": {
-    "232088": 43,
+    "232088": 44,
     "233088": 45
    }
   },
@@ -84,7 +84,7 @@
    "n_huellas": 2,
    "revisita_dias_nominal": 4.0,
    "escenas_por_huella": {
-    "232090": 43,
+    "232090": 44,
     "233090": 45
    }
   },
@@ -96,8 +96,8 @@
    "n_huellas": 2,
    "revisita_dias_nominal": 4.0,
    "escenas_por_huella": {
-    "232086": 43,
-    "233086": 44
+    "232086": 44,
+    "233086": 45
    }
   },
   "Corcovado": {
@@ -108,7 +108,7 @@
    "n_huellas": 2,
    "revisita_dias_nominal": 4.0,
    "escenas_por_huella": {
-    "232090": 43,
+    "232090": 44,
     "233090": 45
    }
   },
@@ -121,9 +121,9 @@
    "n_huellas": 3,
    "revisita_dias_nominal": 2.7,
    "escenas_por_huella": {
-    "232085": 43,
+    "232085": 44,
     "233084": 4,
-    "233085": 40
+    "233085": 41
    }
   },
   "Guallatiri": {
@@ -157,7 +157,7 @@
    "revisita_dias_nominal": 4.0,
    "escenas_por_huella": {
     "231092": 39,
-    "232092": 39
+    "232092": 40
    }
   },
   "Huequi": {
@@ -170,7 +170,7 @@
    "revisita_dias_nominal": 2.7,
    "escenas_por_huella": {
     "232089": 5,
-    "232090": 38,
+    "232090": 39,
     "233089": 45
    }
   },
@@ -202,7 +202,7 @@
    "n_huellas": 2,
    "revisita_dias_nominal": 4.0,
    "escenas_por_huella": {
-    "232085": 43,
+    "232085": 44,
     "233085": 45
    }
   },
@@ -217,7 +217,7 @@
    "revisita_dias_nominal": 2.0,
    "escenas_por_huella": {
     "232087": 5,
-    "232088": 38,
+    "232088": 39,
     "233087": 25,
     "233088": 8
    }
@@ -229,7 +229,7 @@
    "n_huellas": 1,
    "revisita_dias_nominal": 8.0,
    "escenas_por_huella": {
-    "233076": 47
+    "233076": 48
    }
   },
   "Llaima": {
@@ -307,7 +307,7 @@
    "n_huellas": 3,
    "revisita_dias_nominal": 2.7,
    "escenas_por_huella": {
-    "232090": 43,
+    "232090": 44,
     "233089": 4,
     "233090": 41
    }
@@ -320,7 +320,7 @@
    "n_huellas": 2,
    "revisita_dias_nominal": 4.0,
    "escenas_por_huella": {
-    "232088": 43,
+    "232088": 44,
     "233088": 45
    }
   },
@@ -353,7 +353,7 @@
    "n_huellas": 1,
    "revisita_dias_nominal": 8.0,
    "escenas_por_huella": {
-    "233075": 44
+    "233075": 45
    }
   },
   "Osorno": {
@@ -394,8 +394,8 @@
    "revisita_dias_nominal": 2.7,
    "escenas_por_huella": {
     "232084": 4,
-    "232085": 39,
-    "233084": 44
+    "232085": 40,
+    "233084": 45
    }
   },
   "Puyehue - Cordon Caulle": {
@@ -406,7 +406,7 @@
    "n_huellas": 2,
    "revisita_dias_nominal": 4.0,
    "escenas_por_huella": {
-    "232088": 43,
+    "232088": 44,
     "233088": 45
    }
   },
@@ -420,7 +420,7 @@
    "revisita_dias_nominal": 2.7,
    "escenas_por_huella": {
     "232087": 5,
-    "232088": 38,
+    "232088": 39,
     "233087": 45
    }
   },
@@ -434,8 +434,8 @@
    "revisita_dias_nominal": 2.7,
    "escenas_por_huella": {
     "232083": 6,
-    "232084": 37,
-    "233083": 44
+    "232084": 38,
+    "233083": 45
    }
   },
   "San Pedro": {
@@ -447,7 +447,7 @@
    "revisita_dias_nominal": 4.0,
    "escenas_por_huella": {
     "001075": 5,
-    "233075": 44
+    "233075": 45
    }
   },
   "Sollipulli": {
@@ -482,8 +482,8 @@
    "n_huellas": 2,
    "revisita_dias_nominal": 4.0,
    "escenas_por_huella": {
-    "232085": 43,
-    "233085": 44
+    "232085": 44,
+    "233085": 45
    }
   },
   "Tinguiririca": {
@@ -494,8 +494,8 @@
    "n_huellas": 2,
    "revisita_dias_nominal": 4.0,
    "escenas_por_huella": {
-    "232084": 43,
-    "233084": 44
+    "232084": 44,
+    "233084": 45
    }
   },
   "Tupungatito": {
@@ -506,8 +506,8 @@
    "n_huellas": 2,
    "revisita_dias_nominal": 4.0,
    "escenas_por_huella": {
-    "232083": 43,
-    "233083": 44
+    "232083": 44,
+    "233083": 45
    }
   },
   "Villarrica": {
@@ -520,7 +520,7 @@
    "revisita_dias_nominal": 2.7,
    "escenas_por_huella": {
     "232087": 3,
-    "232088": 39,
+    "232088": 40,
     "233087": 44
    }
   },
