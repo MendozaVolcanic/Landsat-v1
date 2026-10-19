@@ -12,7 +12,7 @@
    "revisita_dias_nominal": 2.7,
    "escenas_por_huella": {
     "232088": 4,
-    "232089": 42,
+    "232089": 43,
     "233088": 47
    }
   },
@@ -24,7 +24,7 @@
    "n_huellas": 2,
    "revisita_dias_nominal": 4.0,
    "escenas_por_huella": {
-    "232086": 46,
+    "232086": 47,
     "233086": 47
    }
   },
@@ -36,7 +36,7 @@
    "n_huellas": 2,
    "revisita_dias_nominal": 4.0,
    "escenas_por_huella": {
-    "232089": 46,
+    "232089": 47,
     "233089": 48
    }
   },
@@ -50,7 +50,7 @@
    "revisita_dias_nominal": 2.7,
    "escenas_por_huella": {
     "232086": 4,
-    "232087": 42,
+    "232087": 43,
     "233086": 47
    }
   },
@@ -62,7 +62,7 @@
    "n_huellas": 2,
    "revisita_dias_nominal": 4.0,
    "escenas_por_huella": {
-    "232088": 46,
+    "232088": 47,
     "233088": 47
    }
   },
@@ -73,7 +73,7 @@
    "n_huellas": 1,
    "revisita_dias_nominal": 8.0,
    "escenas_por_huella": {
-    "232091": 46
+    "232091": 47
    }
   },
   "Chaiten": {
@@ -84,7 +84,7 @@
    "n_huellas": 2,
    "revisita_dias_nominal": 4.0,
    "escenas_por_huella": {
-    "232090": 46,
+    "232090": 47,
     "233090": 47
    }
   },
@@ -96,7 +96,7 @@
    "n_huellas": 2,
    "revisita_dias_nominal": 4.0,
    "escenas_por_huella": {
-    "232086": 46,
+    "232086": 47,
     "233086": 47
    }
   },
@@ -108,7 +108,7 @@
    "n_huellas": 2,
    "revisita_dias_nominal": 4.0,
    "escenas_por_huella": {
-    "232090": 46,
+    "232090": 47,
     "233090": 47
    }
   },
@@ -121,7 +121,7 @@
    "n_huellas": 3,
    "revisita_dias_nominal": 2.7,
    "escenas_por_huella": {
-    "232085": 46,
+    "232085": 47,
     "233084": 4,
     "233085": 43
    }
@@ -144,7 +144,7 @@
    "n_huellas": 2,
    "revisita_dias_nominal": 4.0,
    "escenas_por_huella": {
-    "232089": 46,
+    "232089": 47,
     "233089": 47
    }
   },
@@ -157,7 +157,7 @@
    "revisita_dias_nominal": 4.0,
    "escenas_por_huella": {
     "231092": 41,
-    "232092": 42
+    "232092": 43
    }
   },
   "Huequi": {
@@ -170,7 +170,7 @@
    "revisita_dias_nominal": 2.7,
    "escenas_por_huella": {
     "232089": 5,
-    "232090": 41,
+    "232090": 42,
     "233089": 47
    }
   },
@@ -202,7 +202,7 @@
    "n_huellas": 2,
    "revisita_dias_nominal": 4.0,
    "escenas_por_huella": {
-    "232085": 46,
+    "232085": 47,
     "233085": 47
    }
   },
@@ -217,7 +217,7 @@
    "revisita_dias_nominal": 2.0,
    "escenas_por_huella": {
     "232087": 5,
-    "232088": 41,
+    "232088": 42,
     "233087": 25,
     "233088": 8
    }
@@ -240,7 +240,7 @@
    "n_huellas": 2,
    "revisita_dias_nominal": 4.0,
    "escenas_por_huella": {
-    "232087": 46,
+    "232087": 47,
     "233087": 47
    }
   },
@@ -253,7 +253,7 @@
    "n_huellas": 3,
    "revisita_dias_nominal": 2.7,
    "escenas_por_huella": {
-    "232087": 46,
+    "232087": 47,
     "233086": 4,
     "233087": 43
    }
@@ -268,7 +268,7 @@
    "revisita_dias_nominal": 2.7,
    "escenas_por_huella": {
     "232091": 10,
-    "232092": 9,
+    "232092": 10,
     "233091": 30
    }
   },
@@ -281,7 +281,7 @@
    "n_huellas": 3,
    "revisita_dias_nominal": 2.7,
    "escenas_por_huella": {
-    "232091": 46,
+    "232091": 47,
     "233090": 3,
     "233091": 44
    }
@@ -294,7 +294,7 @@
    "n_huellas": 2,
    "revisita_dias_nominal": 4.0,
    "escenas_por_huella": {
-    "232091": 46,
+    "232091": 47,
     "233091": 47
    }
   },
@@ -307,7 +307,7 @@
    "n_huellas": 3,
    "revisita_dias_nominal": 2.7,
    "escenas_por_huella": {
-    "232090": 46,
+    "232090": 47,
     "233089": 4,
     "233090": 43
    }
@@ -320,7 +320,7 @@
    "n_huellas": 2,
    "revisita_dias_nominal": 4.0,
    "escenas_por_huella": {
-    "232088": 46,
+    "232088": 47,
     "233088": 47
    }
   },
@@ -365,7 +365,7 @@
    "n_huellas": 3,
    "revisita_dias_nominal": 2.7,
    "escenas_por_huella": {
-    "232089": 46,
+    "232089": 47,
     "233088": 4,
     "233089": 43
    }
@@ -394,7 +394,7 @@
    "revisita_dias_nominal": 2.7,
    "escenas_por_huella": {
     "232084": 4,
-    "232085": 42,
+    "232085": 43,
     "233084": 47
    }
   },
@@ -406,7 +406,7 @@
    "n_huellas": 2,
    "revisita_dias_nominal": 4.0,
    "escenas_por_huella": {
-    "232088": 46,
+    "232088": 47,
     "233088": 47
    }
   },
@@ -420,7 +420,7 @@
    "revisita_dias_nominal": 2.7,
    "escenas_por_huella": {
     "232087": 5,
-    "232088": 41,
+    "232088": 42,
     "233087": 47
    }
   },
@@ -434,7 +434,7 @@
    "revisita_dias_nominal": 2.7,
    "escenas_por_huella": {
     "232083": 6,
-    "232084": 40,
+    "232084": 41,
     "233083": 47
    }
   },
@@ -458,7 +458,7 @@
    "n_huellas": 2,
    "revisita_dias_nominal": 4.0,
    "escenas_por_huella": {
-    "232087": 46,
+    "232087": 47,
     "233087": 47
    }
   },
@@ -482,7 +482,7 @@
    "n_huellas": 2,
    "revisita_dias_nominal": 4.0,
    "escenas_por_huella": {
-    "232085": 46,
+    "232085": 47,
     "233085": 47
    }
   },
@@ -494,7 +494,7 @@
    "n_huellas": 2,
    "revisita_dias_nominal": 4.0,
    "escenas_por_huella": {
-    "232084": 46,
+    "232084": 47,
     "233084": 47
    }
   },
@@ -506,7 +506,7 @@
    "n_huellas": 2,
    "revisita_dias_nominal": 4.0,
    "escenas_por_huella": {
-    "232083": 46,
+    "232083": 47,
     "233083": 47
    }
   },
@@ -520,7 +520,7 @@
    "revisita_dias_nominal": 2.7,
    "escenas_por_huella": {
     "232087": 3,
-    "232088": 42,
+    "232088": 43,
     "233087": 46
    }
   },
@@ -532,7 +532,7 @@
    "n_huellas": 2,
    "revisita_dias_nominal": 4.0,
    "escenas_por_huella": {
-    "232089": 46,
+    "232089": 47,
     "233089": 47
    }
   }
