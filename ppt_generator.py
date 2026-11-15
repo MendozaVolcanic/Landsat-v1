@@ -25,27 +25,40 @@ def formatear_fecha_espanol(fecha_str):
     except Exception:
         return fecha_str
 
-def comprimir_gif(src, dst, max_mb=1.0):
+def comprimir_gif(src, dst, max_mb=1.0, termico=False):
+    # FIX 2026-11-15: antes cada cuadro se recuantizaba con ADAPTIVE 64, que
+    # descarta los pixeles rojos de anomalia termica por ser raros. Ademas Pillow
+    # entrega el 1er cuadro en P (quedaba intacto) y los demas en RGB (se
+    # recuantizaban): la anomalia sobrevivia solo en el primer cuadro. Medido:
+    # Villarrica 2026-11-13, 128 rojos -> 0 antes, 128 ahora. Los GIF termicos
+    # usan MAXCOVERAGE 128 (conserva outliers) y no se achican: reducir la escala
+    # diluye la anomalia. Pesan mas (2,6 MB contra 1,7 en la prueba), a cambio de
+    # no perder lo que el PPT tiene que mostrar.
     size_mb = os.path.getsize(src)/1048576
     if size_mb <= max_mb:
         shutil.copy2(src, dst)
         print(f"      OK ({size_mb:.2f} MB)")
         return dst
-    print(f"      Comprimiendo ({size_mb:.2f} MB)...")
+    print(f"      Comprimiendo ({size_mb:.2f} MB){' [termico: MAXCOVERAGE]' if termico else ''}...")
     try:
         img = Image.open(src)
-        frames = []
+        duracion = img.info.get('duration', 1000)
+        rgb = []
         try:
             while True:
-                frames.append(img.copy().convert('P', palette=Image.ADAPTIVE, colors=64))
-                img.seek(img.tell()+1)
+                rgb.append(img.convert('RGB'))
+                img.seek(img.tell() + 1)
         except EOFError:
             pass
-        if size_mb > 2.0:
-            ns = (int(frames[0].width*0.75), int(frames[0].height*0.75))
-            frames = [f.resize(ns, Image.Resampling.LANCZOS) for f in frames]
-        frames[0].save(dst,save_all=True,append_images=frames[1:],
-                       optimize=True,duration=img.info.get('duration',1000),loop=0)
+        if size_mb > 2.0 and not termico:
+            ns = (int(rgb[0].width * 0.75), int(rgb[0].height * 0.75))
+            rgb = [f.resize(ns, Image.Resampling.LANCZOS) for f in rgb]
+        if termico:
+            frames = [f.quantize(colors=128, method=Image.Quantize.MAXCOVERAGE) for f in rgb]
+        else:
+            frames = [f.convert('P', palette=Image.ADAPTIVE, colors=64) for f in rgb]
+        frames[0].save(dst, save_all=True, append_images=frames[1:],
+                       optimize=True, duration=duracion, loop=0)
         print(f"      {size_mb:.2f}MB -> {os.path.getsize(dst)/1048576:.2f}MB")
     except Exception as e:
         print(f"      Error comprimiendo: {e}")
@@ -92,7 +105,7 @@ def generar_ppt(volcan):
     temp_rgb  = f"/tmp/{volcan}_RGB.gif"
     temp_swir = f"/tmp/{volcan}_SWIR.gif"
     gif_rgb_final  = comprimir_gif(gif_rgb,  temp_rgb)
-    gif_swir_final = comprimir_gif(gif_swir, temp_swir)
+    gif_swir_final = comprimir_gif(gif_swir, temp_swir, termico=True)
 
     if not os.path.exists(PLANTILLA_PATH):
         print(f"    Plantilla no encontrada: {PLANTILLA_PATH}"); return None
