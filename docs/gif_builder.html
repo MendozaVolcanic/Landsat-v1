@@ -238,7 +238,6 @@
 
 </div>
 
-<script src="lib/gif.js"></script>
 <script>
 // Estado global
 let fechasJson = null;
@@ -486,20 +485,29 @@ async function generarGif() {
 
   document.getElementById('progreso-txt').textContent = 'Componiendo frames...';
 
-  const gif = new GIF({
-    workers: 2,
-    quality: 1,
-    width: tamano,
-    height: tamano,
-    workerScript: 'lib/gif.worker.js',
-    dither: false
-  });
+  // FIX 2026-11-15: codificar con gifenc rgb565 (paleta local por cuadro), igual
+  // que Copernicus-v1 desde julio. gif.js (NeuQuant) aplasta los pixeles calientes
+  // por ser raros: en Copernicus perdio 0/45 rojos de anomalia en Lascar. rgb565
+  // los conserva (72/72 Villarrica, 17/17 Nevados de Chillan) y mantiene los
+  // degradados de la nieve, que rgb444 dejaba en manchas planas.
+  let gifenc;
+  try {
+    gifenc = await import('./lib/gifenc.esm.js');
+  } catch (e) {
+    alert('No se pudo cargar el codificador GIF (gifenc): ' + e);
+    document.getElementById('btn-generar').disabled = false;
+    document.getElementById('progreso').style.display = 'none';
+    return;
+  }
+  const { quantize, applyPalette, GIFEncoder } = gifenc;
+  const enc = GIFEncoder();
+  const canvas = document.createElement('canvas');
+  canvas.width = tamano;
+  canvas.height = tamano;
+  const ctx = canvas.getContext('2d', { willReadFrequently: true });
 
-  imagenes.forEach((it, idx) => {
-    const canvas = document.createElement('canvas');
-    canvas.width = tamano;
-    canvas.height = tamano;
-    const ctx = canvas.getContext('2d');
+  for (let idx = 0; idx < imagenes.length; idx++) {
+    const it = imagenes[idx];
     ctx.fillStyle = '#000';
     ctx.fillRect(0, 0, tamano, tamano);
     ctx.drawImage(it.img, 0, 0, tamano, tamano);
@@ -522,31 +530,33 @@ async function generarGif() {
       ctx.fillText(`${volcan} - Landsat 8/9 ${tipo}`, 16, tamano - 16);
     }
 
-    gif.addFrame(canvas, { delay: ms, copy: true });
-  });
+    const { data } = ctx.getImageData(0, 0, tamano, tamano);
+    const palette = quantize(data, 256, { format: 'rgb565' });
+    const index = applyPalette(data, palette, 'rgb565');
+    enc.writeFrame(index, tamano, tamano, { palette, delay: ms, repeat: idx === 0 ? 0 : undefined });
 
-  gif.on('progress', p => {
+    // El encode es sincrono: ceder el hilo para refrescar la barra.
+    const p = (idx + 1) / imagenes.length;
     document.getElementById('progreso-bar').style.width = `${30 + p * 70}%`;
     document.getElementById('progreso-txt').textContent = `Renderizando GIF... ${Math.round(p*100)}%`;
-  });
+    await new Promise(r => setTimeout(r, 0));
+  }
 
-  gif.on('finished', blob => {
-    gifBlob = blob;
-    const url = URL.createObjectURL(blob);
-    const previewBox = document.getElementById('preview-box');
-    const previewImg = document.getElementById('preview-img');
-    previewBox.style.display = 'block';
-    previewImg.src = url;
-    const sizeMB = (blob.size / 1024 / 1024).toFixed(2);
-    document.getElementById('preview-meta').textContent =
-      `${imagenes.length} frames - ${ms}ms/frame - ${tamano}x${tamano}px - ${sizeMB} MB`;
-    document.getElementById('progreso').style.display = 'none';
-    document.getElementById('btn-generar').disabled = false;
-    document.getElementById('btn-descargar').disabled = false;
-    previewBox.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  });
-
-  gif.render();
+  enc.finish();
+  const blob = new Blob([enc.bytes()], { type: 'image/gif' });
+  gifBlob = blob;
+  const url = URL.createObjectURL(blob);
+  const previewBox = document.getElementById('preview-box');
+  const previewImg = document.getElementById('preview-img');
+  previewBox.style.display = 'block';
+  previewImg.src = url;
+  const sizeMB = (blob.size / 1024 / 1024).toFixed(2);
+  document.getElementById('preview-meta').textContent =
+    `${imagenes.length} frames - ${ms}ms/frame - ${tamano}x${tamano}px - ${sizeMB} MB`;
+  document.getElementById('progreso').style.display = 'none';
+  document.getElementById('btn-generar').disabled = false;
+  document.getElementById('btn-descargar').disabled = false;
+  previewBox.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 function cargarImagen(url) {
