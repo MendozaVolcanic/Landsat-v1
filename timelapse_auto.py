@@ -4,6 +4,7 @@ GIFs de ultimos 30 dias para el dashboard.
 Salida fija: docs/timelapses_landsat/{Volcano}_{tipo}.gif
 """
 import os, glob
+import numpy as np
 from PIL import Image, ImageDraw, ImageFont
 from datetime import datetime, timedelta
 import pytz
@@ -74,6 +75,30 @@ def agregar_overlay(img, fecha, tipo, logo, buffer_km=3):
         bg = Image.new('RGB',final.size,(0,0,0)); bg.paste(final,(0,0),final); final=bg
     return final
 
+def cuantizar_reservando_rojos(img, n_rojo=32):
+    """Paleta de 256 con hasta n_rojo colores reservados para los pixeles rojos.
+
+    FIX 2026-11-16 (hallazgo 201 de la auditoria 2026-11-15): el GIF SWIR se
+    guardaba sin cuantizar a mano y Pillow elegia la paleta por frecuencia; los
+    pixeles de anomalia son pocos y quedaban fuera: Villarrica 2026-11-11 pasaba
+    de 173 rojos a 0 (0 % por posicion), Nevados de Chillan 548 a 0, Maca 82 a 0.
+    MAXCOVERAGE los conserva en 98-100 % pero sube el error medio hasta 4,1 por
+    canal. Reservar paleta para los rojos los conserva al 100 % con el mismo
+    error que antes (0,4 a 2,1). Rojo = R>150, R-G>80, R-B>80.
+    """
+    a = np.asarray(img.convert('RGB'))
+    r, g, b = (a[..., i].astype(int) for i in range(3))
+    m = (r > 150) & (r - g > 80) & (r - b > 80)
+    if not m.any():
+        return img.quantize(256, method=Image.Quantize.MEDIANCUT)
+    n = min(n_rojo, int(m.sum()))
+    rojos = Image.fromarray(a[m].reshape(-1, 1, 3))
+    pal_rojo = rojos.quantize(n, method=Image.Quantize.MEDIANCUT).getpalette()[:3 * n]
+    pal_resto = img.quantize(256 - n, method=Image.Quantize.MEDIANCUT).getpalette()[:3 * (256 - n)]
+    paleta = Image.new('P', (1, 1))
+    paleta.putpalette(pal_rojo + pal_resto)
+    return img.convert('RGB').quantize(palette=paleta, dither=Image.Dither.NONE)
+
 def generar_gif_auto(volcan, tipo, logo, buffer_km=None):
     print(f"\nAuto: {volcan} / {tipo}")
     carpeta = f"docs/landsat/{volcan}"
@@ -100,6 +125,8 @@ def generar_gif_auto(volcan, tipo, logo, buffer_km=None):
     if tipo.upper() == 'THERMAL':
         frames = [img.quantize(colors=256,method=Image.Quantize.MAXCOVERAGE)
                   if img.mode=='RGB' else img for img in imagenes]
+    elif tipo.upper() == 'SWIR':
+        frames = [cuantizar_reservando_rojos(img) for img in imagenes]
     else:
         frames = imagenes
     frames[0].save(out, save_all=True, append_images=frames[1:],
