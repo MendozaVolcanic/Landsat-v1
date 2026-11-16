@@ -75,6 +75,20 @@ def agregar_overlay(img, fecha, tipo, logo, buffer_km=3):
         bg = Image.new('RGB',final.size,(0,0,0)); bg.paste(final,(0,0),final); final=bg
     return final
 
+def _es_rojo(c):
+    r, g, b = (c[..., i].astype(int) for i in range(3))
+    return (r > 150) & (r - g > 80) & (r - b > 80)
+
+def _mas_cercano(colores, paleta):
+    """Indice del color de paleta mas cercano (exacto, distancia euclidiana)."""
+    out = np.empty(len(colores), dtype=np.int32)
+    p = paleta.astype(np.int32)
+    for i in range(0, len(colores), 4096):
+        c = colores[i:i + 4096].astype(np.int32)
+        d = ((c[:, None, :] - p[None, :, :]) ** 2).sum(axis=2)
+        out[i:i + 4096] = d.argmin(axis=1)
+    return out
+
 def cuantizar_reservando_rojos(img, n_rojo=32):
     """Paleta de 256 con hasta n_rojo colores reservados para los pixeles rojos.
 
@@ -82,22 +96,43 @@ def cuantizar_reservando_rojos(img, n_rojo=32):
     guardaba sin cuantizar a mano y Pillow elegia la paleta por frecuencia; los
     pixeles de anomalia son pocos y quedaban fuera: Villarrica 2026-11-11 pasaba
     de 173 rojos a 0 (0 % por posicion), Nevados de Chillan 548 a 0, Maca 82 a 0.
-    MAXCOVERAGE los conserva en 98-100 % pero sube el error medio hasta 4,1 por
-    canal. Reservar paleta para los rojos los conserva al 100 % con el mismo
-    error que antes (0,4 a 2,1). Rojo = R>150, R-G>80, R-B>80.
+
+    La asignacion se hace a mano y por grupos: un pixel rojo solo puede tomar un
+    color rojo y uno no rojo solo un color no rojo. Una primera version dejaba
+    la asignacion a Pillow, que es aproximada, y pintaba de rojo pixeles marrones
+    o magenta (Nevados de Chillan: 788 rojos falsos sobre 548 reales). Asi el GIF
+    no pierde anomalias ni inventa otras. Rojo = R>150, R-G>80, R-B>80.
     """
-    a = np.asarray(img.convert('RGB'))
-    r, g, b = (a[..., i].astype(int) for i in range(3))
-    m = (r > 150) & (r - g > 80) & (r - b > 80)
-    if not m.any():
-        return img.quantize(256, method=Image.Quantize.MEDIANCUT)
+    rgb = img.convert('RGB')
+    a = np.asarray(rgb)
+    h, w, _ = a.shape
+    plano = a.reshape(-1, 3)
+    m = _es_rojo(plano)
     n = min(n_rojo, int(m.sum()))
-    rojos = Image.fromarray(a[m].reshape(-1, 1, 3))
-    pal_rojo = rojos.quantize(n, method=Image.Quantize.MEDIANCUT).getpalette()[:3 * n]
-    pal_resto = img.quantize(256 - n, method=Image.Quantize.MEDIANCUT).getpalette()[:3 * (256 - n)]
-    paleta = Image.new('P', (1, 1))
-    paleta.putpalette(pal_rojo + pal_resto)
-    return img.convert('RGB').quantize(palette=paleta, dither=Image.Dither.NONE)
+    if n:
+        rojos = Image.fromarray(plano[m].reshape(-1, 1, 3))
+        pal_rojo = np.array(rojos.quantize(n, method=Image.Quantize.MEDIANCUT)
+                            .getpalette()[:3 * n], dtype=np.uint8).reshape(-1, 3)
+    else:
+        pal_rojo = np.zeros((0, 3), dtype=np.uint8)
+    n_resto = 256 - len(pal_rojo)
+    resto = Image.fromarray(plano[~m].reshape(-1, 1, 3))
+    pal_resto = np.array(resto.quantize(n_resto, method=Image.Quantize.MEDIANCUT)
+                         .getpalette()[:3 * n_resto], dtype=np.uint8).reshape(-1, 3)
+    # Un promedio de colores no rojos podria caer dentro del rango rojo: se
+    # lleva al borde para que nunca cuente como anomalia.
+    falso = _es_rojo(pal_resto)
+    pal_resto[falso, 0] = np.minimum(pal_resto[falso, 0],
+                                     pal_resto[falso, 1:].max(axis=1).astype(int) + 80).astype(np.uint8)
+    idx = np.empty(len(plano), dtype=np.uint8)
+    for grupo, pal, base in ((m, pal_rojo, 0), (~m, pal_resto, len(pal_rojo))):
+        if not grupo.any():
+            continue
+        unicos, inv = np.unique(plano[grupo], axis=0, return_inverse=True)
+        idx[grupo] = (_mas_cercano(unicos, pal)[inv.ravel()] + base).astype(np.uint8)
+    out = Image.fromarray(idx.reshape(h, w), 'P')
+    out.putpalette(np.concatenate([pal_rojo, pal_resto]).ravel().tolist())
+    return out
 
 def generar_gif_auto(volcan, tipo, logo, buffer_km=None):
     print(f"\nAuto: {volcan} / {tipo}")
