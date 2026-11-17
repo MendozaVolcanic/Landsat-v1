@@ -1061,7 +1061,8 @@ cargarDatos();
 // =============================================================
 // Composicion RGB-multidate (Howarth 1981):
 //   R = fecha A (luminancia), G = fecha B (luminancia), B = (lumA + lumB)/2
-//   sin cambio -> grises/blancos; aparecio en B -> cian; desaparecio -> rojo
+//   sin cambio -> grises; mas claro en B -> cian; mas claro en A -> rojo (brillo)
+//   Termicos: ver FICHA SDA de cvGenerarHeatmap (rojez / temperatura).
 //
 // IMPORTANTE: opera sobre PNGs renderizados (RGB / SWIR / THERMAL), NO sobre
 // bandas crudas. Es aproximación visual, no medida radiométrica.
@@ -1129,7 +1130,64 @@ function cvColorDivergente(valor) {
     }
 }
 
-function cvGenerarHeatmap(imgA, imgB, canvas, sensPct) {
+// ════════════════════════════════════════════════════════════════════
+// FICHA SDA · comparador de fechas (change_detection.html)
+// Objetivo      : mostrar al turno qué cambió entre dos fechas del mismo volcán,
+//                 en particular si una anomalía térmica apareció o desapareció.
+// Lógica        : colapsa cada píxel a una sola magnitud según el producto y resta B - A.
+//                 Térmicos (falso color SWIR): ROJEZ = max(0, R - max(G,B)).
+//                 THERMAL Landsat: temperatura recuperada de la paleta (-20 a 80 °C).
+//                 Color verdadero: luminancia Rec.601 (sólo dice "se aclaró / se oscureció").
+// Modelo/método : reglas determinísticas y un umbral fijo de rojez (CV_UMBRAL_ROJEZ).
+// Datos entrada : PNG satelitales ya publicados; sin datos personales.
+// Variables     : producto elegido, fechas A y B, umbrales de los deslizadores.
+// Limitaciones  : opera sobre PNG de 8 bits, no sobre radiancia; un rojo débil (rojez
+//                 30 a 80) puede ser anomalía tenue o roca rojiza; nubes sobre la anomalía
+//                 en B la hacen "desaparecer" aunque siga activa.
+// Refs/datos    : Howarth y Wickware 1981 (RGB-multidate); calibración del umbral en
+//                 _auditorias/2026-11-15_cadena_imagenes (hallazgo 202), 2026-11-17.
+// ════════════════════════════════════════════════════════════════════
+
+// POR QUÉ: en el falso color SWIR una anomalía es roja porque SWIR2 domina a los otros
+// dos canales, no porque sea brillante. Nieve y nube son MÁS brillantes que un píxel
+// caliente, así que restar luminancia pintaba una anomalía nueva sobre nieve como
+// "desapareció" (Villarrica S2 13-nov contra 05-nov: 128 de 128 del lado equivocado).
+// La rojez mide el dominio del rojo y vale cerca de 0 en nieve, nube y roca.
+// Calibración 2026-11-17 (34 PNG reales S2 y Landsat): nieve y nube máx 22, roca y
+// vegetación p99.99 = 27; las 2.015 anomalías confirmadas (rojo laxo) tienen rojez >= 81.
+const CV_UMBRAL_ROJEZ = 30;
+
+// Modo de comparación con que se generó la imagen en caché (los deslizadores
+// regeneran sobre esas mismas imágenes aunque el botón de producto haya cambiado).
+let cvModoCache = 'lum';
+
+function cvModoDeTipo(tipo) {
+    if (tipo === 'ThermalFalseColor' || tipo === 'SWIR') return 'rojez';
+    if (tipo === 'THERMAL') return 'temp';
+    return 'lum';
+}
+
+// Magnitud escalar 0-255 de un píxel según el modo.
+function cvMagnitud(d, i, modo) {
+    const r = d[i], g = d[i + 1], b = d[i + 2];
+    if (modo === 'rojez') return Math.max(0, r - Math.max(g, b));
+    if (modo === 'temp') {
+        // POR QUÉ: la paleta THERMAL de Landsat va de azul (-20 °C) a amarillo (30 °C)
+        // a rojo (80 °C). Su luminancia sube hasta el amarillo y luego BAJA, así que un
+        // píxel más caliente puede verse más oscuro. (R - B + 255 - G) / 2 recupera la
+        // posición exacta en la escala (verificado: 0 píxeles fuera de paleta).
+        return (r - b + 255 - g) / 2;   // 0 = -20 °C, 255 = 80 °C
+    }
+    return 0.299 * r + 0.587 * g + 0.114 * b;
+}
+
+// POR QUÉ: en THERMAL el negro no existe en la paleta (el frío es azul), así que
+// negro = sin dato; si no se excluye se leería como 30 °C.
+function cvSinDato(d, i, modo) {
+    return modo === 'temp' && d[i] < 8 && d[i + 1] < 8 && d[i + 2] < 8;
+}
+
+function cvGenerarHeatmap(imgA, imgB, canvas, sensPct, modo = cvModoCache) {
     const W = Math.min(imgA.naturalWidth || 800, imgB.naturalWidth || 800);
     const H = Math.min(imgA.naturalHeight || 800, imgB.naturalHeight || 800);
     canvas.width = W;
@@ -1139,38 +1197,39 @@ function cvGenerarHeatmap(imgA, imgB, canvas, sensPct) {
     const dataB = cvDrawToOffscreen(imgB, W, H).data;
     const out = ctx.createImageData(W, H);
 
+    // Umbral en unidades [0,255]: sensPct% del rango total
     const umbral = (sensPct / 100) * 255;
 
     for (let i = 0; i < dataA.length; i += 4) {
-        const lumA = 0.299 * dataA[i] + 0.587 * dataA[i + 1] + 0.114 * dataA[i + 2];
-        const lumB = 0.299 * dataB[i] + 0.587 * dataB[i + 1] + 0.114 * dataB[i + 2];
-        const diff = lumB - lumA;
-
+        out.data[i + 3] = 255;
+        if (cvSinDato(dataA, i, modo) || cvSinDato(dataB, i, modo)) {
+            out.data[i] = out.data[i + 1] = out.data[i + 2] = 20;   // sin dato -> negro
+            continue;
+        }
+        // Positivo = más en B (más rojez, más caliente o más claro según el modo).
+        const diff = cvMagnitud(dataB, i, modo) - cvMagnitud(dataA, i, modo);   // [-255, 255]
         if (Math.abs(diff) < umbral) {
-            out.data[i]     = 240;
-            out.data[i + 1] = 240;
-            out.data[i + 2] = 240;
-            out.data[i + 3] = 255;
+            out.data[i] = out.data[i + 1] = out.data[i + 2] = 240;   // sin cambio -> blanco
         } else {
-            const norm = Math.max(-1, Math.min(1, diff / 255));
-            const c = cvColorDivergente(norm);
+            const c = cvColorDivergente(Math.max(-1, Math.min(1, diff / 255)));
             out.data[i]     = c[0];
             out.data[i + 1] = c[1];
             out.data[i + 2] = c[2];
-            out.data[i + 3] = 255;
         }
     }
     ctx.putImageData(out, 0, 0);
 }
 
-// --- Highlight overlay (Hansen 2013 style) ---
-function cvGenerarHighlight(imgA, imgB, canvas, opacidadPct, umbralPct) {
+// --- Highlight overlay (Técnica #3, Hansen 2013 style) ---
+// Imagen base = fecha B. Color verdadero: máscara roja donde |Δluminancia| > umbral
+// (cambio de brillo sin dirección). Térmicos: rojo donde AUMENTA la rojez o la
+// temperatura y cian donde DISMINUYE, porque la dirección es lo que importa al turno.
+function cvGenerarHighlight(imgA, imgB, canvas, opacidadPct, umbralPct, modo = cvModoCache) {
     const W = Math.min(imgA.naturalWidth || 800, imgB.naturalWidth || 800);
     const H = Math.min(imgA.naturalHeight || 800, imgB.naturalHeight || 800);
     canvas.width = W;
     canvas.height = H;
     const ctx = canvas.getContext('2d');
-
     ctx.drawImage(imgB, 0, 0, W, H);
 
     const dataA = cvDrawToOffscreen(imgA, W, H).data;
@@ -1180,20 +1239,18 @@ function cvGenerarHighlight(imgA, imgB, canvas, opacidadPct, umbralPct) {
     const umbralAbs = (umbralPct / 100) * 255;
     const opacFactor = opacidadPct / 100;
     for (let i = 0; i < dataA.length; i += 4) {
-        const lumA = 0.299 * dataA[i] + 0.587 * dataA[i + 1] + 0.114 * dataA[i + 2];
-        const lumB = 0.299 * dataB[i] + 0.587 * dataB[i + 1] + 0.114 * dataB[i + 2];
-        const diff = Math.abs(lumB - lumA);
-        if (diff > umbralAbs) {
-            const intensity = Math.min(1, diff / 255);
-            mask.data[i]     = 255;
-            mask.data[i + 1] = 0;
-            mask.data[i + 2] = 0;
-            mask.data[i + 3] = Math.round(intensity * 255 * opacFactor);
-        } else {
-            mask.data[i + 3] = 0;
-        }
+        mask.data[i + 3] = 0;
+        if (cvSinDato(dataA, i, modo) || cvSinDato(dataB, i, modo)) continue;
+        const diff = cvMagnitud(dataB, i, modo) - cvMagnitud(dataA, i, modo);
+        if (Math.abs(diff) <= umbralAbs) continue;
+        const sube = modo === 'lum' || diff > 0;
+        mask.data[i]     = sube ? 255 : 0;
+        mask.data[i + 1] = sube ? 0 : 220;
+        mask.data[i + 2] = sube ? 0 : 255;
+        mask.data[i + 3] = Math.round(Math.min(1, Math.abs(diff) / 255) * 255 * opacFactor);
     }
 
+    // putImageData ignora el alpha previo: se compone con un canvas temporal
     const maskCanvas = document.createElement('canvas');
     maskCanvas.width = W;
     maskCanvas.height = H;
@@ -1201,7 +1258,7 @@ function cvGenerarHighlight(imgA, imgB, canvas, opacidadPct, umbralPct) {
     ctx.drawImage(maskCanvas, 0, 0);
 }
 
-function cvGenerarComposicion(imgA, imgB, canvas) {
+function cvGenerarComposicion(imgA, imgB, canvas, modo = cvModoCache) {
     const W = Math.min(imgA.naturalWidth || 800, imgB.naturalWidth || 800);
     const H = Math.min(imgA.naturalHeight || 800, imgB.naturalHeight || 800);
     canvas.width = W;
@@ -1212,12 +1269,33 @@ function cvGenerarComposicion(imgA, imgB, canvas) {
     const out = ctx.createImageData(W, H);
 
     for (let i = 0; i < dataA.length; i += 4) {
-        const lumA = 0.299 * dataA[i] + 0.587 * dataA[i + 1] + 0.114 * dataA[i + 2];
-        const lumB = 0.299 * dataB[i] + 0.587 * dataB[i + 1] + 0.114 * dataB[i + 2];
-        out.data[i]     = lumA;
-        out.data[i + 1] = lumB;
-        out.data[i + 2] = (lumA + lumB) / 2;
         out.data[i + 3] = 255;
+        if (modo === 'rojez') {
+            // POR QUÉ: una composición R=A, G=B de rojez sería negra casi entera y
+            // perdería el volcán. Base gris de la fecha B para ubicarse; encima rojo
+            // donde aparece rojez y cian donde desaparece.
+            const gris = 0.6 * cvMagnitud(dataB, i, 'lum');
+            const diff = cvMagnitud(dataB, i, 'rojez') - cvMagnitud(dataA, i, 'rojez');
+            if (diff >= CV_UMBRAL_ROJEZ) {
+                out.data[i] = 255; out.data[i + 1] = 40; out.data[i + 2] = 40;
+            } else if (diff <= -CV_UMBRAL_ROJEZ) {
+                out.data[i] = 0; out.data[i + 1] = 220; out.data[i + 2] = 255;
+            } else {
+                out.data[i] = out.data[i + 1] = out.data[i + 2] = gris;
+            }
+            continue;
+        }
+        if (cvSinDato(dataA, i, modo) || cvSinDato(dataB, i, modo)) {
+            out.data[i] = out.data[i + 1] = out.data[i + 2] = 0;
+            continue;
+        }
+        // Howarth 1981 sobre la magnitud del modo: R = A, G = B, azul = promedio.
+        // Más en A -> rojo; más en B -> cian; igual -> gris.
+        const vA = cvMagnitud(dataA, i, modo);
+        const vB = cvMagnitud(dataB, i, modo);
+        out.data[i]     = vA;
+        out.data[i + 1] = vB;
+        out.data[i + 2] = (vA + vB) / 2;
     }
     ctx.putImageData(out, 0, 0);
 }
@@ -1229,7 +1307,9 @@ function cvCrearUI() {
     section.appendChild(el('div', { className: 'subtitle' },
         'Técnica RGB-multidate (Howarth & Wickware, 1981). Compone dos fechas Landsat 8/9 en una sola imagen: ' +
         'el canal rojo trae la fecha A, el verde trae la fecha B y el azul es el promedio. ' +
-        'Las zonas sin cambio aparecen en grises/blancos; las que aparecieron en B se ven cian; las que desaparecieron se ven rojas. ' +
+        'Las zonas sin cambio aparecen en grises/blancos; lo más claro en B se ve cian y lo más claro en A se ve rojo (en color verdadero eso es brillo, no presencia). ' +
+        'En los productos térmicos la comparación usa la rojez (anomalía) o la temperatura, no el brillo: ' +
+        'nieve y nube son más brillantes que un píxel caliente y engañarían a la resta. ' +
         'Opera sobre los PNG ya renderizados (RGB / SWIR / THERMAL) — aproximación visual, no medida radiométrica.'));
 
     const controles = el('div', { className: 'cv-controles' });
@@ -1450,6 +1530,7 @@ function cvSetTipo(tipo) {
     document.querySelectorAll('#cv-section .cv-toggle-btn[data-tipo]').forEach(b => {
         b.classList.toggle('active', b.getAttribute('data-tipo') === tipo);
     });
+    cvRenderLeyenda();
 }
 
 function cvSetVisualizacion(vis) {
@@ -1510,12 +1591,12 @@ function cvRenderLeyenda() {
     const leyenda = document.getElementById('cv-leyenda');
     if (!leyenda) return;
     clearEl(leyenda);
-
-    if (cvTipoVisualizacion === 'highlight') {
-        const items = [
-            ['rgba(255, 0, 0, 0.7)', 'Áreas con cambio significativo (>' + cvHlUmbral + '%)'],
-            ['rgb(220, 220, 220)',   'Áreas estables (sin cambio sobre umbral)']
-        ];
+    // Con imágenes en caché la leyenda describe lo que está dibujado; si no, el botón elegido.
+    const modo = cvImgACache ? cvModoCache : cvModoDeTipo(cvTipoImagen);
+    // POR QUÉ: cada modo mide una magnitud distinta, y la leyenda tiene que decir
+    // exactamente lo que se midió. En color verdadero sólo se puede afirmar "se
+    // aclaró / se oscureció"; "apareció / desapareció" se reserva a la rojez térmica.
+    const pinta = (items) => {
         for (const [color, txt] of items) {
             const item = el('div', { className: 'cv-leyenda-item' });
             const sw = el('div', { className: 'cv-leyenda-swatch' });
@@ -1523,46 +1604,50 @@ function cvRenderLeyenda() {
             item.appendChild(sw);
             item.appendChild(text(txt));
             leyenda.appendChild(item);
+        }
+    };
+    const masB = { rojez: 'más rojez térmica en B (anomalía apareció o creció)',
+                   temp:  'más caliente en B',
+                   lum:   'más claro en B (se aclaró)' }[modo];
+    const masA = { rojez: 'menos rojez térmica en B (anomalía desapareció, se debilitó o quedó bajo nube)',
+                   temp:  'más frío en B',
+                   lum:   'más oscuro en B (se oscureció)' }[modo];
+
+    if (cvTipoVisualizacion === 'highlight') {
+        if (modo === 'lum') {
+            pinta([['rgba(255, 0, 0, 0.7)', 'Cambio de brillo mayor a ' + cvHlUmbral + '% (sin dirección: se aclaró o se oscureció)'],
+                   ['rgb(220, 220, 220)',   'Estable (bajo el umbral)']]);
+        } else {
+            pinta([['rgba(255, 0, 0, 0.7)',   'Rojo: ' + masB + ' (más de ' + cvHlUmbral + '%)'],
+                   ['rgba(0, 220, 255, 0.7)', 'Cian: ' + masA + ' (más de ' + cvHlUmbral + '%)'],
+                   ['rgb(220, 220, 220)',     'Estable (bajo el umbral)']]);
         }
         return;
     }
 
     if (cvTipoVisualizacion === 'heatmap') {
-        const items = [
-            ['rgb(0,50,150)',    'Cambio negativo fuerte (A ≫ B, desapareció)'],
-            ['rgb(0,200,200)',   'Cambio negativo leve (A > B)'],
-            ['rgb(240,240,240)', 'Sin cambio (bajo umbral)'],
-            ['rgb(255,165,0)',   'Cambio positivo leve (B > A)'],
-            ['rgb(200,0,50)',    'Cambio positivo fuerte (B ≫ A, apareció)']
-        ];
-        for (const [color, txt] of items) {
-            const item = el('div', { className: 'cv-leyenda-item' });
-            const sw = el('div', { className: 'cv-leyenda-swatch' });
-            sw.style.background = color;
-            item.appendChild(sw);
-            item.appendChild(text(txt));
-            leyenda.appendChild(item);
-        }
+        pinta([['rgb(0,50,150)',    'Negativo fuerte: ' + masA],
+               ['rgb(0,200,200)',   'Negativo leve'],
+               ['rgb(240,240,240)', 'Sin cambio (bajo umbral)'],
+               ['rgb(255,165,0)',   'Positivo leve'],
+               ['rgb(200,0,50)',    'Positivo fuerte: ' + masB]]);
         const cbar = el('div', { className: 'cv-colorbar' });
         cbar.appendChild(text('−'));
         cbar.appendChild(el('div', { className: 'cv-colorbar-gradient' }));
         cbar.appendChild(text('+'));
         leyenda.appendChild(cbar);
+        return;
+    }
+
+    if (modo === 'rojez') {
+        pinta([['rgb(255, 40, 40)',   'Rojo: apareció o creció una anomalía (rojez sube ' + CV_UMBRAL_ROJEZ + ' o más)'],
+               ['rgb(0, 220, 255)',   'Cian: la anomalía de A no está en B (desapareció, se debilitó o la tapa una nube)'],
+               ['rgb(130, 130, 130)', 'Gris: fecha B sin cambio de rojez']]);
     } else {
-        const items = [
-            ['rgb(220, 60, 60)',   'Rojo → desapareció (estaba en A, no en B)'],
-            ['rgb(80, 200, 220)',  'Cian → apareció (no estaba en A, ahora en B)'],
-            ['rgb(220, 220, 220)', 'Gris / blanco → sin cambio'],
-            ['rgb(20, 20, 20)',    'Negro → sin cobertura / nubes en ambas']
-        ];
-        for (const [color, txt] of items) {
-            const item = el('div', { className: 'cv-leyenda-item' });
-            const sw = el('div', { className: 'cv-leyenda-swatch' });
-            sw.style.background = color;
-            item.appendChild(sw);
-            item.appendChild(text(txt));
-            leyenda.appendChild(item);
-        }
+        pinta([['rgb(220, 60, 60)',   'Rojo: ' + masA],
+               ['rgb(80, 200, 220)',  'Cian: ' + masB],
+               ['rgb(220, 220, 220)', 'Gris / blanco: sin cambio'],
+               ['rgb(20, 20, 20)',    'Negro: oscuro en ambas fechas o sin dato']]);
     }
 }
 
@@ -1644,22 +1729,27 @@ async function cvGenerarYRenderizar() {
         imgEB.style.display = 'block';
 
         const canvas = document.getElementById('cv-canvas-composite');
+        cvModoCache = cvModoDeTipo(cvTipoImagen);
+        const queMide = { rojez: 'rojez térmica', temp: 'temperatura de la paleta', lum: 'brillo' }[cvModoCache];
         let mensajeOk;
         if (cvTipoVisualizacion === 'heatmap') {
             cvGenerarHeatmap(imgA, imgB, canvas, cvSensibilidad);
-            mensajeOk = 'Heatmap generado (' + canvas.width + '×' + canvas.height + ' px, umbral ' +
-                cvSensibilidad + '%). Rojo = pixeles más brillantes en ' + fechaB +
-                ' · Azul = más brillantes en ' + fechaA + '.';
+            mensajeOk = 'Heatmap de ' + queMide + ' generado (' + canvas.width + '×' + canvas.height + ' px, umbral ' +
+                cvSensibilidad + '%). Rojo = más ' + queMide + ' en ' + fechaB +
+                ' · Azul = más ' + queMide + ' en ' + fechaA + '.';
         } else if (cvTipoVisualizacion === 'highlight') {
             cvGenerarHighlight(imgA, imgB, canvas, cvHlOpacidad, cvHlUmbral);
-            mensajeOk = 'Highlight overlay generado (' + canvas.width + '×' + canvas.height +
-                ' px). Máscara roja sobre ' + fechaB + ' donde |Δluminancia| > ' + cvHlUmbral +
-                '% (opacidad ' + cvHlOpacidad + '%). Movés los sliders para re-renderizar en vivo.';
+            mensajeOk = 'Highlight de ' + queMide + ' generado (' + canvas.width + '×' + canvas.height +
+                ' px) sobre ' + fechaB + ', umbral ' + cvHlUmbral + '%, opacidad ' + cvHlOpacidad +
+                '%. Mueve los deslizadores para regenerar en vivo.';
         } else {
             cvGenerarComposicion(imgA, imgB, canvas);
-            mensajeOk = 'Comparación generada (' + canvas.width + '×' + canvas.height + ' px). ' +
-                'Cian = apareció en ' + fechaB + ' · Rojo = desapareció de ' + fechaA + '.';
+            mensajeOk = 'Comparación de ' + queMide + ' generada (' + canvas.width + '×' + canvas.height + ' px). ' +
+                (cvModoCache === 'rojez'
+                    ? 'Rojo = anomalía que aparece en ' + fechaB + ' · Cian = anomalía de ' + fechaA + ' que ya no se ve.'
+                    : 'Cian = más ' + queMide + ' en ' + fechaB + ' · Rojo = más ' + queMide + ' en ' + fechaA + '.');
         }
+        cvRenderLeyenda();
 
         status.className = 'cv-status';
         status.textContent = mensajeOk;
