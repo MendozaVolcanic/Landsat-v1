@@ -1,5 +1,5 @@
 {
-  "generado_utc": "2026-11-24T13:14:49.916672+00:00",
+  "generado_utc": "2026-11-24T23:00:14.451462+00:00",
   "ciclo_dias_por_satelite": 16,
   "ciclo_combinado_aprox_dias": "4-8 (segun solape de path/rows)",
   "latencia_l2": {
@@ -19,11 +19,11 @@
       "zona": "Norte",
       "hora_utc_estimada": "14:45",
       "hora_chile_estimada": "11:45",
-      "ultima_imagen": "2026-11-16",
+      "ultima_imagen": "2026-11-24",
       "revisita_mediana_d": 8,
       "satelites": {
         "Landsat-8": {
-          "ultima_observacion": "2026-11-08",
+          "ultima_observacion": "2026-11-24",
           "proximas": [
             "2026-11-24",
             "2026-12-10",
@@ -80,11 +80,11 @@
       "zona": "Norte",
       "hora_utc_estimada": "14:45",
       "hora_chile_estimada": "11:45",
-      "ultima_imagen": "2026-11-17",
+      "ultima_imagen": "2026-11-24",
       "revisita_mediana_d": 7,
       "satelites": {
         "Landsat-8": {
-          "ultima_observacion": "2026-11-17",
+          "ultima_observacion": "2026-11-24",
           "proximas": [
             "2026-11-24",
             "2026-12-03",
@@ -114,7 +114,7 @@
         {
           "fecha": "2026-11-24",
           "sat": "Landsat-8",
-          "confianza": "baja",
+          "confianza": "alta",
           "hora_chile": "11:45"
         },
         {
@@ -138,7 +138,7 @@
         {
           "fecha": "2026-12-10",
           "sat": "Landsat-8",
-          "confianza": "baja",
+          "confianza": "alta",
           "hora_chile": "11:45"
         },
         {
@@ -162,7 +162,7 @@
         {
           "fecha": "2026-12-26",
           "sat": "Landsat-8",
-          "confianza": "baja",
+          "confianza": "alta",
           "hora_chile": "11:45"
         },
         {
